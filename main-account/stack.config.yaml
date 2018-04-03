@@ -1,0 +1,11 @@
+stack: assume-role-users-groups
+region: eu-central-1
+capabilities:
+  - CAPABILITY_NAMED_IAM
+vars:
+  assume:
+    development: 123456789
+  users:
+    fmotlik:
+      - admin
+      - development

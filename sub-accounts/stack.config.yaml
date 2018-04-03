@@ -1,0 +1,4 @@
+stack: assume-role-admin
+region: eu-central-1
+capabilities:
+  - CAPABILITY_NAMED_IAM

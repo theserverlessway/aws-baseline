@@ -1,0 +1,16 @@
+Resources:
+{% for group in assume.keys() %}
+  {{ group | resource }}Group:
+    Properties:
+      GroupName: {{ group }}
+      Path: /{{group}}/
+      Policies:
+      - PolicyDocument:
+          Statement:
+            - Action:
+                - sts:AssumeRole
+              Effect: Allow
+              Resource: arn:aws:iam::{{ assume[group] }}:role/admin
+        PolicyName: {{group | resource }}Policy
+    Type: AWS::IAM::Group
+{% endfor %}

@@ -1,0 +1,29 @@
+Parameters:
+  MasterAccount:
+    Type: String
+  MFA:
+    Type: String
+    Default: true
+    AllowedValues: [true, false]
+
+Conditions:
+  HasMFAEnabled: !Equals [true, !Ref MFA]
+
+Resources:
+  AssumableAdminRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            AWS: !Ref MasterAccount
+          Action: sts:AssumeRole
+          Condition:
+            Fn::If:
+              - HasMFAEnabled
+              - {"Bool": {"aws:MultiFactorAuthPresent": true}}
+              - !Ref AWS::NoValue
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
+      RoleName: admin
+    Type: AWS::IAM::Role

@@ -1,0 +1,27 @@
+Resources:
+  AdminGroup:
+    Properties:
+      GroupName: admin
+      Path: /admin/
+      Policies:
+      - PolicyDocument:
+          Statement:
+            - Action:
+                - '*'
+              Effect: Allow
+              Resource: '*'
+        PolicyName: AdminPolicy
+    Type: AWS::IAM::Group
+  AccountListing:
+    Properties:
+      GroupName: accountlist
+      Path: /admin/
+      Policies:
+      - PolicyDocument:
+          Statement:
+            - Action:
+                - 'organizations:ListAccounts'
+              Effect: Allow
+              Resource: '*'
+        PolicyName: AccountListing
+    Type: AWS::IAM::Group
