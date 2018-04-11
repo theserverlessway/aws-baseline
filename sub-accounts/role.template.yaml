@@ -1,9 +1,10 @@
 Parameters:
   MasterAccount:
     Type: String
+    Default: 987654321
   MFA:
     Type: String
-    Default: true
+    Default: false
     AllowedValues: [true, false]
 
 Conditions:
@@ -24,6 +25,55 @@ Resources:
               - {"Bool": {"aws:MultiFactorAuthPresent": true}}
               - !Ref AWS::NoValue
       ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/AdministratorAccess
+        - arn:aws:iam::aws:policy/AdministratorAccess
       RoleName: admin
+    Type: AWS::IAM::Role
+
+  AssumableCloudFormationRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            AWS: !Ref MasterAccount
+          Action: sts:AssumeRole
+          Condition:
+            Fn::If:
+              - HasMFAEnabled
+              - {"Bool": {"aws:MultiFactorAuthPresent": true}}
+              - !Ref AWS::NoValue
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+      Policies:
+        - PolicyName: ECRAccess
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Sid: AllowCloudFormation
+                Effect: Allow
+                Action:
+                  - cloudformation:*
+                Resource:
+                  - "*"
+              - Sid: PassingRoleToCloudFormation
+                Effect: Allow
+                Action:
+                  - iam:PassRole
+                  - iam:GetRole
+                Resource:
+                  - !GetAtt CloudFormationRole.Arn
+      RoleName: user
+    Type: AWS::IAM::Role
+
+  CloudFormationRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: cloudformation.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      RoleName: cloudformation
     Type: AWS::IAM::Role

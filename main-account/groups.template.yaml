@@ -10,6 +10,9 @@ Resources:
                 - '*'
               Effect: Allow
               Resource: '*'
+            - Action: sts:AssumeRole
+              Effect: Allow
+              Resource: arn:aws:iam::*:role/admin
         PolicyName: AdminPolicy
     Type: AWS::IAM::Group
   AccountListing:

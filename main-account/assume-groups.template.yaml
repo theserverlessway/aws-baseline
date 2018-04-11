@@ -1,5 +1,20 @@
 Resources:
 {% for group in assume.keys() %}
+  {{ group | resource }}AdminGroup:
+    Properties:
+      GroupName: {{ group }}-admin
+      Path: /{{group}}/admin/
+      Policies:
+      - PolicyDocument:
+          Statement:
+            - Action:
+                - sts:AssumeRole
+              Effect: Allow
+              Resource:
+                - arn:aws:iam::{{ assume[group] }}:role/admin
+                - arn:aws:iam::{{ assume[group] }}:role/user
+        PolicyName: {{group | resource }}Policy
+    Type: AWS::IAM::Group
   {{ group | resource }}Group:
     Properties:
       GroupName: {{ group }}
@@ -10,7 +25,7 @@ Resources:
             - Action:
                 - sts:AssumeRole
               Effect: Allow
-              Resource: arn:aws:iam::{{ assume[group] }}:role/admin
-        PolicyName: {{group | resource }}Policy
+              Resource: arn:aws:iam::{{ assume[group] }}:role/user
+        PolicyName: {{group | resource }}UserPolicy
     Type: AWS::IAM::Group
 {% endfor %}
