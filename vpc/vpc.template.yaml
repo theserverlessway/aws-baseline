@@ -1,12 +1,10 @@
+{% set AvailabilityZones = AvailabilityZones or 3 %}
+{% set SubnetIdentifiers = 'ABCDEFGHIJKL'[0:AvailabilityZones] %}
+
+# Based on the Cloudonaut VPC Template
+
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'VPC: public and private subnets in three availability zones, a cloudonaut.io template'
-Metadata:
-  'AWS::CloudFormation::Interface':
-    ParameterGroups:
-    - Label:
-        default: 'VPC Parameters'
-      Parameters:
-      - ClassB
+Description: 'VPC with public and private subnets in {{ AvailabilityZones }} Availability Zone'
 Parameters:
   ClassB:
     Description: 'Class B of VPC (10.XXX.0.0/16)'
@@ -15,6 +13,11 @@ Parameters:
     ConstraintDescription: 'Must be in the range [0-255]'
     MinValue: 0
     MaxValue: 255
+  PrivateNatGateway:
+    Description: 'Setting for creating Private Nat Gateways'
+    Type: String
+    Default: none
+    AllowedValues: ["none", "single", "all"]
 Resources:
   VPC:
     Type: 'AWS::EC2::VPC'
@@ -37,168 +40,79 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
-  SubnetAPublic:
+  {% for Identifier in SubnetIdentifiers %}
+  Subnet{{ Identifier }}Private:
     Type: 'AWS::EC2::Subnet'
     Properties:
-      AvailabilityZone: !Select [0, !GetAZs '']
-      CidrBlock: !Sub '10.${ClassB}.0.0/20'
-      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [{{loop.index - 1}}, !GetAZs '']
+      CidrBlock: !Sub '10.${ClassB}.{{(loop.index - 1)*32}}.0/20'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'A public'
+        Value: !Sub ${VPC}-'{{ Identifier }}-Private'
       - Key: Reach
-        Value: public
-  SubnetAPrivate:
-    Type: 'AWS::EC2::Subnet'
-    Properties:
-      AvailabilityZone: !Select [0, !GetAZs '']
-      CidrBlock: !Sub '10.${ClassB}.16.0/20'
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: 'A private'
-      - Key: Reach
-        Value: private
-  SubnetBPublic:
-    Type: 'AWS::EC2::Subnet'
-    Properties:
-      AvailabilityZone: !Select [1, !GetAZs '']
-      CidrBlock: !Sub '10.${ClassB}.32.0/20'
-      MapPublicIpOnLaunch: true
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: 'B public'
-      - Key: Reach
-        Value: public
-  SubnetBPrivate:
-    Type: 'AWS::EC2::Subnet'
-    Properties:
-      AvailabilityZone: !Select [1, !GetAZs '']
-      CidrBlock: !Sub '10.${ClassB}.48.0/20'
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: 'B private'
-      - Key: Reach
-        Value: private
-  SubnetCPublic:
-    Type: 'AWS::EC2::Subnet'
-    Properties:
-      AvailabilityZone: !Select [2, !GetAZs '']
-      CidrBlock: !Sub '10.${ClassB}.64.0/20'
-      MapPublicIpOnLaunch: true
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: 'C public'
-      - Key: Reach
-        Value: public
-  SubnetCPrivate:
-    Type: 'AWS::EC2::Subnet'
-    Properties:
-      AvailabilityZone: !Select [2, !GetAZs '']
-      CidrBlock: !Sub '10.${ClassB}.80.0/20'
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: 'C private'
-      - Key: Reach
-        Value: private
-  RouteTablePublic: # should be RouteTableAPublic, but logical id was not changed for backward compatibility
-    Type: 'AWS::EC2::RouteTable'
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: Public
-  RouteTablePrivate: # should be RouteTableAPrivate, but logical id was not changed for backward compatibility
-    Type: 'AWS::EC2::RouteTable'
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
         Value: Private
-  RouteTableBPublic:
+  Subnet{{ Identifier }}Public:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [{{loop.index - 1}}, !GetAZs '']
+      CidrBlock: !Sub '10.${ClassB}.{{(loop.index - 1)*32+16}}.0/20'
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: !Sub ${VPC}-'{{ Identifier }}-Public'
+      - Key: Reach
+        Value: Public
+
+  RouteTable{{ Identifier }}Public:
     Type: 'AWS::EC2::RouteTable'
     Properties:
       VpcId: !Ref VPC
       Tags:
-      - Key: Name
-        Value: 'B Public'
-  RouteTableBPrivate:
+        - Key: Name
+          Value: Public
+  RouteTable{{ Identifier }}Private:
     Type: 'AWS::EC2::RouteTable'
     Properties:
       VpcId: !Ref VPC
       Tags:
-      - Key: Name
-        Value: 'B Private'
-  RouteTableCPublic:
-    Type: 'AWS::EC2::RouteTable'
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: 'C Public'
-  RouteTableCPrivate:
-    Type: 'AWS::EC2::RouteTable'
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: 'C Private'
-  RouteTableAssociationAPublic:
+        - Key: Name
+          Value: Private
+
+  RouteTableAssociation{{ Identifier }}Public:
     Type: 'AWS::EC2::SubnetRouteTableAssociation'
     Properties:
-      SubnetId: !Ref SubnetAPublic
-      RouteTableId: !Ref RouteTablePublic
-  RouteTableAssociationAPrivate:
+      SubnetId: !Ref Subnet{{ Identifier }}Public
+      RouteTableId: !Ref RouteTable{{ Identifier }}Public
+
+  RouteTableAssociation{{ Identifier }}Private:
     Type: 'AWS::EC2::SubnetRouteTableAssociation'
     Properties:
-      SubnetId: !Ref SubnetAPrivate
-      RouteTableId: !Ref RouteTablePrivate
-  RouteTableAssociationBPublic:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
-    Properties:
-      SubnetId: !Ref SubnetBPublic
-      RouteTableId: !Ref RouteTableBPublic
-  RouteTableAssociationBPrivate:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
-    Properties:
-      SubnetId: !Ref SubnetBPrivate
-      RouteTableId: !Ref RouteTableBPrivate
-  RouteTableAssociationCPublic:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
-    Properties:
-      SubnetId: !Ref SubnetCPublic
-      RouteTableId: !Ref RouteTableCPublic
-  RouteTableAssociationCPrivate:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
-    Properties:
-      SubnetId: !Ref SubnetCPrivate
-      RouteTableId: !Ref RouteTableCPrivate
-  RouteTablePublicInternetRoute: # should be RouteTablePublicAInternetRoute, but logical id was not changed for backward compatibility
+      SubnetId: !Ref Subnet{{ Identifier }}Private
+      RouteTableId: !Ref RouteTable{{ Identifier }}Private
+
+  RouteTableInternetRoute{{ Identifier }}Public:
     Type: 'AWS::EC2::Route'
     DependsOn: VPCGatewayAttachment
     Properties:
-      RouteTableId: !Ref RouteTablePublic
+      RouteTableId: !Ref RouteTable{{ Identifier }}Public
       DestinationCidrBlock: '0.0.0.0/0'
       GatewayId: !Ref InternetGateway
-  RouteTablePublicBInternetRoute:
-    Type: 'AWS::EC2::Route'
-    DependsOn: VPCGatewayAttachment
+
+  SubnetNetworkAclAssociation{{ Identifier }}Public:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
     Properties:
-      RouteTableId: !Ref RouteTableBPublic
-      DestinationCidrBlock: '0.0.0.0/0'
-      GatewayId: !Ref InternetGateway
-  RouteTablePublicCInternetRoute:
-    Type: 'AWS::EC2::Route'
-    DependsOn: VPCGatewayAttachment
+      SubnetId: !Ref Subnet{{ Identifier }}Public
+      NetworkAclId: !Ref NetworkAclPublic
+
+  SubnetNetworkAclAssociation{{ Identifier }}Private:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
     Properties:
-      RouteTableId: !Ref RouteTableCPublic
-      DestinationCidrBlock: '0.0.0.0/0'
-      GatewayId: !Ref InternetGateway
+      SubnetId: !Ref Subnet{{ Identifier }}Private
+      NetworkAclId: !Ref NetworkAclPrivate
+  {% endfor %}
+
   NetworkAclPublic:
     Type: 'AWS::EC2::NetworkAcl'
     Properties:
@@ -213,36 +127,6 @@ Resources:
       Tags:
       - Key: Name
         Value: Private
-  SubnetNetworkAclAssociationAPublic:
-    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
-    Properties:
-      SubnetId: !Ref SubnetAPublic
-      NetworkAclId: !Ref NetworkAclPublic
-  SubnetNetworkAclAssociationAPrivate:
-    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
-    Properties:
-      SubnetId: !Ref SubnetAPrivate
-      NetworkAclId: !Ref NetworkAclPrivate
-  SubnetNetworkAclAssociationBPublic:
-    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
-    Properties:
-      SubnetId: !Ref SubnetBPublic
-      NetworkAclId: !Ref NetworkAclPublic
-  SubnetNetworkAclAssociationBPrivate:
-    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
-    Properties:
-      SubnetId: !Ref SubnetBPrivate
-      NetworkAclId: !Ref NetworkAclPrivate
-  SubnetNetworkAclAssociationCPublic:
-    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
-    Properties:
-      SubnetId: !Ref SubnetCPublic
-      NetworkAclId: !Ref NetworkAclPublic
-  SubnetNetworkAclAssociationCPrivate:
-    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
-    Properties:
-      SubnetId: !Ref SubnetCPrivate
-      NetworkAclId: !Ref NetworkAclPrivate
   NetworkAclEntryInPublicAllowAll:
     Type: 'AWS::EC2::NetworkAclEntry'
     Properties:
@@ -280,32 +164,15 @@ Resources:
       Egress: true
       CidrBlock: '0.0.0.0/0'
 Outputs:
-  TemplateID:
-    Description: 'cloudonaut.io template id'
-    Value: 'vpc/vpc-3azs'
+
   StackName:
     Description: 'Stack name'
     Value: !Sub '${AWS::StackName}'
   AZs:
     Description: 'AZs'
-    Value: 3
+    Value: {{ AvailabilityZones }}
     Export:
       Name: !Sub '${AWS::StackName}-AZs'
-  AZA:
-    Description: 'AZ of A'
-    Value: !Select [0, !GetAZs '']
-    Export:
-      Name: !Sub '${AWS::StackName}-AZA'
-  AZB:
-    Description: 'AZ of B'
-    Value: !Select [1, !GetAZs '']
-    Export:
-      Name: !Sub '${AWS::StackName}-AZB'
-  AZC:
-    Description: 'AZ of C'
-    Value: !Select [2, !GetAZs '']
-    Export:
-      Name: !Sub '${AWS::StackName}-AZC'
   ClassB:
     Description: 'Class B.'
     Value: !Ref ClassB
@@ -318,91 +185,68 @@ Outputs:
       Name: !Sub '${AWS::StackName}-VPC'
   SubnetsPublic:
     Description: 'Subnets public.'
-    Value: !Join [',', [!Ref SubnetAPublic, !Ref SubnetBPublic, !Ref SubnetCPublic]]
+    Value:
+      Fn::Join:
+        - ','
+        - {% for Identifier in SubnetIdentifiers%}
+          - !Ref Subnet{{ Identifier }}Public
+        {% endfor %}
     Export:
       Name: !Sub '${AWS::StackName}-SubnetsPublic'
   SubnetsPrivate:
     Description: 'Subnets private.'
-    Value: !Join [',', [!Ref SubnetAPrivate, !Ref SubnetBPrivate, !Ref SubnetCPrivate]]
+    Value:
+      Fn::Join:
+        - ','
+        - {% for Identifier in SubnetIdentifiers%}
+          - !Ref Subnet{{ Identifier }}Private
+        {% endfor %}
     Export:
       Name: !Sub '${AWS::StackName}-SubnetsPrivate'
-  RouteTablePrivate: # deprecated in v4, will be removed in v5
-    Description: 'Route table private (deprecated in v4, will be removed in v5).'
-    Value: !Ref RouteTablePrivate
-    Export:
-      Name: !Sub '${AWS::StackName}-RouteTablePrivate'
-  RouteTablePublic: # deprecated in v4, will be removed in v5
-    Description: 'Route table public (deprecated in v4, will be removed in v5).'
-    Value: !Ref RouteTablePublic
-    Export:
-      Name: !Sub '${AWS::StackName}-RouteTablePublic'
   RouteTablesPrivate:
     Description: 'Route tables private.'
-    Value: !Join [',', [!Ref RouteTablePrivate, !Ref RouteTableBPrivate, !Ref RouteTableCPrivate]]
+    Value:
+      Fn::Join:
+        - ','
+        - {% for Identifier in SubnetIdentifiers%}
+          - !Ref RouteTable{{ Identifier }}Private
+        {% endfor %}
     Export:
       Name: !Sub '${AWS::StackName}-RouteTablesPrivate'
   RouteTablesPublic:
     Description: 'Route tables public.'
-    Value: !Join [',', [!Ref RouteTablePublic, !Ref RouteTableBPublic, !Ref RouteTableCPublic]]
+    Value:
+      Fn::Join:
+        - ','
+        - {% for Identifier in SubnetIdentifiers%}
+          - !Ref RouteTable{{ Identifier }}Public
+          {% endfor %}
     Export:
       Name: !Sub '${AWS::StackName}-RouteTablesPublic'
-  SubnetAPublic:
-    Description: 'Subnet A public.'
-    Value: !Ref SubnetAPublic
+  {% for Identifier in SubnetIdentifiers%}
+  AZ{{ Identifier }}:
+    Description: 'AZ of {{ Identifier }}'
+    Value: !Select [{{loop.index - 1}}, !GetAZs '']
     Export:
-      Name: !Sub '${AWS::StackName}-SubnetAPublic'
-  RouteTableAPublic:
+      Name: !Sub '${AWS::StackName}-AZ{{ Identifier }}'
+  Subnet{{ Identifier }}Public:
+    Description: 'Subnet {{ Identifier }} public.'
+    Value: !Ref Subnet{{ Identifier }}Public
+    Export:
+      Name: !Sub '${AWS::StackName}-Subnet{{ Identifier }}Public'
+  RouteTable{{ Identifier }}Public:
     Description: 'Route table A public.'
-    Value: !Ref RouteTablePublic
+    Value: !Ref RouteTable{{ Identifier }}Public
     Export:
-      Name: !Sub '${AWS::StackName}-RouteTableAPublic'
-  SubnetAPrivate:
-    Description: 'Subnet A private.'
-    Value: !Ref SubnetAPrivate
+      Name: !Sub '${AWS::StackName}-RouteTable{{ Identifier }}Public'
+  Subnet{{ Identifier }}Private:
+    Description: 'Subnet {{ Identifier }} private.'
+    Value: !Ref Subnet{{ Identifier }}Private
     Export:
-      Name: !Sub '${AWS::StackName}-SubnetAPrivate'
-  RouteTableAPrivate:
-    Description: 'Route table A private.'
-    Value: !Ref RouteTablePrivate
+      Name: !Sub '${AWS::StackName}-Subnet{{ Identifier }}Private'
+  RouteTable{{ Identifier }}Private:
+    Description: 'Route table {{ Identifier }} private.'
+    Value: !Ref RouteTable{{ Identifier }}Private
     Export:
-      Name: !Sub '${AWS::StackName}-RouteTableAPrivate'
-  SubnetBPublic:
-    Description: 'Subnet B public.'
-    Value: !Ref SubnetBPublic
-    Export:
-      Name: !Sub '${AWS::StackName}-SubnetBPublic'
-  RouteTableBPublic:
-    Description: 'Route table B public.'
-    Value: !Ref RouteTableBPublic
-    Export:
-      Name: !Sub '${AWS::StackName}-RouteTableBPublic'
-  SubnetBPrivate:
-    Description: 'Subnet B private.'
-    Value: !Ref SubnetBPrivate
-    Export:
-      Name: !Sub '${AWS::StackName}-SubnetBPrivate'
-  RouteTableBPrivate:
-    Description: 'Route table B private.'
-    Value: !Ref RouteTableBPrivate
-    Export:
-      Name: !Sub '${AWS::StackName}-RouteTableBPrivate'
-  SubnetCPublic:
-    Description: 'Subnet C public.'
-    Value: !Ref SubnetCPublic
-    Export:
-      Name: !Sub '${AWS::StackName}-SubnetCPublic'
-  RouteTableCPublic:
-    Description: 'Route table C public.'
-    Value: !Ref RouteTableCPublic
-    Export:
-      Name: !Sub '${AWS::StackName}-RouteTableCPublic'
-  SubnetCPrivate:
-    Description: 'Subnet C private.'
-    Value: !Ref SubnetCPrivate
-    Export:
-      Name: !Sub '${AWS::StackName}-SubnetCPrivate'
-  RouteTableCPrivate:
-    Description: 'Route table C private.'
-    Value: !Ref RouteTableCPrivate
-    Export:
-      Name: !Sub '${AWS::StackName}-RouteTableCPrivate'
+      Name: !Sub '${AWS::StackName}-RouteTable{{ Identifier }}Private'
+  {% endfor %}
