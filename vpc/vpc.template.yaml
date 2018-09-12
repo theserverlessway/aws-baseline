@@ -18,6 +18,10 @@ Parameters:
     Type: String
     Default: none
     AllowedValues: ["none", "single", "all"]
+Conditions:
+  SingleNatGateway: !Equals ['single', !Ref PrivateNatGateway]
+  AllNatGateways: !Equals ['all', !Ref PrivateNatGateway]
+
 Resources:
   VPC:
     Type: 'AWS::EC2::VPC'
@@ -111,7 +115,46 @@ Resources:
     Properties:
       SubnetId: !Ref Subnet{{ Identifier }}Private
       NetworkAclId: !Ref NetworkAclPrivate
+
+  NatGateway{{ Identifier }}ElasticIp:
+    Condition: AllNatGateways
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  NatGateway{{ Identifier }}:
+    Condition: AllNatGateways
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 'NatGateway{{ Identifier }}ElasticIp.AllocationId'
+      SubnetId: !Ref Subnet{{ Identifier }}Public
+  NatGateway{{ Identifier }}Route:
+    Condition: AllNatGateways
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RouteTable{{ Identifier }}Private
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGateway{{ Identifier }}
+  SingleNatGateway{{ Identifier }}Route:
+    Condition: SingleNatGateway
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RouteTable{{ Identifier }}Private
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref SingleNatGateway
   {% endfor %}
+
+  SingleNatGatewayElasticIp:
+    Condition: SingleNatGateway
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  SingleNatGateway:
+    Condition: SingleNatGateway
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 'SingleNatGatewayElasticIp.AllocationId'
+      SubnetId: !Ref Subnet{{ SubnetIdentifiers[0] }}Public
+
 
   NetworkAclPublic:
     Type: 'AWS::EC2::NetworkAcl'
@@ -163,8 +206,8 @@ Resources:
       RuleAction: allow
       Egress: true
       CidrBlock: '0.0.0.0/0'
-Outputs:
 
+Outputs:
   StackName:
     Description: 'Stack name'
     Value: !Sub '${AWS::StackName}'

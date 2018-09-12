@@ -1,3 +1,5 @@
 stack: vpc-baseline
 vars:
   AvailabilityZones: 3
+parameters:
+  PrivateNatGateway: none
