@@ -1,7 +1,3 @@
-remove-role:
-	aws iam delete-role-policy --role-name OrganizationAccountAccessRole --policy-name AdministratorAccess
-	aws iam delete-role --role-name OrganizationAccountAccessRole
-
 new:
 	formica new -c stack.config.yaml
 	formica deploy -c stack.config.yaml
