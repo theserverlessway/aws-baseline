@@ -1,0 +1,5 @@
+Resources:
+  GuardDutyDetector:
+    Type: "AWS::GuardDuty::Detector"
+    Properties:
+      Enable: true
