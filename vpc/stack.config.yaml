@@ -1,2 +1,3 @@
-stack: vpc
-region: eu-central-1
+stack: vpc-baseline
+vars:
+  AvailabilityZones: 3
