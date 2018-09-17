@@ -1,4 +1,5 @@
 stack: vpc-baseline
+stack-set: vpc-baseline
 vars:
   AvailabilityZones: 3
 parameters:
