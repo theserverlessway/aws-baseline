@@ -1,14 +1,17 @@
 Parameters:
   MasterAccount:
     Type: String
-    Default: 987654321
   MFA:
     Type: String
     Default: false
     AllowedValues: [true, false]
+  AllowedRegions:
+    Type: String
+    Default: 'all'
 
 Conditions:
   HasMFAEnabled: !Equals [true, !Ref MFA]
+  HasRegionLimitation: !Not [!Equals ['all', !Ref AllowedRegions]]
 
 Resources:
   AssumableAdminRole:
@@ -24,8 +27,23 @@ Resources:
               - HasMFAEnabled
               - {"Bool": {"aws:MultiFactorAuthPresent": true}}
               - !Ref AWS::NoValue
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
+      Policies:
+        - PolicyName: AdminAccess
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Sid: AdminAccess
+                Effect: Allow
+                Action:
+                  - '*'
+                Resource:
+                  - '*'
+                Condition:
+                  Fn::If:
+                    - HasRegionLimitation
+                    - "ForAnyValue:StringEquals":
+                          "aws:RequestedRegion": !Split [',', !Ref AllowedRegions]
+                    - !Ref AWS::NoValue
       RoleName: admin
     Type: AWS::IAM::Role
 
@@ -45,7 +63,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
       Policies:
-        - PolicyName: ECRAccess
+        - PolicyName: CloudFormation
           PolicyDocument:
             Version: '2008-10-17'
             Statement:
@@ -55,6 +73,12 @@ Resources:
                   - cloudformation:*
                 Resource:
                   - "*"
+                Condition:
+                  Fn::If:
+                    - HasRegionLimitation
+                    - "ForAnyValue:StringEquals":
+                          "aws:RequestedRegion": !Split [',', !Ref AllowedRegions]
+                    - !Ref AWS::NoValue
               - Sid: PassingRoleToCloudFormation
                 Effect: Allow
                 Action:
@@ -62,6 +86,12 @@ Resources:
                   - iam:GetRole
                 Resource:
                   - !GetAtt CloudFormationRole.Arn
+                Condition:
+                  Fn::If:
+                    - HasRegionLimitation
+                    - "ForAnyValue:StringEquals":
+                          "aws:RequestedRegion": !Split [',', !Ref AllowedRegions]
+                    - !Ref AWS::NoValue
       RoleName: user
     Type: AWS::IAM::Role
 
@@ -73,7 +103,22 @@ Resources:
           Principal:
             Service: cloudformation.amazonaws.com
           Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
+      Policies:
+        - PolicyName: CloudFormationRoleAdmin
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Sid: CloudFormationRoleAdmin
+                Effect: Allow
+                Action:
+                  - '*'
+                Resource:
+                  - '*'
+                Condition:
+                  Fn::If:
+                    - HasRegionLimitation
+                    - "ForAnyValue:StringEquals":
+                          "aws:RequestedRegion": !Split [',', !Ref AllowedRegions]
+                    - !Ref AWS::NoValue
       RoleName: cloudformation
     Type: AWS::IAM::Role
