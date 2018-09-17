@@ -1,0 +1,20 @@
+Resources:
+  AWSCloudFormationStackSetAdministrationRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: cloudformation.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudFormationRoleAdmin
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Sid: CloudFormationStackSetAssumeRolePolicy
+                Effect: Allow
+                Action: sts:AssumeRole
+                Resource: arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole
+      RoleName: AWSCloudFormationStackSetAdministrationRole
+    Type: AWS::IAM::Role
