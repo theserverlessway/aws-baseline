@@ -1,12 +1,13 @@
 # Account Setup
 
-This repository contains the general Account Setup for the Organisation that can be used in other orgs as well. It contains several folders with CloudFormation stacks for different parts of the Org. If you want to use it yourself simply clone or fork it, make appropriate changes to your
+This repository contains the general Account Setup for the Organisation that can be used in other orgs as well. It contains several folders with CloudFormation stacks and stack-sets for different parts of the Org. If you want to use it yourself simply clone or fork it, make appropriate changes to your
 config files and watch out for additional changes in the future.
 
-* main-account: CloudFormation stack to set up the main organisation account
-* basic: PasswordPolicy, CloudTrail and Config setup
-* sub-accounts: CloudFormation stack to deploy into sub-accounts to enable users in the main account to log into sub-accounts
-* vpc: VPC stack that has to be deployed into every sub-account region that should be used
+The `main-account` folder contains a CloudFormation stack that should be deployed first into your main account. It
+will set up roles and users (if so configured) and defaults for password policy and other settings.
+
+The `stack-sets` folder contains various stack-sets that should be created in your main account and then deployed
+into your member accounts.
 
 Various stacks (e.g. basic and vpc) are based on the wonderful [Widdix Templates](http://templates.cloudonaut.io/en/stable/).
 Check them out they do an amazing job there!
@@ -17,8 +18,8 @@ The account assume setup is not considered to be a completely secure setup to sh
 A user that doesn't have admin access could still create new IAM users or groups that allow them to escalate rights. This should
 be considered as a setup for non-malicious users where you simply want to make sure proper procedures are followed with CloudFormation.
 
-If you want to completely shield access you can either user Organisation Policies or edit the `cloudformation` role to not allow
-IAM access for example.
+AWS also provides [Permission Boundaries](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html) to
+completely limit what users are able to do, even if they can create new IAM entities. If you want to completely shield access you can either user Organisation Policies or edit the `cloudformation` role to not allow IAM access for example or introduce Policy Boundaries.
 
 ## Main Account
 
@@ -103,18 +104,18 @@ that profile and setting the password of a user:
 aws iam create-login-profile --user-name fmotlik --password "ABCDEFGHIJKL"
 ```
 
-## Sub Accounts
+## Member Accounts
 
-Deploy a CloudFormation Stack that creates roles that can be assumed from the main account. The Sub Account stack has a MFA Parameter that is set to true by default and will require MFA on every account that wants to assume the role.
+Deploy a CloudFormation Stack that creates roles that can be assumed from the main account. The Member Account stack has a MFA Parameter that is set to true by default and will require MFA on every account that wants to assume the role.
 
-The sub account creates two roles:
+The member account creates two roles:
 
-* `admin` that has full admin access in the sub account
+* `admin` that has full admin access in the member account
 * `user` that has read-only on all services except cloudformation where it has write access. It can also pass the `cloudformation` role when creating or updating a stack
 * `cloudformation` has full admin access, but can't be directly assumed. It has to be used to pass it to CloudFormation when creating or changing a stack so a `user` can
 actually create resources. This makes sure changes are only done through CloudFormation.
 
-The Makefile also contains commands to remove the Role created automatically by AWS so you can only assume a role in the sub account that was created by your stack.
+The Makefile also contains commands to remove the Role created automatically by AWS so you can only assume a role in the member account that was created by your stack.
 
 ## VPC
 

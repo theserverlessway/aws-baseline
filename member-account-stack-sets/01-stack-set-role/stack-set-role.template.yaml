@@ -1,0 +1,24 @@
+Parameters:
+  Master:
+    Type: String
+
+Resources:
+  AWSCloudFormationStackSetExecutionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${Master}:role/AWSCloudFormationStackSetAdministrationRole
+          Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AWSCloudFormationStackSetExecutionRoleAdminPolicy
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Sid: AdminPolicy
+                Effect: Allow
+                Action: '*'
+                Resource: '*'
+      RoleName: AWSCloudFormationStackSetExecutionRole
+    Type: AWS::IAM::Role
