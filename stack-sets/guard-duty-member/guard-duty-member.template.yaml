@@ -1,0 +1,15 @@
+Parameters:
+  Master:
+    Type: String
+
+Resources:
+  GuardDutyDetector:
+    Type: "AWS::GuardDuty::Detector"
+    Properties:
+      Enable: true
+
+  GuardDutyMaster:
+    Type: "AWS::GuardDuty::Master"
+    Properties:
+      DetectorId: !Ref GuardDutyDetector
+      MasterId: !Ref Master
