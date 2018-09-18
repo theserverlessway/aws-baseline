@@ -1,4 +1,4 @@
-stack: basic-account-setup
-stack-set: basic-account-setup
+stack: account-baseline
+stack-set: account-baseline
 capabilities:
   - CAPABILITY_NAMED_IAM
