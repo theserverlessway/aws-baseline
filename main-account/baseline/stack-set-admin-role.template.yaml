@@ -15,7 +15,9 @@ Resources:
               - Sid: CloudFormationStackSetAssumeRolePolicy
                 Effect: Allow
                 Action: sts:AssumeRole
-                Resource: arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole
+                Resource:
+                  - arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole
+                  - arn:aws:iam::*:role/OrganizationAccountAccessRole
       RoleName: AWSCloudFormationStackSetAdministrationRole
     Type: AWS::IAM::Role
 
