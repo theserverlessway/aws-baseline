@@ -1,2 +1,4 @@
 stack-set: stack-set-execution-role
 execution-role-name: OrganizationAccountAccessRole
+capabilities:
+  - CAPABILITY_NAMED_IAM
