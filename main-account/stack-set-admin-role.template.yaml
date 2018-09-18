@@ -18,3 +18,23 @@ Resources:
                 Resource: arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole
       RoleName: AWSCloudFormationStackSetAdministrationRole
     Type: AWS::IAM::Role
+
+  AWSCloudFormationStackSetExecutionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            AWS: !GetAtt AWSCloudFormationStackSetAdministrationRole.Arn
+          Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AWSCloudFormationStackSetAdministrationRoleAdminPolicy
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Sid: AdminPolicy
+                Effect: Allow
+                Action: '*'
+                Resource: '*'
+      RoleName: AWSCloudFormationStackSetExecutionRole
+    Type: AWS::IAM::Role
