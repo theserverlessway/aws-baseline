@@ -1,0 +1,43 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  DeliveryFrequency:
+    Description: 'The frequency with which AWS Config delivers configuration snapshots'
+    Type: String
+    Default: Six_Hours
+    AllowedValues:
+    - One_Hour
+    - Three_Hours
+    - Six_Hours
+    - Twelve_Hours
+    - TwentyFour_Hours
+  ConfigBucket:
+    Description: ConfigurationBucket to store AWS Config files in
+    Type: String
+Resources:
+  DeliveryChannel:
+    Type: 'AWS::Config::DeliveryChannel'
+    Properties:
+      ConfigSnapshotDeliveryProperties:
+        DeliveryFrequency: !Ref DeliveryFrequency
+      S3BucketName: !Ref ConfigBucket
+  ConfigurationRecorderRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns:
+      - 'arn:aws:iam::aws:policy/service-role/AWSConfigRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AssumeRole1
+          Effect: Allow
+          Principal:
+            Service: 'config.amazonaws.com'
+          Action: 'sts:AssumeRole'
+  ConfigurationRecorder:
+    Type: 'AWS::Config::ConfigurationRecorder'
+    Properties:
+      RecordingGroup:
+        AllSupported: true
+        IncludeGlobalResourceTypes: true
+      RoleARN: !GetAtt 'ConfigurationRecorderRole.Arn'

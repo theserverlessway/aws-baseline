@@ -1,0 +1,3 @@
+stack-set: config-baseline
+capabilities:
+  - CAPABILITY_IAM
