@@ -1,0 +1,35 @@
+Resources:
+  ConfigBucket:
+    DeletionPolicy: Retain
+    Type: 'AWS::S3::Bucket'
+  ConfigBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ConfigBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AWSConfigBucketPermissionsCheck
+            Effect: Allow
+            Principal:
+              Service:
+              - config.amazonaws.com
+            Action: s3:GetBucketAcl
+            Resource: !GetAtt ConfigBucket.Arn
+          - Sid: AWSConfigBucketDelivery
+            Effect: Allow
+            Principal:
+              Service:
+               - config.amazonaws.com
+            Action: s3:PutObject
+            Resource: !Sub ${ConfigBucket.Arn}/*
+            Condition:
+              StringEquals:
+                s3:x-amz-acl: bucket-owner-full-control
+  ConfigConfigurationAggregator:
+    Type: "AWS::Config::ConfigurationAggregator"
+    Properties:
+      OrganizationAggregationSource:
+        RoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/organizations.amazonaws.com/AWSServiceRoleForOrganizations
+        AllAwsRegions: true
+      ConfigurationAggregatorName: BaselineConfigOrganizationAggregator
