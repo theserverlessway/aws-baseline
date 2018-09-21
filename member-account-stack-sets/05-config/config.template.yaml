@@ -14,6 +14,13 @@ Parameters:
   ConfigBucket:
     Description: ConfigurationBucket to store AWS Config files in
     Type: String
+  GlobalConfigRegion:
+    Description: Region To use for Global AWS Config recording
+    Type: String
+    Default: us-east-1
+Conditions:
+  IsGlobalConfigRegion: !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion]
+  IsLocalConfigRegion: !Not [ !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion] ]
 Resources:
   DeliveryChannel:
     Type: 'AWS::Config::DeliveryChannel'
@@ -34,10 +41,21 @@ Resources:
           Principal:
             Service: 'config.amazonaws.com'
           Action: 'sts:AssumeRole'
-  ConfigurationRecorder:
+
+  ConfigurationRecorderGlobal:
+    Condition: IsGlobalConfigRegion
     Type: 'AWS::Config::ConfigurationRecorder'
     Properties:
       RecordingGroup:
         AllSupported: true
         IncludeGlobalResourceTypes: true
+      RoleARN: !GetAtt 'ConfigurationRecorderRole.Arn'
+
+  ConfigurationRecorderLocal:
+    Condition: IsLocalConfigRegion
+    Type: 'AWS::Config::ConfigurationRecorder'
+    Properties:
+      RecordingGroup:
+        AllSupported: true
+        IncludeGlobalResourceTypes: false
       RoleARN: !GetAtt 'ConfigurationRecorderRole.Arn'

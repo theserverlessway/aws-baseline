@@ -1,0 +1,9 @@
+Resources:
+  RootAccountMFAEnabledConfigRule:
+    Condition: IsGlobalConfigRegion
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "ROOT_ACCOUNT_MFA_ENABLED"
+      Source:
+        Owner: AWS
+        SourceIdentifier: "ROOT_ACCOUNT_MFA_ENABLED"

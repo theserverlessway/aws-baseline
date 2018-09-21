@@ -26,6 +26,7 @@ Resources:
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
+
   ConfigConfigurationAggregator:
     Type: "AWS::Config::ConfigurationAggregator"
     Properties:
