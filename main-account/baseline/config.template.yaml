@@ -1,9 +1,13 @@
+Parameters:
+  ConfigBucketPrefix:
+    Type: String
+    Default: 'config-storage'
 Resources:
   ConfigBucket:
     DeletionPolicy: Delete
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: !Sub config-storage-${AWS::AccountId}
+      BucketName: !Sub ${ConfigBucketPrefix}-${AWS::AccountId}
   ConfigBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:

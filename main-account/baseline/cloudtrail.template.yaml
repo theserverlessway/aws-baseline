@@ -1,9 +1,13 @@
+Parameters:
+  CloudTrailBucketPrefix:
+    Type: String
+    Default: 'cloudtrail-storage'
 Resources:
   CloudTrailBucket:
     DeletionPolicy: Delete
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: !Sub cloudtrail-storage-${AWS::AccountId}
+      BucketName: !Sub ${CloudTrailBucketPrefix}-${AWS::AccountId}
   CloudTrailBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
