@@ -1,6 +1,4 @@
 Parameters:
-  MasterAccount:
-    Type: String
   MFA:
     Type: String
     Default: false
@@ -12,7 +10,6 @@ Parameters:
 Conditions:
   HasMFAEnabled: !Equals [true, !Ref MFA]
   HasRegionLimitation: !Not [!Equals ['all', !Ref AllowedRegions]]
-
 Resources:
   AssumableAdminRole:
     Properties:
@@ -20,7 +17,7 @@ Resources:
         Statement:
           Effect: Allow
           Principal:
-            AWS: !Ref MasterAccount
+            AWS: !Ref MainAccount
           Action: sts:AssumeRole
           Condition:
             Fn::If:
@@ -53,7 +50,7 @@ Resources:
         Statement:
           Effect: Allow
           Principal:
-            AWS: !Ref MasterAccount
+            AWS: !Ref MainAccount
           Action: sts:AssumeRole
           Condition:
             Fn::If:

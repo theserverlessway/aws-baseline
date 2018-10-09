@@ -1,3 +1,4 @@
 stack-set: config-member
 capabilities:
   - CAPABILITY_IAM
+main-account: true

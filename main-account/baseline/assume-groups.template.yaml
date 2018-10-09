@@ -1,9 +1,9 @@
+Transform: AccountIteration
 Resources:
-{% for group in assume.keys() %}
-  {{ group | resource }}AdminGroup:
+  AdminGroupACCOUNT_ID:
     Properties:
-      GroupName: {{ group }}-admin
-      Path: /{{group}}/admin/
+      GroupName: AdminGroupACCOUNT_ID
+      Path: /admin/ACCOUNT_ID/
       Policies:
       - PolicyDocument:
           Statement:
@@ -11,21 +11,20 @@ Resources:
                 - sts:AssumeRole
               Effect: Allow
               Resource:
-                - arn:aws:iam::{{ assume[group] }}:role/admin
-                - arn:aws:iam::{{ assume[group] }}:role/user
-        PolicyName: {{group | resource }}Policy
+                - arn:aws:iam::ACCOUNT_ID:role/admin
+                - arn:aws:iam::ACCOUNT_ID:role/user
+        PolicyName: AdminPolicyACCOUNT_ID
     Type: AWS::IAM::Group
-  {{ group | resource }}Group:
+  UserGroupACCOUNT_ID:
     Properties:
-      GroupName: {{ group }}
-      Path: /{{group}}/
+      GroupName: UserGroupACCOUNT_ID
+      Path: /user/ACCOUNT_ID/
       Policies:
       - PolicyDocument:
           Statement:
             - Action:
                 - sts:AssumeRole
               Effect: Allow
-              Resource: arn:aws:iam::{{ assume[group] }}:role/user
-        PolicyName: {{group | resource }}UserPolicy
+              Resource: arn:aws:iam::ACCOUNT_ID:role/user
+        PolicyName: UserPolicyACCOUNT_ID
     Type: AWS::IAM::Group
-{% endfor %}

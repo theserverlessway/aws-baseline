@@ -1,5 +1,5 @@
 Parameters:
-  MasterAccount:
+  MainAccount:
     Type: String
 
 Resources:
@@ -9,7 +9,7 @@ Resources:
         Statement:
           Effect: Allow
           Principal:
-            AWS: !Sub arn:aws:iam::${MasterAccount}:role/AWSCloudFormationStackSetAdministrationRole
+            AWS: !Sub arn:aws:iam::${MainAccount}:role/AWSCloudFormationStackSetAdministrationRole
           Action: sts:AssumeRole
       Policies:
         - PolicyName: AWSCloudFormationStackSetExecutionRoleAdminPolicy

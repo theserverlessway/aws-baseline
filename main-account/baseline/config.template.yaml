@@ -2,6 +2,8 @@ Resources:
   ConfigBucket:
     DeletionPolicy: Delete
     Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub config-storage-${AWS::AccountId}
   ConfigBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -26,6 +28,11 @@ Resources:
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
+              # ForAnyValue:StringEquals:
+              #   aws:SourceAccount:
+              #     Fn::Transform:
+              #       Name: AccountListWithMaster
+
 
   ConfigConfigurationAggregator:
     Type: "AWS::Config::ConfigurationAggregator"

@@ -1,5 +1,4 @@
 stack-set: assumable-roles
 capabilities:
   - CAPABILITY_NAMED_IAM
-parameters:
-  MasterAccount: 123456789
+main-account: true

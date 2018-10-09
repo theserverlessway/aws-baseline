@@ -2,16 +2,6 @@ stack: assume-role-users-groups
 capabilities:
   - CAPABILITY_NAMED_IAM
 vars:
-  assume:
-    # List all accounts with a Name and their ID
-    development: 123456789
   users:
-
     fmotlik:
       - admin
-      - development
-      - development-admin
-    gwashington:
-      - development-admin
-    htruman:
-      - development

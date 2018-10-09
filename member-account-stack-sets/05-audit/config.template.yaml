@@ -11,15 +11,15 @@ Parameters:
     - Six_Hours
     - Twelve_Hours
     - TwentyFour_Hours
-  ConfigBucket:
-    Description: ConfigurationBucket to store AWS Config files in
+  ConfigBucketPrefix:
     Type: String
+    Default: config-storage
   GlobalConfigRegion:
     Description: Region To use for Global AWS Config recording
     Type: String
     Default: us-east-1
 Conditions:
-  IsGlobalConfigRegion: !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion]
+  IsGlobalRegion: !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion]
   IsLocalConfigRegion: !Not [ !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion] ]
 Resources:
   DeliveryChannel:
@@ -27,7 +27,8 @@ Resources:
     Properties:
       ConfigSnapshotDeliveryProperties:
         DeliveryFrequency: !Ref DeliveryFrequency
-      S3BucketName: !Ref ConfigBucket
+      S3BucketName: !Sub ${ConfigBucketPrefix}-${MainAccount}
+
   ConfigurationRecorderRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -43,7 +44,7 @@ Resources:
           Action: 'sts:AssumeRole'
 
   ConfigurationRecorderGlobal:
-    Condition: IsGlobalConfigRegion
+    Condition: IsGlobalRegion
     Type: 'AWS::Config::ConfigurationRecorder'
     Properties:
       RecordingGroup:
