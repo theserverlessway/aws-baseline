@@ -1,7 +1,0 @@
-stack: assume-role-users-groups
-capabilities:
-  - CAPABILITY_NAMED_IAM
-vars:
-  users:
-    fmotlik:
-      - admin

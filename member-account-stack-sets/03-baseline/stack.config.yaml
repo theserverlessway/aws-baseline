@@ -1,4 +1,0 @@
-stack: account-baseline
-stack-set: account-baseline
-capabilities:
-  - CAPABILITY_NAMED_IAM

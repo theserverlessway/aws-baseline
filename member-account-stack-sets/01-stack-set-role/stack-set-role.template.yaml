@@ -1,7 +1,3 @@
-Parameters:
-  MainAccount:
-    Type: String
-
 Resources:
   AWSCloudFormationStackSetExecutionRole:
     Properties:

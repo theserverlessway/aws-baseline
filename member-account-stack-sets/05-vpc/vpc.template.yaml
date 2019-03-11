@@ -18,9 +18,41 @@ Parameters:
     Type: String
     Default: none
     AllowedValues: ["none", "single", "all"]
+  ExportsPrefix:
+    Type: String
+    Default: 'vpc-iam'
+  AttachVPN:
+    Type: String
+    Default: 'false'
+    AllowedValues: ["true", "false"]
+  VPNCidr:
+    Type: String
+    Default: '10.245.0.0/24'
+  VPNGateway:
+    Type: String
+    Default: DefaultGateway
+  PeerVPCId:
+    Type: String
+    Default: 'none'
+  PeerVPCOwner:
+    Type: String
+    Default: 'none'
+  PeerVPCRegion:
+    Type: String
+    Default: 'none'
+  PeerVPCCidr:
+    Type: String
+    Default: '192.168.0.0/24'
 Conditions:
   SingleNatGateway: !Equals ['single', !Ref PrivateNatGateway]
   AllNatGateways: !Equals ['all', !Ref PrivateNatGateway]
+  AttachVPN: !Equals ['true', !Ref AttachVPN]
+  EnableVPCPeering:
+    Fn::Not: [!Equals [!Ref PeerVPCId, 'none']]
+  HasVPCPeeringOwner:
+    Fn::Not: [!Equals [!Ref PeerVPCOwner, 'none']]
+  HasVPCPeeringRegion:
+    Fn::Not: [!Equals [!Ref PeerVPCRegion, 'none']]
 
 Resources:
   VPC:
@@ -39,11 +71,21 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub '10.${ClassB}.0.0/16'
+
   VPCGatewayAttachment:
     Type: 'AWS::EC2::VPCGatewayAttachment'
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
+
+  VPNGatewayAttachment:
+    Condition: AttachVPN
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      VpnGatewayId:
+        Fn::ImportValue: !Ref VPNGateway
+
   {% for Identifier in SubnetIdentifiers %}
   Subnet{{ Identifier }}Private:
     Type: 'AWS::EC2::Subnet'
@@ -75,14 +117,14 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: Public
+          Value: !Sub ${VPC.CidrBlock}-Public{{ Identifier }}
   RouteTable{{ Identifier }}Private:
     Type: 'AWS::EC2::RouteTable'
     Properties:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: Private
+          Value: !Sub ${VPC.CidrBlock}-Private{{ Identifier }}
 
   RouteTableAssociation{{ Identifier }}Public:
     Type: 'AWS::EC2::SubnetRouteTableAssociation'
@@ -103,6 +145,42 @@ Resources:
       RouteTableId: !Ref RouteTable{{ Identifier }}Public
       DestinationCidrBlock: '0.0.0.0/0'
       GatewayId: !Ref InternetGateway
+
+  RouteTableVPNRoute{{ Identifier }}Private:
+    Condition: AttachVPN
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPNGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTable{{ Identifier }}Private
+      DestinationCidrBlock: !Ref VPNCidr
+      GatewayId:
+        Fn::ImportValue: !Ref VPNGateway
+
+  RouteTableVPNRoute{{ Identifier }}Public:
+    Condition: AttachVPN
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPNGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTable{{ Identifier }}Public
+      DestinationCidrBlock: !Ref VPNCidr
+      GatewayId:
+        Fn::ImportValue: !Ref VPNGateway
+
+  RouteTableVPCPeerRoute{{ Identifier }}Private:
+    Condition: EnableVPCPeering
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RouteTable{{ Identifier }}Private
+      DestinationCidrBlock: !Ref PeerVPCCidr
+      VpcPeeringConnectionId: !Ref VPCPeeringConnection
+
+  RouteTableVPCPeerRoute{{ Identifier }}Public:
+    Condition: EnableVPCPeering
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RouteTable{{ Identifier }}Public
+      DestinationCidrBlock: !Ref PeerVPCCidr
+      VpcPeeringConnectionId: !Ref VPCPeeringConnection
 
   SubnetNetworkAclAssociation{{ Identifier }}Public:
     Type: 'AWS::EC2::SubnetNetworkAclAssociation'
@@ -148,13 +226,13 @@ Resources:
     Type: 'AWS::EC2::EIP'
     Properties:
       Domain: vpc
+
   SingleNatGateway:
     Condition: SingleNatGateway
     Type: 'AWS::EC2::NatGateway'
     Properties:
       AllocationId: !GetAtt 'SingleNatGatewayElasticIp.AllocationId'
       SubnetId: !Ref Subnet{{ SubnetIdentifiers[0] }}Public
-
 
   NetworkAclPublic:
     Type: 'AWS::EC2::NetworkAcl'
@@ -163,6 +241,7 @@ Resources:
       Tags:
       - Key: Name
         Value: Public
+
   NetworkAclPrivate:
     Type: 'AWS::EC2::NetworkAcl'
     Properties:
@@ -170,6 +249,7 @@ Resources:
       Tags:
       - Key: Name
         Value: Private
+
   NetworkAclEntryInPublicAllowAll:
     Type: 'AWS::EC2::NetworkAclEntry'
     Properties:
@@ -179,6 +259,7 @@ Resources:
       RuleAction: allow
       Egress: false
       CidrBlock: '0.0.0.0/0'
+
   NetworkAclEntryOutPublicAllowAll:
     Type: 'AWS::EC2::NetworkAclEntry'
     Properties:
@@ -188,6 +269,7 @@ Resources:
       RuleAction: allow
       Egress: true
       CidrBlock: '0.0.0.0/0'
+
   NetworkAclEntryInPrivateAllowVPC:
     Type: 'AWS::EC2::NetworkAclEntry'
     Properties:
@@ -197,6 +279,7 @@ Resources:
       RuleAction: allow
       Egress: false
       CidrBlock: '0.0.0.0/0'
+
   NetworkAclEntryOutPrivateAllowVPC:
     Type: 'AWS::EC2::NetworkAclEntry'
     Properties:
@@ -207,6 +290,29 @@ Resources:
       Egress: true
       CidrBlock: '0.0.0.0/0'
 
+  VPCPeeringConnection:
+    Condition: EnableVPCPeering
+    Type: AWS::EC2::VPCPeeringConnection
+    Properties:
+      VpcId: !Ref VPC
+      PeerVpcId:
+        Ref: PeerVPCId
+      PeerOwnerId:
+        Fn::If:
+          - HasVPCPeeringOwner
+          - !Ref PeerVPCOwner
+          - !Ref AWS::NoValue
+      PeerRegion:
+        Fn::If:
+          - HasVPCPeeringRegion
+          - !Ref PeerVPCRegion
+          - !Ref AWS::NoValue
+      PeerRoleArn:
+        Fn::If:
+          - HasVPCPeeringOwner
+          - !Sub arn:aws:iam::${PeerVPCOwner}:role/VPCPeeringRole${AWS::AccountId}
+          - !Ref AWS::NoValue
+
 Outputs:
   StackName:
     Description: 'Stack name'
@@ -215,17 +321,20 @@ Outputs:
     Description: 'AZs'
     Value: {{ AvailabilityZones }}
     Export:
-      Name: !Sub '${AWS::StackName}-AZs'
+      Name: !Sub '${ExportsPrefix}:AZs'
+  AvailabilityZones:
+    Description: 'AZs'
+    Value: !Join [',', !GetAZs '']
   ClassB:
     Description: 'Class B.'
     Value: !Ref ClassB
     Export:
-      Name: !Sub '${AWS::StackName}-ClassB'
+      Name: !Sub '${ExportsPrefix}:ClassB'
   VPC:
     Description: 'VPC.'
     Value: !Ref VPC
     Export:
-      Name: !Sub '${AWS::StackName}-VPC'
+      Name: !Sub '${ExportsPrefix}:VPC'
   SubnetsPublic:
     Description: 'Subnets public.'
     Value:
@@ -235,7 +344,7 @@ Outputs:
           - !Ref Subnet{{ Identifier }}Public
         {% endfor %}
     Export:
-      Name: !Sub '${AWS::StackName}-SubnetsPublic'
+      Name: !Sub '${ExportsPrefix}:SubnetsPublic'
   SubnetsPrivate:
     Description: 'Subnets private.'
     Value:
@@ -245,7 +354,7 @@ Outputs:
           - !Ref Subnet{{ Identifier }}Private
         {% endfor %}
     Export:
-      Name: !Sub '${AWS::StackName}-SubnetsPrivate'
+      Name: !Sub '${ExportsPrefix}:SubnetsPrivate'
   RouteTablesPrivate:
     Description: 'Route tables private.'
     Value:
@@ -255,7 +364,7 @@ Outputs:
           - !Ref RouteTable{{ Identifier }}Private
         {% endfor %}
     Export:
-      Name: !Sub '${AWS::StackName}-RouteTablesPrivate'
+      Name: !Sub '${ExportsPrefix}:RouteTablesPrivate'
   RouteTablesPublic:
     Description: 'Route tables public.'
     Value:
@@ -265,31 +374,31 @@ Outputs:
           - !Ref RouteTable{{ Identifier }}Public
           {% endfor %}
     Export:
-      Name: !Sub '${AWS::StackName}-RouteTablesPublic'
+      Name: !Sub '${ExportsPrefix}:RouteTablesPublic'
   {% for Identifier in SubnetIdentifiers%}
   AZ{{ Identifier }}:
     Description: 'AZ of {{ Identifier }}'
     Value: !Select [{{loop.index - 1}}, !GetAZs '']
     Export:
-      Name: !Sub '${AWS::StackName}-AZ{{ Identifier }}'
+      Name: !Sub '${ExportsPrefix}:AZ{{ Identifier }}'
   Subnet{{ Identifier }}Public:
     Description: 'Subnet {{ Identifier }} public.'
     Value: !Ref Subnet{{ Identifier }}Public
     Export:
-      Name: !Sub '${AWS::StackName}-Subnet{{ Identifier }}Public'
+      Name: !Sub '${ExportsPrefix}:Subnet{{ Identifier }}Public'
   RouteTable{{ Identifier }}Public:
     Description: 'Route table A public.'
     Value: !Ref RouteTable{{ Identifier }}Public
     Export:
-      Name: !Sub '${AWS::StackName}-RouteTable{{ Identifier }}Public'
+      Name: !Sub '${ExportsPrefix}:RouteTable{{ Identifier }}Public'
   Subnet{{ Identifier }}Private:
     Description: 'Subnet {{ Identifier }} private.'
     Value: !Ref Subnet{{ Identifier }}Private
     Export:
-      Name: !Sub '${AWS::StackName}-Subnet{{ Identifier }}Private'
+      Name: !Sub '${ExportsPrefix}:Subnet{{ Identifier }}Private'
   RouteTable{{ Identifier }}Private:
     Description: 'Route table {{ Identifier }} private.'
     Value: !Ref RouteTable{{ Identifier }}Private
     Export:
-      Name: !Sub '${AWS::StackName}-RouteTable{{ Identifier }}Private'
+      Name: !Sub '${ExportsPrefix}:RouteTable{{ Identifier }}Private'
   {% endfor %}

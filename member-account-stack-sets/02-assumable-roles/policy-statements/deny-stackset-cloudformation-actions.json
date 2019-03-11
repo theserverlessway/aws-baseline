@@ -1,0 +1,10 @@
+{
+  "Action": [
+    "cloudformation:*"
+  ],
+  "Effect": "Deny",
+  "Resource": [
+    "arn:aws:cloudformation:*:*:stack/StackSet-*"
+  ],
+  "Sid": "DenyAccessToStackSetCloudformationStacks"
+}

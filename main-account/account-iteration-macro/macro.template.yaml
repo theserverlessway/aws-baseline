@@ -1,0 +1,106 @@
+Parameters:
+  AccountIterationMacroName:
+    Type: String
+    Default: AccountIteration
+  AccountListMacroName:
+    Type: String
+    Default: AccountList
+
+Mappings:
+  Macros:
+    Code:
+      AccountMacro: "{{code('org_iterator.py')}}"
+
+
+Resources:
+  AccountIteration:
+    From: Modules::Lambda
+    Properties:
+      Environment:
+        AccountId: !Ref AWS::AccountId
+      Code: !FindInMap [Macros, Code, AccountMacro]
+      Statements:
+        - Action: organizations:ListAccounts
+          Effect: Allow
+          Resource: '*'
+
+  AccountIterationMacro:
+    Type: "AWS::CloudFormation::Macro"
+    Properties:
+      Description: Create copies for defined resources per Account
+      FunctionName: !Ref AccountIterationLambdaFunction
+      LogGroupName: !Ref AccountMacroLogGroup
+      LogRoleARN: !GetAtt AccountMacroExecutionRole.Arn
+      Name: !Ref AccountIterationMacroName
+
+  AccountIterationWithMasterMacro:
+    Type: "AWS::CloudFormation::Macro"
+    Properties:
+      Description: Create copies for defined resources per Account
+      FunctionName: !Ref AccountIterationLambdaFunction
+      LogGroupName: !Ref AccountMacroLogGroup
+      LogRoleARN: !GetAtt AccountMacroExecutionRole.Arn
+      Name: !Sub ${AccountIterationMacroName}WithMaster
+
+  AccountList:
+    From: Modules::Lambda
+    Properties:
+      Code: !FindInMap [Macros, Code, AccountMacro]
+      Environment:
+        AccountId: !Ref AWS::AccountId
+      Handler: index.account_list
+      Statements:
+        - Action: organizations:ListAccounts
+          Effect: Allow
+          Resource: '*'
+
+  AccountListMacro:
+    Type: "AWS::CloudFormation::Macro"
+    Properties:
+      Description: Create copies for defined resources per Account
+      FunctionName: !Ref AccountListLambdaFunction
+      LogGroupName: !Ref AccountMacroLogGroup
+      LogRoleARN: !GetAtt AccountMacroExecutionRole.Arn
+      Name: !Ref AccountListMacroName
+
+  AccountListWithMasterMacro:
+    Type: "AWS::CloudFormation::Macro"
+    Properties:
+      Description: Create copies for defined resources per Account
+      FunctionName: !Ref AccountListLambdaFunction
+      LogGroupName: !Ref AccountMacroLogGroup
+      LogRoleARN: !GetAtt AccountMacroExecutionRole.Arn
+      Name: !Sub ${AccountListMacroName}WithMaster
+
+  AccountMacroExecutionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - cloudformation.amazonaws.com
+        Version: '2012-10-17'
+      Path: "/"
+    Type: AWS::IAM::Role
+
+  AccountMacroLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 14
+
+  AccountMacroRolePolicy:
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Effect: Allow
+            Resource: !Sub ${AccountMacroLogGroup.Arn}*
+      PolicyName: AccountMacroRolePolicy
+      Roles:
+      - !Ref AccountMacroExecutionRole
+    Type: AWS::IAM::Policy

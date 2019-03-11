@@ -1,0 +1,4 @@
+stack: password-policy
+stack-set: password-policy
+all-accounts: true
+regions: us-east-1

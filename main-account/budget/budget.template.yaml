@@ -1,0 +1,35 @@
+Parameters:
+  MaxBudget:
+    Type: Number
+    Default: 3000
+  AlertImportPrefix:
+    Type: String
+    Default: alerting
+
+Resources:
+  AccountBudget:
+    Type: "AWS::Budgets::Budget"
+    Properties:
+      Budget:
+        BudgetLimit:
+          Amount: !Ref MaxBudget
+          Unit: USD
+        TimeUnit: MONTHLY
+        BudgetType: COST
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+          Subscribers:
+          - SubscriptionType: SNS
+            Address:
+              Fn::ImportValue: !Sub ${AlertImportPrefix}:InfoTopic
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 110
+          Subscribers:
+          - SubscriptionType: SNS
+            Address:
+              Fn::ImportValue: !Sub ${AlertImportPrefix}:WarningTopic

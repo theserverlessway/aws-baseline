@@ -1,13 +1,13 @@
 Parameters:
   ConfigBucketPrefix:
     Type: String
-    Default: 'config-storage'
+    Default: 'config'
 Resources:
   ConfigBucket:
     DeletionPolicy: Delete
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: !Sub ${ConfigBucketPrefix}-${AWS::AccountId}
+      BucketName: !Sub ${AWS::StackName}-${ConfigBucketPrefix}-${AWS::AccountId}
   ConfigBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -32,10 +32,6 @@ Resources:
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
-              # ForAnyValue:StringEquals:
-              #   aws:SourceAccount:
-              #     Fn::Transform:
-              #       Name: AccountListWithMaster
 
 
   ConfigConfigurationAggregator:

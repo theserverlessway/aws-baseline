@@ -1,0 +1,21 @@
+{
+  "Sid": "RegionCheck",
+  "Effect": "Deny",
+  "NotAction": [
+    "iam:*",
+    "route53:*"
+  ],
+  "Resource": "*",
+  "Condition": {
+    "ForAllValues:StringNotEquals": {
+      "aws:RequestedRegion": {
+        "Fn::Split": [
+          ",",
+          {
+            "Ref": "AllowedRegions"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,29 +1,49 @@
 Parameters:
   MFA:
     Type: String
-    Default: false
+    Default: true
     AllowedValues: [true, false]
   AllowedRegions:
     Type: String
-    Default: 'all'
+    Default: 'us-east-1'
 
 Conditions:
   HasMFAEnabled: !Equals [true, !Ref MFA]
-  HasRegionLimitation: !Not [!Equals ['all', !Ref AllowedRegions]]
 Resources:
+  AdminPermissionsBoundary:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: AdminPermissionsBoundary
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowAdminAccess
+            Effect: Allow
+            Action: "*"
+            Resource: "*"
+          - {% include 'policy-statements/deny-stackset-actions.json'%}
+          - {% include 'policy-statements/deny-stackset-cloudformation-actions.json'%}
+          - {% include 'policy-statements/region-check.json'%}
+
+  DeveloperPermissionsBoundary:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: DeveloperPermissionsBoundary
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowAdminAccess
+            Effect: Allow
+            Action: "*"
+            Resource: "*"
+          - {% include 'policy-statements/deny-stackset-actions.json'%}
+          - {% include 'policy-statements/deny-stackset-cloudformation-actions.json'%}
+          - {% include 'policy-statements/region-check.json'%}
+
   AssumableAdminRole:
     Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          Effect: Allow
-          Principal:
-            AWS: !Ref MainAccount
-          Action: sts:AssumeRole
-          Condition:
-            Fn::If:
-              - HasMFAEnabled
-              - {"Bool": {"aws:MultiFactorAuthPresent": true}}
-              - !Ref AWS::NoValue
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      PermissionsBoundary: !Ref AdminPermissionsBoundary
       Policies:
         - PolicyName: AdminAccess
           PolicyDocument:
@@ -35,28 +55,12 @@ Resources:
                   - '*'
                 Resource:
                   - '*'
-                Condition:
-                  Fn::If:
-                    - HasRegionLimitation
-                    - "ForAnyValue:StringEquals":
-                          "aws:RequestedRegion": !Split [',', !Ref AllowedRegions]
-                    - !Ref AWS::NoValue
-      RoleName: admin
+      RoleName: AdminRole
     Type: AWS::IAM::Role
 
-  AssumableCloudFormationRole:
+  AssumableDeveloperRole:
     Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          Effect: Allow
-          Principal:
-            AWS: !Ref MainAccount
-          Action: sts:AssumeRole
-          Condition:
-            Fn::If:
-              - HasMFAEnabled
-              - {"Bool": {"aws:MultiFactorAuthPresent": true}}
-              - !Ref AWS::NoValue
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
       Policies:
@@ -70,12 +74,6 @@ Resources:
                   - cloudformation:*
                 Resource:
                   - "*"
-                Condition:
-                  Fn::If:
-                    - HasRegionLimitation
-                    - "ForAnyValue:StringEquals":
-                          "aws:RequestedRegion": !Split [',', !Ref AllowedRegions]
-                    - !Ref AWS::NoValue
               - Sid: PassingRoleToCloudFormation
                 Effect: Allow
                 Action:
@@ -83,13 +81,34 @@ Resources:
                   - iam:GetRole
                 Resource:
                   - !GetAtt CloudFormationRole.Arn
-                Condition:
-                  Fn::If:
-                    - HasRegionLimitation
-                    - "ForAnyValue:StringEquals":
-                          "aws:RequestedRegion": !Split [',', !Ref AllowedRegions]
-                    - !Ref AWS::NoValue
-      RoleName: user
+      RoleName: DeveloperRole
+    Type: AWS::IAM::Role
+
+  AssumableCloudFormationDeveloperRole:
+    Properties:
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+      PermissionsBoundary: !Ref DeveloperPermissionsBoundary
+      Policies:
+        - PolicyName: CloudFormation
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Sid: AllowCloudFormation
+                Effect: Allow
+                Action:
+                  - cloudformation:*
+                Resource:
+                  - "*"
+              - Sid: PassingRoleToCloudFormation
+                Effect: Allow
+                Action:
+                  - iam:PassRole
+                  - iam:GetRole
+                Resource:
+                  - !GetAtt CloudFormationRole.Arn
+      RoleName: CloudFormationDeveloperRole
     Type: AWS::IAM::Role
 
   CloudFormationRole:
@@ -100,6 +119,7 @@ Resources:
           Principal:
             Service: cloudformation.amazonaws.com
           Action: sts:AssumeRole
+      PermissionsBoundary: !Ref AdminPermissionsBoundary
       Policies:
         - PolicyName: CloudFormationRoleAdmin
           PolicyDocument:
@@ -111,11 +131,5 @@ Resources:
                   - '*'
                 Resource:
                   - '*'
-                Condition:
-                  Fn::If:
-                    - HasRegionLimitation
-                    - "ForAnyValue:StringEquals":
-                          "aws:RequestedRegion": !Split [',', !Ref AllowedRegions]
-                    - !Ref AWS::NoValue
-      RoleName: cloudformation
+      RoleName: CloudFormationRole
     Type: AWS::IAM::Role

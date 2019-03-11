@@ -2,3 +2,7 @@ stack-set: stack-set-execution-role
 execution-role-name: OrganizationAccountAccessRole
 capabilities:
   - CAPABILITY_NAMED_IAM
+main-account: true
+all-subaccounts: true
+regions:
+  - us-east-1

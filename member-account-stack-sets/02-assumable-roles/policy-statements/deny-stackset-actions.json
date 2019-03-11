@@ -1,0 +1,10 @@
+{
+  "Action": [
+    "cloudformation:*StackSet*"
+  ],
+  "Effect": "Deny",
+  "Resource": [
+    "*"
+  ],
+  "Sid": "DenyStackSetActions"
+}

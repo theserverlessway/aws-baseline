@@ -1,0 +1,24 @@
+{
+  "Statement": {
+    "Effect": "Allow",
+    "Principal": {
+      "AWS": {
+        "Ref": "MainAccount"
+      }
+    },
+    "Action": "sts:AssumeRole",
+    "Condition": {
+      "Fn::If": [
+        "HasMFAEnabled",
+        {
+          "Bool": {
+            "aws:MultiFactorAuthPresent": true
+          }
+        },
+        {
+          "Ref": "AWS::NoValue"
+        }
+      ]
+    }
+  }
+}

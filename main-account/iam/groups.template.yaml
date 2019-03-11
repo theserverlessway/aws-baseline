@@ -1,7 +1,7 @@
 Resources:
   AdminGroup:
     Properties:
-      GroupName: admin
+      GroupName: AdminMasterAccount
       Path: /admin/
       Policies:
       - PolicyDocument:
@@ -17,7 +17,7 @@ Resources:
     Type: AWS::IAM::Group
   AccountListing:
     Properties:
-      GroupName: accountlist
+      GroupName: ListAccounts
       Path: /admin/
       Policies:
       - PolicyDocument:

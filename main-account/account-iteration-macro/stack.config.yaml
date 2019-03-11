@@ -1,0 +1,3 @@
+stack: account-iteration-macro
+capabilities:
+  - CAPABILITY_IAM

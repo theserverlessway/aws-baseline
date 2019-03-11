@@ -1,0 +1,3 @@
+stack: iam-groups
+capabilities:
+  - CAPABILITY_NAMED_IAM

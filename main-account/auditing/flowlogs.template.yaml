@@ -1,0 +1,34 @@
+Parameters:
+  FlowLogsBucketPrefix:
+    Type: String
+    Default: 'flowlogs'
+Resources:
+  FlowLogsBucket:
+    DeletionPolicy: Delete
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-${FlowLogsBucketPrefix}-${AWS::AccountId}
+  FlowLogsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FlowLogsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AWSLogDeliveryWrite
+            Effect: Allow
+            Principal:
+              Service: delivery.logs.amazonaws.com
+            Action: s3:PutObject
+            Resource:
+              - !Sub ${FlowLogsBucket.Arn}/*
+            Condition:
+              StringEquals:
+                s3:x-amz-acl: bucket-owner-full-control
+          - Sid: AWSLogDeliveryAclCheck
+            Effect: Allow
+            Principal:
+              Service: delivery.logs.amazonaws.com
+            Action: s3:GetBucketAcl
+            Resource:
+            - !GetAtt FlowLogsBucket.Arn

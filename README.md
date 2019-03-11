@@ -1,16 +1,16 @@
-# Account Setup
+# AWS Account Baseline
 
-This repository contains the general Account Setup for the Organisation that can be used in other orgs as well. It contains several folders with CloudFormation stacks and stack-sets for different parts of the Org. If you want to use it yourself simply clone or fork it, make appropriate changes to your
-config files and watch out for additional changes in the future.
+This repository contains configuration to roll out your AWS Baseline (also known as a Landing Zone). The result will be a flexible setup to give you a basis to build your specific infrastructure on. 
+
+The baseline is implemented through a mix of CloudFormation Stacks and StackSets. This leads to a flexible setup allowing you to choose specific StackSets to be rolled out across accounts, or not. 
 
 The `main-account` folder contains a CloudFormation stack that should be deployed first into your main account. It
-will set up roles and users (if so configured) and defaults for password policy and other settings.
+will set up roles and groups automatically for your existing accounts.
 
 The `stack-sets` folder contains various stack-sets that should be created in your main account and then deployed
-into your member accounts.
+into your member accounts. For more information check out the README in the `stack-sets` folder.
 
-Various stacks (e.g. basic and vpc) are based on the wonderful [Widdix Templates](http://templates.cloudonaut.io/en/stable/).
-Check them out they do an amazing job there!
+Various stacks (e.g. basic and vpc) are based on the wonderful [Widdix Templates](http://templates.cloudonaut.io/en/stable/). Check them out they do an amazing job!
 
 ## Note on Security
 
@@ -19,12 +19,11 @@ A user that doesn't have admin access could still create new IAM users or groups
 be considered as a setup for non-malicious users where you simply want to make sure proper procedures are followed with CloudFormation.
 
 AWS also provides [Permission Boundaries](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html) to
-completely limit what users are able to do, even if they can create new IAM entities. If you want to completely shield access you can either user Organisation Policies or edit the `cloudformation` role to not allow IAM access for example or introduce Policy Boundaries.
+completely limit what users are able to do, even if they can create new IAM entities. If you want to completely shield access you can either user Organisation Policies or edit the `cloudformation` role to not allow IAM access for example or introduce Permissions Boundaries.
 
 ## Main Account
 
-In the main account we're creating several `assume-role` groups which allow users to assume the admin role in another account.
-Additionally we're creating an admin group for the main account and all users for this specific account.
+In the main account we're creating several `assume-role` groups which allow users to assume the admin role in another account. Additionally we're creating an admin group for the main account and all users for this specific account.
 
 ### User and Group Configuration
 
