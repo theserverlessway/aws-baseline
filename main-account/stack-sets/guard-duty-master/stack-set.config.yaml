@@ -1,4 +1,0 @@
-stack-set: guard-duty-master
-vars:
-  accounts:
-    123456789: email@email.com

@@ -1,0 +1,3 @@
+stack: validate-stack-set-deployments
+capabilities:
+  - CAPABILITY_NAMED_IAM

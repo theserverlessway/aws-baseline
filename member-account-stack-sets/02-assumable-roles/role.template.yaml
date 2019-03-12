@@ -58,6 +58,14 @@ Resources:
       RoleName: AdminRole
     Type: AWS::IAM::Role
 
+  ReadOnlyRole:
+    Properties:
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+      RoleName: ReadOnlyRole
+    Type: AWS::IAM::Role
+
   AssumableDeveloperRole:
     Properties:
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}

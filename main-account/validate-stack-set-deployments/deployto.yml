@@ -1,0 +1,4 @@
+stack: validate-stack-set-deployments # The stack to read CloudFormation resources from
+service: lambda # The service to deploy to
+paths:  # The paths to include in the ZipFile, more info in the packaging config below
+ - 'validate_stack_set_deployments.py:index.py'

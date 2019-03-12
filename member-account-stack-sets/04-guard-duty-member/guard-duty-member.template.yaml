@@ -1,7 +1,3 @@
-Parameters:
-  Master:
-    Type: String
-
 Resources:
   GuardDutyDetector:
     Type: "AWS::GuardDuty::Detector"
@@ -12,4 +8,4 @@ Resources:
     Type: "AWS::GuardDuty::Master"
     Properties:
       DetectorId: !Ref GuardDutyDetector
-      MasterId: !Ref Master
+      MasterId: !Ref MainAccount

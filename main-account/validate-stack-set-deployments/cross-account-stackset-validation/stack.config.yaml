@@ -1,0 +1,3 @@
+stack: cross-account-stackset-validation
+capabilities:
+  - CAPABILITY_NAMED_IAM

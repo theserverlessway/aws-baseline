@@ -1,0 +1,25 @@
+Resources:
+  CrossAccountStackSetVerificationRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            AWS:
+            {%for Account in stacksetValidationAccessFrom%}
+            - arn:aws:iam::{{Account}}:role/CrossAccountStackSetVerificationSourceRole
+            {% endfor %}
+        Version: '2012-10-17'
+
+      Policies:
+      - PolicyDocument:
+          Statement:
+            - Action:
+                - "cloudformation:DescribeStackSet"
+              Effect: Allow
+              Resource: '*'
+        PolicyName: DescribeStackSet
+      RoleName: CrossAccountStackSetVerificationTargetRole
+    Type: AWS::IAM::Role

@@ -4,13 +4,13 @@ Resources:
     Properties:
       Enable: true
 
-  {% for account, email in accounts.items() %}
-  GuardDutyMember:
+  {% for Account in Accounts %}
+  GuardDutyMember{{Account['Id']}}:
     Type: "AWS::GuardDuty::Member"
     Properties:
       Status: "Invited"
-      MemberId: {{ account }}
-      Email: {{ email }}
+      MemberId: "{{Account['Id']}}"
+      Email: "{{Account['Email']}}"
       Message: "You are invited to enable Amazon Guardduty."
       DetectorId: !Ref GuardDutyDetector
       DisableEmailNotification: true

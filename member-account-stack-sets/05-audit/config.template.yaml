@@ -1,4 +1,3 @@
----
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   DeliveryFrequency:
@@ -13,7 +12,7 @@ Parameters:
     - TwentyFour_Hours
   ConfigBucketPrefix:
     Type: String
-    Default: config-storage
+    Default: 'audit-storage-config'
   GlobalConfigRegion:
     Description: Region To use for Global AWS Config recording
     Type: String

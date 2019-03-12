@@ -1,0 +1,102 @@
+Parameters:
+  AlertingImportPrefix:
+    Type: String
+    Default: alerting
+    Description: Prefix of the Alerting exports to import for the service.
+
+Resources:
+  {% for Rule in ['ValidateStackSetUpToDate', 'ValidateStackSetDeployments' ]%}
+  {{Rule}}:
+    From: Lambda
+    Properties:
+      Principal: config.amazonaws.com
+      Environment:
+        StackName: !Ref AWS::StackName
+        AccountId: !Ref AWS::AccountId
+      Timeout: 300
+      Handler: index.{{Rule | lower }}
+      Runtime: python3.7
+
+  {{Rule}}ErrorAlarm:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmDescription: 'Validate Lambda Function failing'
+      Namespace: 'AWS/Lambda'
+      MetricName: Errors
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 0
+      AlarmActions:
+      - Fn::ImportValue: !Sub ${AlertingImportPrefix}:ErrorTopic
+      Dimensions:
+      - Name: FunctionName
+        Value: !Ref {{Rule}}LambdaFunction
+      TreatMissingData: notBreaching
+  {% endfor %}
+
+
+  LambdaExecutionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+        Version: '2012-10-17'
+      Path: "/"
+      RoleName: CrossAccountStackSetVerificationSourceRole
+    Type: AWS::IAM::Role
+
+  LambdaRolePolicy:
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - config:PutEvaluations
+              - organizations:ListAccounts
+              - ec2:DescribeRegions
+              - cloudformation:ListStackSets
+              - cloudformation:DescribeStackSet
+              - cloudformation:ListStackInstances
+            Resource: '*'
+            Effect: Allow
+          - Action:
+              - sts:AssumeRole
+            Resource: arn:aws:iam::*:role/CrossAccountStackSetVerificationTargetRole
+            Effect: Allow
+      PolicyName: ConfigRuleValidationLambdaPolicy
+      Roles:
+      - !Ref LambdaExecutionRole
+    Type: AWS::IAM::Policy
+
+  ValidateStackSetUpToDateConfigRule:
+    DependsOn: ValidateStackSetUpToDateLambdaInvokePermission
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ValidateStackSetUpToDate
+      Source:
+        Owner: CUSTOM_LAMBDA
+        SourceDetails:
+        - EventSource: "aws.config"
+          MessageType: "ScheduledNotification"
+          MaximumExecutionFrequency: Three_Hours
+        SourceIdentifier: !GetAtt ValidateStackSetUpToDateLambdaFunction.Arn
+
+
+  ValidateStackSetDeploymentsConfigRule:
+    DependsOn: ValidateStackSetDeploymentsLambdaInvokePermission
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ValidateStackSetDeployments
+      Source:
+        Owner: CUSTOM_LAMBDA
+        SourceDetails:
+        - EventSource: "aws.config"
+          MessageType: "ScheduledNotification"
+          MaximumExecutionFrequency: Three_Hours
+        SourceIdentifier: !GetAtt ValidateStackSetDeploymentsLambdaFunction.Arn
