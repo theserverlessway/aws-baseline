@@ -37,9 +37,7 @@ def walk_resource(resource, account):
 def handle_resources(resource_templates, account):
     resources = {}
     for key, resource in resource_templates.items():
-        if not any(replacer in key for replacer in REPLACE_KEYS.values()):
-            resources[key] = resource
-        else:
+        if any(replacer in key for replacer in REPLACE_KEYS.values()):
             new_key = replace(key, account)
             new_resource = copy.deepcopy(resource)
             walk_resource(new_resource, account)
@@ -48,10 +46,10 @@ def handle_resources(resource_templates, account):
 
 
 def handler(event, context):
-    print(event)
     fragment = copy.deepcopy(event['fragment'])
     resources = event['fragment']['Resources']
-    new_resources = {}
+    new_resources = {key: value for key, value in resources.items() if
+                     not any(replacer in key for replacer in REPLACE_KEYS.values())}
     acc = org_accounts(event['transformId'])
     for account in acc:
         new_resources.update(handle_resources(resources, account))
@@ -69,7 +67,7 @@ def org_accounts(transform_id):
     with_master = 'WithMaster' in transform_id
 
     accounts = [a for a in accounts if a['Status'] == 'ACTIVE' and (
-        with_master or (not with_master and a['Id'] != ACCOUNT_ID))]
+            with_master or (not with_master and a['Id'] != ACCOUNT_ID))]
     return accounts
 
 

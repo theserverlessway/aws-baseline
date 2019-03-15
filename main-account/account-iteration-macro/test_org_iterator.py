@@ -85,6 +85,21 @@ RESPONSE_WITH_MASTER = {
     }
 }
 
+RESPONSE_WITHOUT_SUBACCOUNTS= {
+    'requestId': ACCOUNT_ID,
+    'status': 'success',
+    'fragment': {
+        'Resources': {
+            'Test': {
+                'Properties': {
+                    'Admin': 'ACCOUNT_ID'
+                },
+                'Type': 'AWS::IAM::Role'
+            }
+        }
+    }
+}
+
 LIST_RESPONSE = {
     'requestId': ACCOUNT_ID,
     'status': 'success',
@@ -96,7 +111,6 @@ LIST_RESPONSE_WITH_MASTER = {
     'status': 'success',
     'fragment': [MASTER_ACCOUNT_ID, ACCOUNT_ID]
 }
-
 
 @pytest.fixture
 def organizations(mocker):
@@ -116,6 +130,11 @@ def test_iterate_accounts_with_master(organizations):
                                  'transformId': 'MacroNameWithMaster'},
                                 None) == RESPONSE_WITH_MASTER
 
+def test_iterate_accounts_with_no_subaccounts(organizations):
+    organizations.list_accounts.return_value = {"Accounts": []}
+    assert org_iterator.handler({'requestId': ACCOUNT_ID, 'fragment': EXAMPLE_FRAGMENT,
+                                 'transformId': 'MacroNameWithMaster'},
+                                None) == RESPONSE_WITHOUT_SUBACCOUNTS
 
 def test_account_list(organizations):
     assert org_iterator.account_list({'requestId': ACCOUNT_ID, 'fragment': EXAMPLE_FRAGMENT,
@@ -127,3 +146,4 @@ def test_account_list_with_master(organizations):
     assert org_iterator.account_list({'requestId': ACCOUNT_ID, 'fragment': EXAMPLE_FRAGMENT,
                                       'transformId': 'MacroNameWithMaster'},
                                      None) == LIST_RESPONSE_WITH_MASTER
+

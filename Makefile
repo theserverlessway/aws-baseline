@@ -34,3 +34,11 @@ stack-sets:
 
 stack-set-instances:
 	$(LIST_STACK_SETS_COMMAND) | (xargs -n 1 -P 15 aws cloudformation list-stack-instances --query "Summaries.{\"1.ID\":[0].StackSetId,\"2.Current\":join(', ', [?Status=='CURRENT'].join('/', [Account, Region])), \"3.Other\":join(', ', [?Status!='CURRENT'].join('/', [Account, Region]))}" --stack-set-name) | sed 's/:[a-z0-9][a-z0-9-]*//g' | jq -s -c 'sort_by(."1.ID")' | python3 json_table.py StackSetInstances
+
+
+test:
+	py.test --cov-branch --cov-report html --cov-report term-missing ./
+
+shell:
+	docker-compose build aws-baseline
+	docker-compose run aws-baseline bash
