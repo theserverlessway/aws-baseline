@@ -1,9 +1,30 @@
+{% set Roles = ['Admin', 'Developer', 'ReadOnly', 'SecurityAudit', 'Operations'] %}
+
 Transform: AccountIteration
 Resources:
-  AdminGroupACCOUNT_ID:
+  AssumeAccessAdministration:
+    Type: AWS::IAM::Group
     Properties:
-      GroupName: AdminGroupACCOUNT_ID
-      Path: /admin/ACCOUNT_ID/
+      GroupName: AssumeAccessAdministration
+      Path: /admin/assume-access/
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - iam:AddUserToGroup
+                Effect: Allow
+                Resource:
+                  {% for Role in Roles %}
+                  - !Sub arn:aws:iam::${AWS::AccountId}:group/assume/{{Role | lower}}/Group*/Assume{{Role}}Group*
+                  {% endfor %}
+          PolicyName: Policy
+
+  {% for Role in Roles %}
+  {{Role}}GroupACCOUNT_ID:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: Assume{{Role}}GroupACCOUNT_ID
+      Path: /assume/{{Role | lower}}/ACCOUNT_ID/
       Policies:
       - PolicyDocument:
           Statement:
@@ -11,20 +32,6 @@ Resources:
                 - sts:AssumeRole
               Effect: Allow
               Resource:
-                - arn:aws:iam::ACCOUNT_ID:role/admin
-                - arn:aws:iam::ACCOUNT_ID:role/user
-        PolicyName: AdminPolicyACCOUNT_ID
-    Type: AWS::IAM::Group
-  UserGroupACCOUNT_ID:
-    Properties:
-      GroupName: UserGroupACCOUNT_ID
-      Path: /user/ACCOUNT_ID/
-      Policies:
-      - PolicyDocument:
-          Statement:
-            - Action:
-                - sts:AssumeRole
-              Effect: Allow
-              Resource: arn:aws:iam::ACCOUNT_ID:role/user
-        PolicyName: UserPolicyACCOUNT_ID
-    Type: AWS::IAM::Group
+                - arn:aws:iam::ACCOUNT_ID:role/{{Role}}Role
+        PolicyName: {{Role}}PolicyACCOUNT_ID
+  {% endfor %}

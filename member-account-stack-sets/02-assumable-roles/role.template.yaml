@@ -6,6 +6,9 @@ Parameters:
   AllowedRegions:
     Type: String
     Default: 'us-east-1'
+  MaxSessionDuration:
+    Type: Number
+    Default: 28800
 
 Conditions:
   HasMFAEnabled: !Equals [true, !Ref MFA]
@@ -42,6 +45,7 @@ Resources:
 
   AssumableAdminRole:
     Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       PermissionsBoundary: !Ref AdminPermissionsBoundary
       Policies:
@@ -58,16 +62,18 @@ Resources:
       RoleName: AdminRole
     Type: AWS::IAM::Role
 
-  ReadOnlyRole:
+  AssumableReadOnlyRole:
     Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
-      RoleName: ReadOnlyRole
+      RoleName: ReadOnlyRole2
     Type: AWS::IAM::Role
 
   AssumableDeveloperRole:
     Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
@@ -94,6 +100,7 @@ Resources:
 
   AssumableCloudFormationDeveloperRole:
     Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
@@ -121,6 +128,7 @@ Resources:
 
   CloudFormationRole:
     Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
       AssumeRolePolicyDocument:
         Statement:
           Effect: Allow
@@ -141,3 +149,50 @@ Resources:
                   - '*'
       RoleName: CloudFormationRole
     Type: AWS::IAM::Role
+
+
+  AssumableSecurityAuditRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/SecurityAudit
+      PermissionsBoundary: !Ref DeveloperPermissionsBoundary
+      Policies:
+        - PolicyName: SecurityAudit
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Action:
+                  - support:DescribeTrustedAdvisorChecks
+                Effect: Allow
+                Resource: "*"
+      RoleName: SecurityAuditRole
+    Type: AWS::IAM::Role
+
+  AssumableOperationsRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      PermissionsBoundary: !Ref DeveloperPermissionsBoundary
+      Policies:
+        - PolicyName: Operations
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+            - Action:
+              - cloudwatch:Describe*
+              - cloudwatch:Get*
+              - cloudwatch:List*
+              - logs:Describe*
+              - logs:Get*
+              - logs:List*
+              - logs:FilterLogEvents
+              - logs:StartQuery
+              Effect: Allow
+              Resource:
+                - "*"
+              Sid: AllowCloudWatchDevopsView
+      RoleName: OperationsRole
+    Type: AWS::IAM::Role
+
