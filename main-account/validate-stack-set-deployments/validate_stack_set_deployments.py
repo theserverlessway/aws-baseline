@@ -137,24 +137,24 @@ class CrossAccountStackSetValidation(Validation):
 
 class InstanceDeploymentValidation(Validation):
     def validate(self):
-        if self.tags.get('AllAccounts'):
+        if self.tags.get('ValidateAllAccounts'):
             accounts = all_accounts()
-        if self.tags.get('AllSubaccounts'):
+        if self.tags.get('ValidateAllSubaccounts'):
             accounts = [a for a in all_accounts() if a != os.environ['AccountId']]
-        elif (self.tags.get('Accounts')):
+        elif (self.tags.get('ValidateAccounts')):
             accounts = self.tags.get('Accounts').split('/')
-        elif (self.tags.get('ExcludedAccounts')):
+        elif (self.tags.get('ValidateExcludedAccounts')):
             excluded_accounts = self.tags.get('ExcludedAccounts').split('/')
             accounts = [a for a in all_accounts() if a not in excluded_accounts]
         else:
             accounts = []
 
-        if self.tags.get('AllRegions'):
+        if self.tags.get('ValidateAllRegions'):
             regions = all_regions()
-        elif (self.tags.get('Regions')):
-            regions = self.tags.get('Regions').split('/')
-        elif (self.tags.get('ExcludedRegions')):
-            excluded_regions = self.tags.get('ExcludedRegions').split('/')
+        elif (self.tags.get('ValidateRegions')):
+            regions = self.tags.get('ValidateRegions').split('/')
+        elif (self.tags.get('ValidateExcludedRegions')):
+            excluded_regions = self.tags.get('ValidateExcludedRegions').split('/')
             regions = [r for r in all_regions() if r not in excluded_regions]
         else:
             regions = []

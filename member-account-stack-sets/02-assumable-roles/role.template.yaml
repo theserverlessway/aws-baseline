@@ -26,7 +26,6 @@ Resources:
             Resource: "*"
           - {% include 'policy-statements/deny-stackset-actions.json'%}
           - {% include 'policy-statements/deny-stackset-cloudformation-actions.json'%}
-          - {% include 'policy-statements/region-check.json'%}
 
   DeveloperPermissionsBoundary:
     Type: AWS::IAM::ManagedPolicy
@@ -68,7 +67,7 @@ Resources:
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
-      RoleName: ReadOnlyRole2
+      RoleName: ReadOnlyRole
     Type: AWS::IAM::Role
 
   AssumableDeveloperRole:

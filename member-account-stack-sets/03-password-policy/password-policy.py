@@ -3,16 +3,19 @@ import boto3
 
 iam = boto3.client('iam')
 
+def is_bool(value):
+    return value.lower() == 'true'
+
 password_policy_keys = dict(
     MinimumPasswordLength=int,
-    RequireSymbols=bool,
-    RequireNumbers=bool,
-    RequireUppercaseCharacters=bool,
-    RequireLowercaseCharacters=bool,
-    AllowUsersToChangePassword=bool,
+    RequireSymbols=is_bool,
+    RequireNumbers=is_bool,
+    RequireUppercaseCharacters=is_bool,
+    RequireLowercaseCharacters=is_bool,
+    AllowUsersToChangePassword=is_bool,
     MaxPasswordAge=int,
     PasswordReusePrevention=int,
-    HardExpiry=bool
+    HardExpiry=is_bool
 )
 
 def handler(event, context):

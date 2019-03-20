@@ -1,9 +1,34 @@
-# Resources:
-#   RootAccountMFAEnabledConfigRule:
-#     Condition: IsGlobalRegion
-#     Type: AWS::Config::ConfigRule
-#     Properties:
-#       ConfigRuleName: "ROOT_ACCOUNT_MFA_ENABLED"
-#       Source:
-#         Owner: AWS
-#         SourceIdentifier: "ROOT_ACCOUNT_MFA_ENABLED"
+{% set GlobalRules = ['IAM_POLICY_NO_STATEMENTS_WITH_ADMIN_ACCESS', 'IAM_PASSWORD_POLICY', 'ROOT_ACCOUNT_MFA_ENABLED', 'IAM_ROOT_ACCESS_KEY_CHECK', 'MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS'] %}
+
+Resources:
+  {% for Rule in GlobalRules %}
+  {{Rule | resource}}:
+    Condition: IsGlobalRegion
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "{{Rule}}"
+      Source:
+        Owner: AWS
+        SourceIdentifier: "{{Rule}}"
+  {% endfor %}
+
+  GuardDutyEnabledAndCentralized:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "GUARDDUTY_ENABLED_CENTRALIZED"
+      InputParameters:
+        CentralMonitoringAccount: !Ref MainAccount
+      Source:
+        Owner: AWS
+        SourceIdentifier: "GUARDDUTY_ENABLED_CENTRALIZED"
+
+  MultiRegionCloudTrailEnabled:
+    Condition: IsGlobalRegion
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "MULTI_REGION_CLOUD_TRAIL_ENABLED"
+      InputParameters:
+        s3BucketName: !Sub ${TrailBucketPrefix}-${MainAccount}
+      Source:
+        Owner: AWS
+        SourceIdentifier: "MULTI_REGION_CLOUD_TRAIL_ENABLED"

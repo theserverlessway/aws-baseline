@@ -4,27 +4,104 @@ Resources:
       GroupName: AdminMasterAccount
       Path: /admin/
       Policies:
-      - PolicyDocument:
-          Statement:
-            - Action:
-                - '*'
-              Effect: Allow
-              Resource: '*'
-            - Action: sts:AssumeRole
-              Effect: Allow
-              Resource: arn:aws:iam::*:role/admin
-        PolicyName: AdminPolicy
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - '*'
+                Effect: Allow
+                Resource: '*'
+              - Action: sts:AssumeRole
+                Effect: Allow
+                Resource: arn:aws:iam::*:role/admin
+          PolicyName: AdminPolicy
     Type: AWS::IAM::Group
   AccountListing:
     Properties:
       GroupName: ListAccounts
       Path: /admin/
       Policies:
-      - PolicyDocument:
-          Statement:
-            - Action:
-                - 'organizations:ListAccounts'
-              Effect: Allow
-              Resource: '*'
-        PolicyName: AccountListing
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - 'organizations:ListAccounts'
+                Effect: Allow
+                Resource: '*'
+          PolicyName: AccountListing
+    Type: AWS::IAM::Group
+
+  UserCredentialsManagement:
+    Properties:
+      GroupName: UserCredentialsManagement
+      Path: /admin/
+      Policies:
+        - PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: iam:GetAccountPasswordPolicy
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iam:ChangePassword
+                  - iam:GetLoginProfile
+                  - iam:UpdateLoginProfile
+                Resource: arn:aws:iam::*:user/${aws:username}
+              - Sid: AllowListActions
+                Effect: Allow
+                Action:
+                  - iam:ListUsers
+                  - iam:ListVirtualMFADevices
+                Resource: "*"
+              - Sid: AllowIndividualUserToListOnlyTheirOwnMFA
+                Effect: Allow
+                Action:
+                  - iam:ListMFADevices
+                Resource:
+                  - arn:aws:iam::*:mfa/*
+                  - arn:aws:iam::*:user/${aws:username}
+              - Sid: AllowIndividualUserToManageTheirOwnMFA
+                Effect: Allow
+                Action:
+                  - iam:CreateVirtualMFADevice
+                  - iam:DeleteVirtualMFADevice
+                  - iam:EnableMFADevice
+                  - iam:ResyncMFADevice
+                Resource:
+                  - arn:aws:iam::*:mfa/${aws:username}
+                  - arn:aws:iam::*:user/${aws:username}
+              - Sid: AllowIndividualUserToDeactivateOnlyTheirOwnMFAOnlyWhenUsingMFA
+                Effect: Allow
+                Action:
+                  - iam:DeactivateMFADevice
+                Resource:
+                  - arn:aws:iam::*:mfa/${aws:username}
+                  - arn:aws:iam::*:user/${aws:username}
+                Condition:
+                  Bool:
+                    aws:MultiFactorAuthPresent: 'true'
+              - Sid: ManageAccessKeys
+                Effect: Allow
+                Action:
+                  - iam:ListAccessKeys
+                  - iam:CreateAccessKey
+                  - iam:DeleteAccessKey
+                Resource:
+                  - arn:aws:iam::*:user/${aws:username}
+                Condition:
+                  Bool:
+                    aws:MultiFactorAuthPresent: 'true'
+              - Sid: BlockMostAccessUnlessSignedInWithMFA
+                Effect: Deny
+                NotAction:
+                  - iam:CreateVirtualMFADevice
+                  - iam:EnableMFADevice
+                  - iam:ListMFADevices
+                  - iam:ListUsers
+                  - iam:ListVirtualMFADevices
+                  - iam:ResyncMFADevice
+                Resource: "*"
+                Condition:
+                  BoolIfExists:
+                    aws:MultiFactorAuthPresent: 'false'
+          PolicyName: UserCredentialManagement
     Type: AWS::IAM::Group

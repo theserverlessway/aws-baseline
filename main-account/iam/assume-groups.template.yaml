@@ -1,6 +1,5 @@
 {% set Roles = ['Admin', 'Developer', 'ReadOnly', 'SecurityAudit', 'Operations'] %}
 
-Transform: AccountIteration
 Resources:
   AssumeAccessAdministration:
     Type: AWS::IAM::Group
@@ -19,12 +18,13 @@ Resources:
                   {% endfor %}
           PolicyName: Policy
 
+  {% for Account in AWSSubAccounts%}
   {% for Role in Roles %}
-  {{Role}}GroupACCOUNT_ID:
+  {{Role}}Group{{Account['Id']}}:
     Type: AWS::IAM::Group
     Properties:
-      GroupName: Assume{{Role}}GroupACCOUNT_ID
-      Path: /assume/{{Role | lower}}/ACCOUNT_ID/
+      GroupName: Assume{{Role}}Group{{Account['Id']}}
+      Path: /assume/{{Role | lower}}/{{Account['Id']}}/
       Policies:
       - PolicyDocument:
           Statement:
@@ -32,6 +32,7 @@ Resources:
                 - sts:AssumeRole
               Effect: Allow
               Resource:
-                - arn:aws:iam::ACCOUNT_ID:role/{{Role}}Role
-        PolicyName: {{Role}}PolicyACCOUNT_ID
+                - arn:aws:iam::{{Account['Id']}}:role/{{Role}}Role
+        PolicyName: {{Role}}Policy{{Account['Id']}}
+  {% endfor %}
   {% endfor %}

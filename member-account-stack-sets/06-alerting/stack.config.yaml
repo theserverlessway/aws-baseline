@@ -1,8 +1,0 @@
-stack-set: alerting
-stack: alerting
-parameters:
-  FallbackEmail: flo@flomotlik.me
-execution-role-name: AWSCloudFormationStackSetDevOpsExecutionRole
-administration-role-name: AWSCloudFormationStackSetDevOpsAdministrationRole
-capabilities:
-  - CAPABILITY_IAM

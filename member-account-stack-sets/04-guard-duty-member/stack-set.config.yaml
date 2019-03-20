@@ -1,8 +1,9 @@
 stack-set: guardduty-member
 main-account: true
-#max-concurrent-percentage: 100
+max-concurrent-percentage: 100
 all-subaccounts: true
 #all-regions: true
-#tags:
-#  AllSubaccounts: true
-#  AllRegions: true
+main-account-parameter: true
+tags:
+  ValidateAllSubaccounts: true
+  ValidateAllRegions: true

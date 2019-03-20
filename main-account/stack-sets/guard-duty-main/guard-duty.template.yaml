@@ -4,7 +4,7 @@ Resources:
     Properties:
       Enable: true
 
-  {% for Account in Accounts %}
+  {% for Account in AWSSubAccounts %}
   GuardDutyMember{{Account['Id']}}:
     Type: "AWS::GuardDuty::Member"
     Properties:

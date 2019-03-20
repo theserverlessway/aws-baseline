@@ -1,0 +1,25 @@
+Resources:
+  FailAllResourcesCompliance:
+    From: Modules::Lambda
+    Properties:
+      Code: |
+        {{ code('fail_all_resources.py') | indent(8) }}
+      Principal: config.amazonaws.com
+      Environment:
+        StackName: !Ref AWS::StackName
+      Statements:
+        - Action: config:PutEvaluations
+          Resource: '*'
+          Effect: Allow
+
+  FailAllResourcesConfigRule:
+    DependsOn: FailAllResourcesComplianceLambdaInvokePermission
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: FAIL_ALL_RESOURCES
+      Source:
+        Owner: CUSTOM_LAMBDA
+        SourceDetails:
+        - EventSource: "aws.config"
+          MessageType: "ConfigurationItemChangeNotification"
+        SourceIdentifier: !GetAtt FailAllResourcesComplianceLambdaFunction.Arn

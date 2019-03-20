@@ -2,9 +2,8 @@ Parameters:
   MaxBudget:
     Type: Number
     Default: 3000
-  AlertImportPrefix:
+  BudgetAlertEmail:
     Type: String
-    Default: alerting
 
 Resources:
   AccountBudget:
@@ -22,14 +21,12 @@ Resources:
             ComparisonOperator: GREATER_THAN
             Threshold: 80
           Subscribers:
-          - SubscriptionType: SNS
-            Address:
-              Fn::ImportValue: !Sub ${AlertImportPrefix}:InfoTopic
+          - SubscriptionType: EMAIL
+            Address: !Ref BudgetAlertEmail
         - Notification:
             NotificationType: FORECASTED
             ComparisonOperator: GREATER_THAN
             Threshold: 110
           Subscribers:
-          - SubscriptionType: SNS
-            Address:
-              Fn::ImportValue: !Sub ${AlertImportPrefix}:WarningTopic
+          - SubscriptionType: EMAIL
+            Address: !Ref BudgetAlertEmail

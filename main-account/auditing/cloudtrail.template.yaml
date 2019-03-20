@@ -32,3 +32,7 @@ Resources:
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
+
+
+  AthenaSearch:
+    From: CloudTrail-Athena
