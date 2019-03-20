@@ -25,7 +25,7 @@ def walk_resource(resource, account):
     else:
         print('Unsupported Type')
         print(type(resource))
-        raise
+        raise Exception
     for index, value in items:
         if type(value) is str:
             resource[index] = replace(value, account)
