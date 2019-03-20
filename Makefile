@@ -44,3 +44,6 @@ test:
 shell:
 	docker-compose build aws-baseline
 	docker-compose run aws-baseline bash
+
+diff-stack-sets:
+	@ls stack-sets | xargs -n 1 -I {} bash -c "echo '{} ----------------------------------' && cd stack-sets/{} && formica stack-set diff -c stack-set.config.yaml && echo -e '\n\n'"
