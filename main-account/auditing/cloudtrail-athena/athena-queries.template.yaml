@@ -1,0 +1,12 @@
+{% set Queries = ['root-login-30-days', 'admin-role-login-30-days'] %}
+
+Resources:
+  {% for Query in Queries %}
+  {{Query | resource}}:
+    Type: AWS::Athena::NamedQuery
+    Properties:
+      Database: !Ref CloudTrailDatabase
+      Description: "{{Query}}"
+      Name: "{{Query | resource}}"
+      QueryString: !Sub  "{{ code('queries/{}.sql'.format(Query)) }}"
+    {% endfor %}

@@ -1,0 +1,80 @@
+Resources:
+  CloudTrailDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      DatabaseInput:
+        Name: cloudtrail
+      CatalogId: !Ref AWS::AccountId
+
+  CloudTrailTable:
+    Properties:
+      DatabaseName: !Ref CloudTrailDatabase
+      CatalogId: !Ref AWS::AccountId
+      TableInput:
+        Description: !Sub 'CloudTrail table for ${CloudTrailBucket} bucket'
+        Name: cloudtrail
+        Parameters:
+          classification: 'cloudtrail'
+          EXTERNAL: 'TRUE'
+        StorageDescriptor:
+          Columns:
+          - Name: eventVersion
+            Type: 'string'
+          - Name: userIdentity
+            Type: 'struct<type:string,principalId:string,arn:string,accountId:string,invokedBy:string,accessKeyId:string,userName:string,sessionContext:struct<attributes:struct<mfaAuthenticated:string,creationDate:string>,sessionIssuer:struct<type:string,principalId:string,arn:string,accountId:string,userName:string>>>'
+          - Name: eventTime
+            Type: 'string'
+          - Name: eventSource
+            Type: 'string'
+          - Name: eventName
+            Type: 'string'
+          - Name: awsRegion
+            Type: 'string'
+          - Name: sourceIpAddress
+            Type: 'string'
+          - Name: userAgent
+            Type: 'string'
+          - Name: errorCode
+            Type: 'string'
+          - Name: errorMessage
+            Type: 'string'
+          - Name: requestParameters
+            Type: 'string'
+          - Name: responseElements
+            Type: 'string'
+          - Name: additionalEventData
+            Type: 'string'
+          - Name: requestId
+            Type: 'string'
+          - Name: eventId
+            Type: 'string'
+          - Name: resources
+            Type: 'array<struct<arn:string,accountId:string,type:string>>'
+          - Name: eventType
+            Type: 'string'
+          - Name: apiVersion
+            Type: 'string'
+          - Name: readOnly
+            Type: 'string'
+          - Name: recipientAccountId
+            Type: 'string'
+          - Name: serviceEventDetails
+            Type: 'string'
+          - Name: sharedEventID
+            Type: 'string'
+          - Name: vpcEndpointId
+            Type: 'string'
+          InputFormat: 'com.amazon.emr.cloudtrail.CloudTrailInputFormat'
+          Location: !Sub 's3://${CloudTrailBucket}/'
+          OutputFormat: 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+          NumberOfBuckets: -1
+          SkewedInfo:
+            SkewedColumnNames: []
+            SkewedColumnValues: []
+            SkewedColumnValueLocationMaps: {}
+          SerdeInfo:
+            Parameters:
+              serialization.format: '1'
+            SerializationLibrary: 'com.amazon.emr.hive.serde.CloudTrailSerde'
+        TableType: EXTERNAL_TABLE
+    Type: AWS::Glue::Table
