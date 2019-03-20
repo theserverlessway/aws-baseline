@@ -7,7 +7,7 @@ Parameters:
   {{Level}}Email:
     Description: 'Email address that will receive {{Level}} alerts'
     Type: String
-    Default: ''
+    Default: 'empty'
   {% endfor %}
   FallbackEmail:
     Description: 'Email address that will receive alerts if alerts can not be delivered'
@@ -15,7 +15,7 @@ Parameters:
 
 Conditions:
 {% for Level in AlertLevels %}
-  Has{{Level}}Email: !Not [!Equals [!Ref {{Level}}Email, '']]
+  Has{{Level}}Email: !Not [!Equals [!Ref {{Level}}Email, 'empty']]
 {% endfor %}
 
 Resources:

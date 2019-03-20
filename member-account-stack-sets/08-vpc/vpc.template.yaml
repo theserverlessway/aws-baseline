@@ -20,7 +20,7 @@ Parameters:
     AllowedValues: ["none", "single", "all"]
   ExportsPrefix:
     Type: String
-    Default: 'vpc-iam'
+    Default: 'vpc'
   AttachVPN:
     Type: String
     Default: 'false'

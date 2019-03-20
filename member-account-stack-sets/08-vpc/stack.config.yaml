@@ -1,6 +1,7 @@
-stack: vpc-iam
-stack-set: vpc-iam
+stack: vpc
+stack-set: vpc
 vars:
   AvailabilityZones: 3
 parameters:
   PrivateNatGateway: none
+all-subaccounts: true

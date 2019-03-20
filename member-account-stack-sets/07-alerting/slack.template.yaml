@@ -2,10 +2,10 @@
 Parameters:
   SlackWebHookUrl:
     Type: String
-    Default: ''
+    Default: 'empty'
 
 Conditions:
-  HasSlackChannel: !Not [!Equals [!Ref SlackWebHookUrl, '']]
+  HasSlackChannel: !Not [!Equals [!Ref SlackWebHookUrl, 'empty']]
 
 Resources:
   SlackNotifications:
