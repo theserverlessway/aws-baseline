@@ -12,36 +12,8 @@ Parameters:
 
 Conditions:
   HasMFAEnabled: !Equals [true, !Ref MFA]
+
 Resources:
-  AdminPermissionsBoundary:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: AdminPermissionsBoundary
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: AllowAdminAccess
-            Effect: Allow
-            Action: "*"
-            Resource: "*"
-          - {% include 'policy-statements/deny-stackset-actions.json'%}
-          - {% include 'policy-statements/deny-stackset-cloudformation-actions.json'%}
-
-  DeveloperPermissionsBoundary:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: DeveloperPermissionsBoundary
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: AllowAdminAccess
-            Effect: Allow
-            Action: "*"
-            Resource: "*"
-          - {% include 'policy-statements/deny-stackset-actions.json'%}
-          - {% include 'policy-statements/deny-stackset-cloudformation-actions.json'%}
-          - {% include 'policy-statements/region-check.json'%}
-
   AssumableAdminRole:
     Properties:
       MaxSessionDuration: !Ref MaxSessionDuration
@@ -58,7 +30,7 @@ Resources:
                   - '*'
                 Resource:
                   - '*'
-      RoleName: AdminRole
+      RoleName: AssumableAdminRole
     Type: AWS::IAM::Role
 
   AssumableReadOnlyRole:
@@ -67,7 +39,7 @@ Resources:
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
-      RoleName: ReadOnlyRole
+      RoleName: AssumableReadOnlyRole
     Type: AWS::IAM::Role
 
   AssumableDeveloperRole:
@@ -76,25 +48,19 @@ Resources:
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
+      PermissionsBoundary: !Ref DeveloperPermissionsBoundary
       Policies:
         - PolicyName: CloudFormation
           PolicyDocument:
             Version: '2008-10-17'
             Statement:
-              - Sid: AllowCloudFormation
+              - Sid: AllowDeveloperAccess
                 Effect: Allow
                 Action:
-                  - cloudformation:*
+                  - '*'
                 Resource:
                   - "*"
-              - Sid: PassingRoleToCloudFormation
-                Effect: Allow
-                Action:
-                  - iam:PassRole
-                  - iam:GetRole
-                Resource:
-                  - !GetAtt CloudFormationRole.Arn
-      RoleName: DeveloperRole
+      RoleName: AssumableDeveloperRole
     Type: AWS::IAM::Role
 
   AssumableCloudFormationDeveloperRole:
@@ -122,11 +88,35 @@ Resources:
                   - iam:GetRole
                 Resource:
                   - !GetAtt CloudFormationRole.Arn
-      RoleName: CloudFormationDeveloperRole
+              - Action:
+                  - ecr:DescribeImages
+                  - ecr:ListImages
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:BatchDeleteImage
+                  - ecr:CompleteLayerUpload
+                  - ecr:GetAuthorizationToken
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+                  - ecr:BatchDeleteImage
+                Effect: Allow
+                Resource:
+                  - "*"
+                Sid: ECRPushAccess
+              - Action:
+                  - lambda:UpdateFunctionCode
+                Effect: Allow
+                Resource:
+                  - "*"
+                Sid: LambdaUpdateFunctionCode
+      RoleName: AssumableCloudFormationDeveloperRole
     Type: AWS::IAM::Role
 
   CloudFormationRole:
     Properties:
+      Path: /cloudformation/CloudFormationRole/
       MaxSessionDuration: !Ref MaxSessionDuration
       AssumeRolePolicyDocument:
         Statement:
@@ -134,7 +124,7 @@ Resources:
           Principal:
             Service: cloudformation.amazonaws.com
           Action: sts:AssumeRole
-      PermissionsBoundary: !Ref AdminPermissionsBoundary
+      PermissionsBoundary: !Ref DeveloperPermissionsBoundary
       Policies:
         - PolicyName: CloudFormationRoleAdmin
           PolicyDocument:
@@ -146,7 +136,7 @@ Resources:
                   - '*'
                 Resource:
                   - '*'
-      RoleName: CloudFormationRole
+      RoleName: AssumableCloudFormationRole
     Type: AWS::IAM::Role
 
 
@@ -166,7 +156,7 @@ Resources:
                   - support:DescribeTrustedAdvisorChecks
                 Effect: Allow
                 Resource: "*"
-      RoleName: SecurityAuditRole
+      RoleName: AssumableSecurityAuditRole
     Type: AWS::IAM::Role
 
   AssumableOperationsRole:
@@ -179,19 +169,19 @@ Resources:
           PolicyDocument:
             Version: '2008-10-17'
             Statement:
-            - Action:
-              - cloudwatch:Describe*
-              - cloudwatch:Get*
-              - cloudwatch:List*
-              - logs:Describe*
-              - logs:Get*
-              - logs:List*
-              - logs:FilterLogEvents
-              - logs:StartQuery
-              Effect: Allow
-              Resource:
-                - "*"
-              Sid: AllowCloudWatchDevopsView
-      RoleName: OperationsRole
+              - Action:
+                  - cloudwatch:Describe*
+                  - cloudwatch:Get*
+                  - cloudwatch:List*
+                  - logs:Describe*
+                  - logs:Get*
+                  - logs:List*
+                  - logs:FilterLogEvents
+                  - logs:StartQuery
+                Effect: Allow
+                Resource:
+                  - "*"
+                Sid: AllowCloudWatchDevopsView
+      RoleName: AssumableOperationsRole
     Type: AWS::IAM::Role
 

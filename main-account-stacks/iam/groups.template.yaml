@@ -42,7 +42,6 @@ Resources:
                 Resource: "*"
               - Effect: Allow
                 Action:
-                  - iam:ChangePassword
                   - iam:GetLoginProfile
                   - iam:UpdateLoginProfile
                 Resource: arn:aws:iam::*:user/${aws:username}
@@ -99,6 +98,10 @@ Resources:
                   - iam:ListUsers
                   - iam:ListVirtualMFADevices
                   - iam:ResyncMFADevice
+                  - iam:ChangePassword
+                  - sts:AssumeRole
+                  - organizations:ListAccounts
+                  - iam:ListAccountAliases
                 Resource: "*"
                 Condition:
                   BoolIfExists:

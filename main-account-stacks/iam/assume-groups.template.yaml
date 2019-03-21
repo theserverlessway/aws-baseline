@@ -1,4 +1,4 @@
-{% set Roles = ['Admin', 'Developer', 'ReadOnly', 'SecurityAudit', 'Operations'] %}
+{% set Roles = ['Admin', 'Developer', 'CloudFormationDeveloper', 'ReadOnly', 'SecurityAudit', 'Operations'] %}
 
 Resources:
   AssumeAccessAdministration:
@@ -32,7 +32,7 @@ Resources:
                 - sts:AssumeRole
               Effect: Allow
               Resource:
-                - arn:aws:iam::{{Account['Id']}}:role/{{Role}}Role
+                - arn:aws:iam::{{Account['Id']}}:role/Assumable{{Role}}Role
         PolicyName: {{Role}}Policy{{Account['Id']}}
   {% endfor %}
   {% endfor %}

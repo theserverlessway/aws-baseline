@@ -1,0 +1,73 @@
+- Sid: CreateOrChangeOnlyWithBoundary
+  Effect: Deny
+  Action:
+    - iam:CreateRole
+    - iam:DeleteRolePolicy
+    - iam:AttachRolePolicy
+    - iam:DetachRolePolicy
+    - iam:PutRolePolicy
+    - iam:PutRolePermissionsBoundary
+    # While we specifically deny creating users above in case they ever
+    # should be created we want them to have to follow the same PermissionsBoundary
+    - iam:CreateUser
+    - iam:PutUserPolicy
+    - iam:DeleteUserPolicy
+    - iam:AttachUserPolicy
+    - iam:DetachUserPolicy
+    - iam:PutUserPermissionsBoundary
+  Resource: "*"
+  Condition:
+    StringNotEquals:
+      iam:PermissionsBoundary: !Ref CreatedIdentitiesPermissionsBoundary
+# Allowed IAM actions that don't support or need PermissionsBoundaries
+# Used for policy creation and updates from toolbox' service template.
+- Sid: AllowedIAMActionsAgainstAnyResource
+  Effect: Allow
+  Action:
+    - iam:CreateServiceLinkedRole
+    - iam:CreatePolicy
+    - iam:DeletePolicy
+    - iam:ListPolicyVersions
+    - iam:CreatePolicyVersion
+    - iam:DeletePolicyVersion
+    - iam:ListAccessKeys
+    - iam:DeleteAccessKey
+    - iam:CreateAccessKey
+    - iam:GetUser
+    - iam:GetPolicy
+    - iam:GetRole
+    - iam:PassRole
+  Resource: "*"
+# Do not allow users to edit the Permission Boundaries created in this template
+- Sid: NoBoundaryPolicyEdit
+  Effect: Deny
+  Action:
+    - iam:CreatePolicyVersion
+    - iam:DeletePolicy
+    - iam:DeletePolicyVersion
+    - iam:SetDefaultPolicyVersion
+  Resource:
+    - !Sub arn:aws:iam::${AWS::AccountId}:policy/boundaries/*
+# Do not allow developers to delete the specific roles necessary for working with the account
+# They need to be able to remove roles in case the stack creates them.
+- Sid: NoDeleteOnAssumableRoles
+  Effect: Deny
+  Action:
+  - iam:*
+  Resource:
+  - !Sub arn:aws:iam::${AWS::AccountId}:role/AWSCloudFormationStackSet*
+  - !Sub arn:aws:iam::${AWS::AccountId}:role/Assumable*
+# Do not allow anyone to Delete a Permissions Boundary from users or roles
+- Sid: NoBoundaryUserRoleDelete
+  Effect: Deny
+  Action:
+    - iam:DeleteRolePermissionsBoundary
+    - iam:DeleteUserPermissionsBoundary
+  Resource: "*"
+# Allow users and roles to be deleted as stacks may create and remove them
+- Sid: AllowUserAndRoleDelete
+  Effect: Allow
+  Action:
+    - iam:DeleteRole
+    - iam:DeleteUser
+  Resource: "*"

@@ -1,0 +1,45 @@
+Resources:
+  CreatedIdentitiesPermissionsBoundary:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: CreatedIdentitiesPermissionsBoundary
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowedServicesForIdentities
+            Effect: Allow
+            NotAction: 'iam:*'
+            Resource: "*"
+          # Restrict all actions if they are not in the AllowedRegions
+          - {{ file('policy-statements/region-check.json') | indent(12) }}
+
+  AdminPermissionsBoundary:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: AdminPermissionsBoundary
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowAdminAccess
+            Effect: Allow
+            Action: "*"
+            Resource: "*"
+          - {{ file('policy-statements/deny-stackset-actions.json') | indent(12) }}
+          - {{ file('policy-statements/deny-stackset-cloudformation-actions.json') | indent(width=12) }}
+          {{ file('policy-statements/create-identities.yaml') | indent(width=10) }}
+
+  DeveloperPermissionsBoundary:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: DeveloperPermissionsBoundary
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowAdminAccess
+            Effect: Allow
+            Action: "*"
+            Resource: "*"
+          - {{ file('policy-statements/deny-stackset-actions.json') | indent(12) }}
+          - {{ file('policy-statements/deny-stackset-cloudformation-actions.json') | indent(12) }}
+          - {{ file('policy-statements/region-check.json') | indent(12) }}
+          {{ file('policy-statements/create-identities.yaml') | indent(10) }}
