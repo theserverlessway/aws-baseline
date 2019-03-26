@@ -1,10 +1,19 @@
 Parameters:
-  AlertingImportPrefix:
+  AlertEmail:
     Type: String
-    Default: alerting
-    Description: Prefix of the Alerting exports to import for the service.
+    Description: Email address to notify in case the Validate Lambda function breaks
 
 Resources:
+  ValidateLambdaErrorTopic:
+    Type: 'AWS::SNS::Topic'
+    Properties: {}
+
+  ValidateLambdaErrorEmailSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      Endpoint: !Ref AlertEmail
+      Protocol: email
+      TopicArn: !Ref ValidateLambdaErrorTopic
   {% for Rule in ['ValidateStackSetUpToDate', 'ValidateStackSetDeployments' ]%}
   {{Rule}}:
     From: Lambda
@@ -29,7 +38,7 @@ Resources:
       ComparisonOperator: GreaterThanThreshold
       Threshold: 0
       AlarmActions:
-      - Fn::ImportValue: !Sub ${AlertingImportPrefix}:ErrorTopic
+      - !Ref ValidateLambdaErrorTopic
       Dimensions:
       - Name: FunctionName
         Value: !Ref {{Rule}}LambdaFunction

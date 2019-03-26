@@ -33,7 +33,7 @@ class Validation:
         self.tags = tags_to_map(self.stack_set['Tags'])
         self.evaluations = evaluations
 
-    def add_evalation(self, resource_id, compliance, annotation):
+    def add_evaluation(self, resource_id, compliance, annotation):
         self.evaluations.append({
             'ComplianceResourceType': 'AWS::CloudFormation::Stack',
             'ComplianceResourceId': resource_id,
@@ -132,14 +132,16 @@ class CrossAccountStackSetValidation(Validation):
                 compliance = COMPLIANT
             formatted_annotation = annotation.format(self.stack_set_name, grace_period)
             print('{}: {}'.format(formatted_annotation, compliance))
-            self.add_evalation(self.stack_set_name, compliance, formatted_annotation)
+            self.add_evaluation(self.stack_set_name, compliance, formatted_annotation)
 
 
 class InstanceDeploymentValidation(Validation):
     def validate(self):
         if self.tags.get('ValidateAllAccounts'):
             accounts = all_accounts()
-        if self.tags.get('ValidateAllSubaccounts'):
+        elif self.tags.get('ValidateMainAccount'):
+            accounts = [os.environ['AccountId']]
+        elif self.tags.get('ValidateAllSubAccounts'):
             accounts = [a for a in all_accounts() if a != os.environ['AccountId']]
         elif (self.tags.get('ValidateAccounts')):
             accounts = self.tags.get('Accounts').split('/')
@@ -183,15 +185,15 @@ class InstanceDeploymentValidation(Validation):
                     compliance = NON_COMPLIANT
                     message = 'StackSet {} is deployed but not in status CURRENT in account {} and region {}'
             options = self.stack_set_name, expected_instance[0], expected_instance[1]
-            self.add_evalation('{}-{}-{}'.format(*options),
-                               compliance,
-                               message.format(
+            self.add_evaluation('{}-{}-{}'.format(*options),
+                                compliance,
+                                message.format(
                                    *options))
 
         if expected_instances:
             for instance in (deployed_instances.keys() - expected_instances):
-                self.add_evalation('{}-{}-{}'.format(self.stack_set_name, instance[0], instance[1]),
-                                   NON_COMPLIANT,
+                self.add_evaluation('{}-{}-{}'.format(self.stack_set_name, instance[0], instance[1]),
+                                    NON_COMPLIANT,
                                    'StackSet {} is deployed but not defined in tags in account {} and region {}'.format(
                                        self.stack_set_name, instance[0], instance[1]))
         else:
@@ -203,9 +205,9 @@ class InstanceDeploymentValidation(Validation):
                     compliance = NON_COMPLIANT
                     message = 'StackSet {} is deployed but in Status {status} in account {} and region {}'
                 options = [self.stack_set_name, instance[0], instance[1]]
-                self.add_evalation('{}-{}-{}'.format(*options),
-                                   compliance,
-                                   message.format(*options, status=status))
+                self.add_evaluation('{}-{}-{}'.format(*options),
+                                    compliance,
+                                    message.format(*options, status=status))
 
 
 def all_stack_instances(StackSetName, **Parameters):

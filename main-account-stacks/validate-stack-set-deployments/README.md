@@ -35,14 +35,14 @@ until you add a StackSet instance.
 
 ```
 tags:
-  AllAccounts: true
-  AllSubaccounts: true
-  Accounts: 123456789/098765432
-  ExcludedAccounts: 987654321
+  ValidateAllAccounts: true
+  ValidateAllSubAccounts: true
+  ValidateAccounts: 123456789/098765432
+  ValidateExcludedAccounts: 987654321
 
-  AllRegions: true
-  Regions: eu-central-1/eu-west-1
-  ExcludedRegions: eu-west-1/us-west-1
+  ValidateAllRegions: true
+  ValidateRegions: eu-central-1/eu-west-1
+  ValidateExcludedRegions: eu-west-1/us-west-1
 ```
 
 ## Non Compliance of StackSet Instances

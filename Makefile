@@ -1,3 +1,6 @@
+.PHONY: stack-sets
+
+
 new:
 	formica new -c stack.config.yaml
 	formica deploy -c stack.config.yaml
