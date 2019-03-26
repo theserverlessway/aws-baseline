@@ -4,5 +4,5 @@ all-subaccounts: true
 all-regions: true
 main-account-parameter: true
 tags:
-  ValidateAllSubaccounts: true
+  ValidateAllSubAccounts: true
   ValidateAllRegions: true

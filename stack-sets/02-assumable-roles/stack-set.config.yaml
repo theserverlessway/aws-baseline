@@ -5,3 +5,6 @@ main-account-parameter: true
 all-subaccounts: true
 regions:
   - us-east-1
+tags:
+  ValidateAllSubAccounts: true
+  ValidateRegions: us-east-1

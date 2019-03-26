@@ -5,3 +5,6 @@ regions:
   - us-east-1
 capabilities:
   - CAPABILITY_IAM
+tags:
+  ValidateAllAccounts: true
+  ValidateRegions: us-east-1
