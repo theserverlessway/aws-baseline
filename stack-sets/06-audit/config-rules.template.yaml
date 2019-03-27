@@ -32,3 +32,18 @@ Resources:
       Source:
         Owner: AWS
         SourceIdentifier: "MULTI_REGION_CLOUD_TRAIL_ENABLED"
+
+
+  IAMUserGroupMembership:
+    Condition: IsGlobalMainAccountRegion
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: IAM_USER_GROUP_MEMBERSHIP_CHECK
+      InputParameters:
+        groupNames: UserCredentialsManagement
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::IAM::User"
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_USER_GROUP_MEMBERSHIP_CHECK

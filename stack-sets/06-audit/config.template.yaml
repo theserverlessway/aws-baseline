@@ -19,6 +19,10 @@ Parameters:
     Default: us-east-1
 Conditions:
   IsGlobalRegion: !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion]
+  IsGlobalMainAccountRegion:
+    Fn::And:
+      - !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion]
+      - !Equals [!Ref 'AWS::AccountId', !Ref MainAccount]
   IsLocalConfigRegion: !Not [ !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion] ]
 Resources:
   DeliveryChannel:
