@@ -1,3 +1,12 @@
+Parameters:
+  IAMPermissionBoundaryLimitation:
+    Type: String
+    Default: true
+    AllowedValues: ['true', 'false']
+
+Conditions:
+  IsIAMPermissionBoundaryLimitationEnabled: !Equals [!Ref IAMPermissionBoundaryLimitation, 'true']
+
 Resources:
   CreatedIdentitiesPermissionsBoundary:
     Type: AWS::IAM::ManagedPolicy
@@ -8,6 +17,10 @@ Resources:
         Statement:
           - Sid: AllowedServicesForIdentities
             Effect: Allow
+            NotAction: 'iam:*'
+            Resource: "*"
+          - Sid: DisableIAMForCreatedIdentities
+            Effect: Deny
             NotAction: 'iam:*'
             Resource: "*"
           # Restrict all actions if they are not in the AllowedRegions

@@ -35,13 +35,13 @@ LIST_STACK_SETS_COMMAND=@aws cloudformation list-stack-sets --status ACTIVE --qu
 TAG_VALUE=Tags[?Key=='$(1)'].Value|[0]||''
 
 stack-sets:
-	 $(LIST_STACK_SETS_COMMAND) | (xargs -n 1 -P 15 aws cloudformation describe-stack-set --query "StackSet.{\"1.Name\":StackSetName, \"2.Accounts\":$(call TAG_VALUE,Accounts), \"3.Regions\":$(call TAG_VALUE,Regions), \"4.CommitId\":$(call TAG_VALUE,CommitId), \"5.CommitCount\":$(call TAG_VALUE,CommitCount), \"6.LastUpdated\":$(call TAG_VALUE,LastUpdated), \"7.ComparisonAccount\":$(call TAG_VALUE,ComparisonAccount), \"8.ComparisonStackSetName\":$(call TAG_VALUE,ComparisonStackSetName), \"9.GracePeriod\":$(call TAG_VALUE,GracePeriod)}" --stack-set-name) | jq -s -c 'sort_by(."1.Name")' | python3 json_table.py StackSets
+	 $(LIST_STACK_SETS_COMMAND) | (xargs -n 1 -P 15 aws cloudformation describe-stack-set --query "StackSet.{\"1.Name\":StackSetName, \"2.Tags\":join(', ', Tags[].join('=', [Key,Value]))}" --stack-set-name) | jq -s -c 'sort_by(."1.Name")' | python3 json_table.py StackSets
 
 stack-set-instances:
 	$(LIST_STACK_SETS_COMMAND) | (xargs -n 1 -P 15 aws cloudformation list-stack-instances --query "Summaries.{\"1.ID\":[0].StackSetId,\"2.Current\":[?Status=='CURRENT'] | length(@), \"3.Other\":[?Status!='CURRENT'] | length(@)}" --stack-set-name) | sed 's/:[a-z0-9][a-z0-9-]*//g' | jq -s -c 'sort_by(."1.ID")' | python3 json_table.py StackSetInstances
 
 
-test:
+test-python:
 	py.test --cov-branch --cov-report html --cov-report term-missing ./
 
 shell:

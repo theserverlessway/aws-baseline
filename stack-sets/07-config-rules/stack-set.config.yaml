@@ -6,7 +6,6 @@ max-concurrent-percentage: 100
 organization-variables: true
 vars:
   EnabledRegions:
-    - eu-central-1
     - us-east-1
 capabilities:
   - CAPABILITY_IAM

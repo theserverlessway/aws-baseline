@@ -1,24 +1,27 @@
-- Sid: CreateOrChangeOnlyWithBoundary
-  Effect: Deny
-  Action:
-    - iam:CreateRole
-    - iam:DeleteRolePolicy
-    - iam:AttachRolePolicy
-    - iam:DetachRolePolicy
-    - iam:PutRolePolicy
-    - iam:PutRolePermissionsBoundary
-    # While we specifically deny creating users above in case they ever
-    # should be created we want them to have to follow the same PermissionsBoundary
-    - iam:CreateUser
-    - iam:PutUserPolicy
-    - iam:DeleteUserPolicy
-    - iam:AttachUserPolicy
-    - iam:DetachUserPolicy
-    - iam:PutUserPermissionsBoundary
-  Resource: "*"
-  Condition:
-    StringNotEquals:
-      iam:PermissionsBoundary: !Ref CreatedIdentitiesPermissionsBoundary
+- Fn::If:
+  - IsIAMPermissionBoundaryLimitationEnabled
+  - Sid: CreateOrChangeOnlyWithBoundary
+    Effect: Deny
+    Action:
+      - iam:CreateRole
+      - iam:DeleteRolePolicy
+      - iam:AttachRolePolicy
+      - iam:DetachRolePolicy
+      - iam:PutRolePolicy
+      - iam:PutRolePermissionsBoundary
+      # While we specifically deny creating users above in case they ever
+      # should be created we want them to have to follow the same PermissionsBoundary
+      - iam:CreateUser
+      - iam:PutUserPolicy
+      - iam:DeleteUserPolicy
+      - iam:AttachUserPolicy
+      - iam:DetachUserPolicy
+      - iam:PutUserPermissionsBoundary
+    Resource: "*"
+    Condition:
+      StringNotEquals:
+        iam:PermissionsBoundary: !Ref CreatedIdentitiesPermissionsBoundary
+  - !Ref AWS::NoValue
 # Allowed IAM actions that don't support or need PermissionsBoundaries
 # Used for policy creation and updates from toolbox' service template.
 - Sid: AllowedIAMActionsAgainstAnyResource

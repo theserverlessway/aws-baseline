@@ -116,7 +116,6 @@ Resources:
 
   CloudFormationRole:
     Properties:
-      Path: /cloudformation/CloudFormationRole/
       MaxSessionDuration: !Ref MaxSessionDuration
       AssumeRolePolicyDocument:
         Statement:
@@ -136,7 +135,7 @@ Resources:
                   - '*'
                 Resource:
                   - '*'
-      RoleName: AssumableCloudFormationRole
+      RoleName: CloudFormationRole
     Type: AWS::IAM::Role
 
 

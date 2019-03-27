@@ -5,3 +5,6 @@ all-accounts: true
 all-regions: true
 main-account-parameter: true
 max-concurrent-percentage: 100
+tags:
+  ValidateAllAccounts: true
+  ValidateAllRegions: true
