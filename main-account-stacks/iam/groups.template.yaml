@@ -1,7 +1,7 @@
 Resources:
   AdminGroup:
     Properties:
-      GroupName: AdminMasterAccount
+      GroupName: CAREFUL_DANGEROUS_AdminMasterAccountGroup
       Path: /admin/
       Policies:
         - PolicyDocument:
@@ -10,23 +10,22 @@ Resources:
                   - '*'
                 Effect: Allow
                 Resource: '*'
-              - Action: sts:AssumeRole
-                Effect: Allow
-                Resource: arn:aws:iam::*:role/admin
           PolicyName: AdminPolicy
     Type: AWS::IAM::Group
-  AccountListing:
+
+  UserManagement:
     Properties:
-      GroupName: ListAccounts
+      GroupName: UserManagement
       Path: /admin/
       Policies:
         - PolicyDocument:
             Statement:
               - Action:
-                  - 'organizations:ListAccounts'
+                  - 'iam:CreateLoginProfile'
+                  - 'iam:CreateUser'
                 Effect: Allow
                 Resource: '*'
-          PolicyName: AccountListing
+          PolicyName: UserCreation
     Type: AWS::IAM::Group
 
   UserCredentialsManagement:
@@ -107,4 +106,18 @@ Resources:
                   BoolIfExists:
                     aws:MultiFactorAuthPresent: 'false'
           PolicyName: UserCredentialManagement
+    Type: AWS::IAM::Group
+
+  AccountListing:
+    Properties:
+      GroupName: ListAccounts
+      Path: /admin/
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - 'organizations:ListAccounts'
+                Effect: Allow
+                Resource: '*'
+          PolicyName: AccountListing
     Type: AWS::IAM::Group
