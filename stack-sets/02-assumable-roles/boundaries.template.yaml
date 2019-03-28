@@ -1,3 +1,5 @@
+{% set DisabledIdentitiesServices = DisabledIdentitiesServices or ['iam', 'cloudtrail', 'budgets', 'config', 'guardduty']%}
+
 Parameters:
   IAMPermissionBoundaryLimitation:
     Type: String
@@ -17,14 +19,19 @@ Resources:
         Statement:
           - Sid: AllowedServicesForIdentities
             Effect: Allow
-            NotAction: 'iam:*'
+            Action: '*'
             Resource: "*"
           - Sid: DisableIAMForCreatedIdentities
             Effect: Deny
-            NotAction: 'iam:*'
+            Action:
+            {% for Service in DisabledIdentitiesServices %}
+            - '{{Service}}:*'
+            {% endfor %}
             Resource: "*"
           # Restrict all actions if they are not in the AllowedRegions
           - {{ file('policy-statements/region-check.json') | indent(12) }}
+          - {{ file('policy-statements/deny-stackset-actions.json') | indent(12) }}
+          - {{ file('policy-statements/deny-stackset-cloudformation-actions.json') | indent(width=12) }}
 
   AdminPermissionsBoundary:
     Type: AWS::IAM::ManagedPolicy
