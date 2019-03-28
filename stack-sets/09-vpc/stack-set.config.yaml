@@ -5,3 +5,4 @@ vars:
 parameters:
   PrivateNatGateway: none
 all-subaccounts: true
+max-concurrent-percentage: 100

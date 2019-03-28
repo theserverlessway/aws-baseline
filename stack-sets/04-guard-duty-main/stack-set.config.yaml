@@ -2,6 +2,7 @@ stack-set: guardduty-main
 main-account: true
 all-regions: true
 organization-variables: true
+max-concurrent-percentage: 100
 tags:
   ValidateMainAccount: true
   ValidateAllRegions: true

@@ -3,6 +3,7 @@ execution-role-name: OrganizationAccountAccessRole
 capabilities:
   - CAPABILITY_NAMED_IAM
 main-account-parameter: true
+max-concurrent-percentage: 100
 all-subaccounts: true
 regions:
   - us-east-1
