@@ -17,6 +17,7 @@ Resources:
                   - !GetAtt UserCredentialsManagement.Arn
                   - !GetAtt UserManagement.Arn
                   - !GetAtt AccountListing.Arn
+                  - !GetAtt BillingReadAccess.Arn
                   {% for Account in AWSSubAccounts%}
                   {% for Role in Roles %}
                   - !GetAtt {{Role}}Group{{Account['Id']}}.Arn

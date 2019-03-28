@@ -1,3 +1,13 @@
+Parameters:
+  RequireMFAOnMainAccountActions:
+    Type: String
+    Default: true
+    AllowedValues: ['true', 'false']
+
+Conditions:
+  RequireMFAOnMainAccountActions: !Equals [!Ref RequireMFAOnMainAccountActions, 'true']
+
+
 Resources:
   AdminGroup:
     Properties:
@@ -88,23 +98,26 @@ Resources:
                 Condition:
                   Bool:
                     aws:MultiFactorAuthPresent: 'true'
-              - Sid: BlockMostAccessUnlessSignedInWithMFA
-                Effect: Deny
-                NotAction:
-                  - iam:CreateVirtualMFADevice
-                  - iam:EnableMFADevice
-                  - iam:ListMFADevices
-                  - iam:ListUsers
-                  - iam:ListVirtualMFADevices
-                  - iam:ResyncMFADevice
-                  - iam:ChangePassword
-                  - sts:AssumeRole
-                  - organizations:ListAccounts
-                  - iam:ListAccountAliases
-                Resource: "*"
-                Condition:
-                  BoolIfExists:
-                    aws:MultiFactorAuthPresent: 'false'
+              - Fn::If:
+                  - RequireMFAOnMainAccountActions
+                  - Sid: BlockMostAccessUnlessSignedInWithMFA
+                    Effect: Deny
+                    NotAction:
+                      - iam:CreateVirtualMFADevice
+                      - iam:EnableMFADevice
+                      - iam:ListMFADevices
+                      - iam:ListUsers
+                      - iam:ListVirtualMFADevices
+                      - iam:ResyncMFADevice
+                      - iam:ChangePassword
+                      - sts:AssumeRole
+                      - organizations:ListAccounts
+                      - iam:ListAccountAliases
+                    Resource: "*"
+                    Condition:
+                      BoolIfExists:
+                        aws:MultiFactorAuthPresent: 'false'
+                  - !Ref AWS::NoValue
           PolicyName: UserCredentialManagement
     Type: AWS::IAM::Group
 
@@ -121,3 +134,19 @@ Resources:
                 Resource: '*'
           PolicyName: AccountListing
     Type: AWS::IAM::Group
+
+  BillingReadAccess:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: BillingReadAccess
+      Path: /admin/
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - billing:ViewAccount
+                  - billing:ViewBilling
+                  - billing:ViewUsage
+                Effect: Allow
+                Resource: '*'
+          PolicyName: BillingReadAccess
