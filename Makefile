@@ -50,3 +50,6 @@ shell:
 
 diff-stack-sets:
 	@ls stack-sets | xargs -n 1 -I {} bash -c "echo '{} ----------------------------------' && cd stack-sets/{} && formica stack-set diff -c stack-set.config.yaml && echo -e '\n\n'"
+
+diff-stacks:
+	@ls main-account-stacks | xargs -n 1 -I {} bash -c "echo '{} ----------------------------------' && cd main-account-stacks/{} && formica diff -c stack.config.yaml && echo -e '\n\n'"
