@@ -6,14 +6,26 @@ new:
 	formica deploy -c stack.config.yaml
 
 create-account:
-ifndef EMAIL
-	$(error EMAIL is undefined)
+ifndef Email
+	$(error Email is undefined)
 endif
 
-ifndef NAME
-	$(error NAME is undefined)
+ifndef Name
+	$(error Name is undefined)
 endif
-	aws organizations create-account --email $(EMAIL) --account-name $(NAME)
+#	aws organizations create-account --email $(Email) --account-name $(Name)
+	@echo "Waiting for Account creation to finish"
+	@while [[ $$(aws organizations list-accounts --query "Accounts[?Name=='$(Name)'].Status" --output text) != 'ACTIVE' ]]; do (echo -n '.' && sleep 2) done
+	@echo "Account $(Name) with Email $(Email) created successfully"
+
+
+create-account-alias:
+ifndef Alias
+	$(error Alias is undefined)
+endif
+	aws iam create-account-alias --account-alias $(Alias)
+
+
 
 list-accounts:
 	awsinfo orgs
