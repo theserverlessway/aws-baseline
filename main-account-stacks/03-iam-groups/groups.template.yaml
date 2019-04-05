@@ -53,6 +53,7 @@ Resources:
                 Action:
                   - iam:GetLoginProfile
                   - iam:UpdateLoginProfile
+                  - iam:ChangePassword
                 Resource: arn:aws:iam::*:user/${aws:username}
               - Sid: AllowListActions
                 Effect: Allow
@@ -95,9 +96,6 @@ Resources:
                   - iam:DeleteAccessKey
                 Resource:
                   - arn:aws:iam::*:user/${aws:username}
-                Condition:
-                  Bool:
-                    aws:MultiFactorAuthPresent: 'true'
               - Fn::If:
                   - RequireMFAOnMainAccountActions
                   - Sid: BlockMostAccessUnlessSignedInWithMFA
@@ -109,7 +107,6 @@ Resources:
                       - iam:ListUsers
                       - iam:ListVirtualMFADevices
                       - iam:ResyncMFADevice
-                      - iam:ChangePassword
                       - sts:AssumeRole
                       - organizations:ListAccounts
                       - iam:ListAccountAliases
@@ -129,7 +126,8 @@ Resources:
         - PolicyDocument:
             Statement:
               - Action:
-                  - 'organizations:ListAccounts'
+                  - organizations:ListAccounts
+                  - iam:ListAccountAliases
                 Effect: Allow
                 Resource: '*'
           PolicyName: AccountListing
