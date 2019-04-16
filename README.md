@@ -1,125 +1,52 @@
 # AWS Account Baseline
 
-This repository contains configuration to roll out your AWS Baseline (also known as a Landing Zone). The result will be a flexible setup to give you a basis to build your specific infrastructure on. 
+This repository contains configuration to roll out your AWS Baseline (also known as a Landing Zone). The result will be a flexible setup to give you a basis to build your specific infrastructure on. The Baseline is implemented through a mix of CloudFormation Stacks and StackSets with individual parts being optional so you can decide the
+setup of your infrastructure.
 
-The baseline is implemented through a mix of CloudFormation Stacks and StackSets. This leads to a flexible setup allowing you to choose specific StackSets to be rolled out across accounts, or not. 
-
-The `main-account` folder contains a CloudFormation stack that should be deployed first into your main account. It
+The `main-account-stacks` folder contains CloudFormation Stacks that should be deployed first into your main account. It
 will set up roles and groups automatically for your existing accounts.
 
-The `stack-sets` folder contains various stack-sets that should be created in your main account and then deployed
-into your member accounts. For more information check out the README in the `stack-sets` folder.
+The `stack-sets` folder contains various StackSets that should be created in your main account and then deployed
+into your member accounts. For more information on the StackSets check out the README in the `stack-sets` folder.
 
-Various stacks (e.g. basic and vpc) are based on the wonderful [Widdix Templates](http://templates.cloudonaut.io/en/stable/). Check them out they do an amazing job!
+Various stacks are based on or derived from the wonderful [Widdix Templates](http://templates.cloudonaut.io/en/stable/). Check them out they do an amazing job!
 
 ## Note on Security
 
-The account assume setup is not considered to be a completely secure setup to shield your users from being able to escalate rights.
-A user that doesn't have admin access could still create new IAM users or groups that allow them to escalate rights. This should
-be considered as a setup for non-malicious users where you simply want to make sure proper procedures are followed with CloudFormation.
+The account assume setup does its best to make sure escalating rights isn't possible. From providing various roles
+to assume to providing [Permission Boundaries](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html) by default and MFA support. Those measures are only effective though if your team follows best practices by using MFA and not creating workarounds for Admin access in various accounts.
 
-AWS also provides [Permission Boundaries](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html) to
-completely limit what users are able to do, even if they can create new IAM entities. If you want to completely shield access you can either user Organisation Policies or edit the `cloudformation` role to not allow IAM access for example or introduce Permissions Boundaries.
+The stack also creates groups for user management so you can enable only the specific rights your users need, without having to resort to admin access for everyone. Make sure to limit the rights of each user and only add more in instances where thats necessary and for a short time.
 
-## Main Account
+### Service control policies
 
-In the main account we're creating several `assume-role` groups which allow users to assume the admin role in another account. Additionally we're creating an admin group for the main account and all users for this specific account.
+To really lock down your AWS Organization you should take a look at the available service control policies in the `scp` subfolder of `main-account-stacks`. SCPs can limit specific actions organization wide so even if someone is able to escalate rights in a specific account they won't be able to delete CloudTrail for example.
 
-### User and Group Configuration
+This is another important step in securing your account even in cases of rights escalation.
 
-You can start from the `stack.config.example.yaml` and copy it over to for example `stack.config.yaml`. This makes it easier
-to later pull updates from this repository into your own without merge issues.
+### Auditing
 
-In the `stack.config.yaml` file in the `main-account` repo you can define the users and groups you want to create
-through CloudFormation. Following is an example setup:
+The Stacks and StackSets deployed to both the main and sub accounts set up a best practice auditing solution. That
+includes CloudTrail, Config and GuardDuty across all accounts and regions.
 
-```
-stack: assume-role-users-groups
-capabilities:
-  - CAPABILITY_NAMED_IAM
-vars:
-  assume:
-    development: 123456789
-  users:
-    fmotlik:
-      - admin
-      - development-admin
-    gwashington:
-      - development-admin
-    htruman:
-      - development
-```
+Make sure to familiarize yourself with the specific services so you have a good understanding of the auditing setup and understand how to detect issues in your Organization. 
 
+## User and Access Management
 
-We're defining the development account with its account id. From that definition the stack will have 3 groups:
+In the main account we're creating several `assume-role` groups which allow users to assume roles in subaccounts.
+They are created automatically for any account found in the current organization. When you add new accounts you
+have to redeploy the stack so it picks up the new accounts and creates groups accordingly. For more information on assuming roles in another account check out the [Assume Role Documentation](./docs/ASSUME.md)
 
-* `development` allows to assume the `user` role in the development account
-* `development-admin` allows to assume the `admin` and `user` role in the development account
-* `admin` allows for admin access in the main account we're deploying this stack into
+The stacks in the main account also create various groups for User Management. This allows you to add new users to
+groups to for example create new users or manage group membership. For more information on User Management check out the [User Managemend Documentation](./docs/USER_MANAGEMENT.md)
 
-
-The next configuration are the users and which groups they belong to. It will create the users and their group memberships
-through CloudFormation as well. In the above example `fmotlik` is admin on the main account and the development account,
-`gwashington` is admin in the development account and `htruman` has only read and cloudformation access in the `development`
-account.
-
-To remove a user just remove them from the stack config file and redeploy the stack.
-
-### Creating Account Keys for Users
-
-To create an `AWS Access Key` and `Secret Access Key` for a user use the awscli in the main account (you have to be admin to do this):
-
-```
-aws iam create-access-key --user-name fmotlik
-{
-    "AccessKey": {
-        "UserName": "fmotlik",
-        "AccessKeyId": "ABCDEFGHIJKLMNOPQRS",
-        "Status": "Active",
-        "SecretAccessKey": "sJ7asH8+j0jasdpJE3UKA96dKO3gK7fFH3ljgyGT96Klk",
-        "CreateDate": "2017-12-22T08:38:28.456Z"
-    }
-}
-```
-
-You can list the access key ids for a user:
-
-```
-aws iam list-access-keys --user-name fmotlik
-```
-
-or also delete a key:
-
-```
-aws iam delete-access-key --user-name fmotlik --access-key-id AKIAJIZBOEG4ZO4MZC2A
-```
-
-### Create Account Login for a User
-
-For users to be able to log into the AWS Console you have to create a Login Profile. Use the aws cli for creating
-that profile and setting the password of a user:
-
-```
-aws iam create-login-profile --user-name fmotlik --password "ABCDEFGHIJKL"
-```
-
-## Member Accounts
-
-Deploy a CloudFormation Stack that creates roles that can be assumed from the main account. The Member Account stack has a MFA Parameter that is set to true by default and will require MFA on every account that wants to assume the role.
-
-The member account creates two roles:
-
-* `admin` that has full admin access in the member account
-* `user` that has read-only on all services except cloudformation where it has write access. It can also pass the `cloudformation` role when creating or updating a stack
-* `cloudformation` has full admin access, but can't be directly assumed. It has to be used to pass it to CloudFormation when creating or changing a stack so a `user` can
-actually create resources. This makes sure changes are only done through CloudFormation.
-
-The Makefile also contains commands to remove the Role created automatically by AWS so you can only assume a role in the member account that was created by your stack.
-
-## VPC
-
-Deploy a VPC with a private and public subnet to a region in your account.
+Check out the [main-account-stacks README](./main-account-stacks/README.md) for more detail on each stack that gets deployed to the main AWS account.
 
 ## Necessary Tools
 
-* Formica
+* Formica: [https://theserverlessway.com/tools/formica/](https://theserverlessway.com/tools/formica/)
+* Awsie: [https://theserverlessway.com/tools/awsie/](https://theserverlessway.com/tools/awsie/)
+
+## Recommended Tools:
+* AWSInfo: [https://theserverlessway.com/tools/awsinfo/](https://theserverlessway.com/tools/awsinfo/)
+

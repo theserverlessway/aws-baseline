@@ -3,6 +3,7 @@
 Resources:
   {% for Rule in GlobalRules %}
   {{Rule | resource}}:
+    DependsOn: ConfigurationRecorderGlobal
     Condition: IsGlobalRegion
     Type: AWS::Config::ConfigRule
     Properties:
@@ -13,6 +14,7 @@ Resources:
   {% endfor %}
 
   GuardDutyEnabledAndCentralized:
+    DependsOn: ConfigurationRecorderLocal
     Type: AWS::Config::ConfigRule
     Properties:
       ConfigRuleName: "GUARDDUTY_ENABLED_CENTRALIZED"
@@ -24,6 +26,7 @@ Resources:
 
   MultiRegionCloudTrailEnabled:
     Condition: IsGlobalRegion
+    DependsOn: ConfigurationRecorderLocal
     Type: AWS::Config::ConfigRule
     Properties:
       ConfigRuleName: "MULTI_REGION_CLOUD_TRAIL_ENABLED"
@@ -35,6 +38,7 @@ Resources:
 
 
   IAMUserGroupMembership:
+    DependsOn: ConfigurationRecorderGlobal
     Condition: IsGlobalMainAccountRegion
     Type: AWS::Config::ConfigRule
     Properties:

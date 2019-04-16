@@ -211,6 +211,7 @@ class InstanceDeploymentValidation(Validation):
 
 
 def all_stack_instances(StackSetName, **Parameters):
+    # TODO use Paginator for listing StackSet Instances
     result = cloudformation.list_stack_instances(StackSetName=StackSetName, **Parameters)
     instances = {}
     for i in result['Summaries']:
