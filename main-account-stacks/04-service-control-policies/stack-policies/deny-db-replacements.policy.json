@@ -1,0 +1,23 @@
+{
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "Update:Replace",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "ResourceType": [
+            "AWS::RDS::DBInstance"
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "Update:*",
+      "Resource": "*"
+    }
+  ]
+}
