@@ -9,3 +9,6 @@ vars:
     - us-east-1
 capabilities:
   - CAPABILITY_IAM
+tags:
+  ValidateAllSubAccounts: true
+  ValidateAllRegions: true

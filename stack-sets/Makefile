@@ -10,4 +10,10 @@ stack-set-instances:
 
 
 diff-stack-sets:
-	@ls | xargs -n 1 -I {} bash -c "echo '{} ----------------------------------' && cd {} && formica stack-set diff -c stack-set.config.yaml && echo -e '\n\n'"
+	@ls -d */ | xargs -n 1 -I {} bash -c "echo '{} ----------------------------------' && cd {} && formica stack-set diff -c stack-set.config.yaml && echo -e '\n\n'"
+
+add-stack-set-instances:
+	@ls -d */ | xargs -n 1 -I {} bash -c "echo '{} ----------------------------------' && cd {} && formica stack-set add-instances -c stack-set.config.yaml && echo -e '\n\n'"
+
+update-stack-sets:
+	@ls -d */ | xargs -n 1 -I {} bash -c "echo '{} ----------------------------------' && cd {} && formica stack-set add-instances -c stack-set.config.yaml && echo -e '\n\n'"

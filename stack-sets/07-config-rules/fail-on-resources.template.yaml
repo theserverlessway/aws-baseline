@@ -2,6 +2,7 @@ Resources:
   FailAllResourcesCompliance:
     From: Modules::Lambda
     Properties:
+      Condition: IsDisabledRegion
       Code: |
         {{ code('fail_all_resources.py') | indent(8) }}
       Principal: config.amazonaws.com
@@ -14,6 +15,7 @@ Resources:
 
   FailAllResourcesConfigRule:
     DependsOn: FailAllResourcesComplianceLambdaInvokePermission
+    Condition: IsDisabledRegion
     Type: AWS::Config::ConfigRule
     Properties:
       ConfigRuleName: FAIL_ALL_RESOURCES
