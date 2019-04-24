@@ -13,7 +13,7 @@ endif
 ifndef Name
 	$(error Name is undefined)
 endif
-#	aws organizations create-account --email $(Email) --account-name $(Name)
+	aws organizations create-account --email $(Email) --account-name $(Name)
 	@echo "Waiting for Account creation to finish"
 	@while [[ $$(aws organizations list-accounts --query "Accounts[?Name=='$(Name)'].Status" --output text) != 'ACTIVE' ]]; do (echo -n '.' && sleep 2) done
 	@echo "Account $(Name) with Email $(Email) created successfully"
@@ -34,4 +34,16 @@ shell:
 	docker-compose build aws-baseline
 	docker-compose run aws-baseline bash
 
+RSYNC=rsync -vlar --delete --exclude .git .idea ./ $(Target)
 
+sync-dry-run:
+ifndef Target
+	$(error Target is undefined)
+endif
+	$(RSYNC) -n
+
+sync:
+ifndef Target
+	$(error Target is undefined)
+endif
+	$(RSYNC)
