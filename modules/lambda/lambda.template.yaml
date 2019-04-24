@@ -1,7 +1,9 @@
 Resources:
   {% if Principal %}
   {{ module_name }}LambdaInvokePermission:
-    Condition: {{Condition | novalue}}
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref {{ module_name }}LambdaFunction
@@ -11,7 +13,9 @@ Resources:
   {% endif %}
 
   {{ module_name }}LambdaLogGroup:
-    Condition: {{Condition | novalue}}
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/lambda/{{ '${' }}{{ module_name }}LambdaFunction}
@@ -19,7 +23,9 @@ Resources:
 
   {{ module_name }}LambdaFunction:
     Type: AWS::Lambda::Function
-    Condition: {{Condition | novalue}}
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
     Properties:
       Code:
         {% if Code is mapping %}
@@ -36,7 +42,9 @@ Resources:
         Variables: {{Environment or '!Ref AWS::NoValue' }}
 
   {{ module_name }}LambdaExecutionRole:
-    Condition: {{Condition | novalue}}
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
     Properties:
       ManagedPolicyArns: {{ ManagedPolicyArns | novalue}}
       AssumeRolePolicyDocument:
@@ -52,7 +60,9 @@ Resources:
     Type: AWS::IAM::Role
 
   {{ module_name }}LambdaRolePolicy:
-    Condition: {{Condition | novalue}}
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
     Properties:
       PolicyDocument:
         Statement:
