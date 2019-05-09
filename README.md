@@ -50,3 +50,17 @@ Check out the [main-account-stacks README](./main-account-stacks/README.md) for 
 ## Recommended Tools:
 * AWSInfo: [https://theserverlessway.com/tools/awsinfo/](https://theserverlessway.com/tools/awsinfo/)
 
+
+## Security Audit
+
+The Makefile in the root of the repository has a `security-audit` task that will run a full audit on all of your accounts. It uses [Prowler](https://github.com/toniblyx/prowler) and [ScoutSuite](https://github.com/nccgroup/ScoutSuite) to audit the accounts. Make sure those tools are installed on your system.
+
+When you run the audit make sure that your current credentials are MFA signed, so use `awsinfo assume token -md 8` and export the given variables before calling the command.
+
+If you only want to run the audit against a specific account, you can run the script directly with `./scripts/security-audit ACCOUNT_ID`.
+
+By default the `AssumableSecurityAuditRole` is assumed and used. If you want to use a different role, set it with the `-r` parameter. If you want to run the audits in parallel use the `-p` option. [Gnu Parallel](https://www.gnu.org/software/parallel/) needs to be installed on your system in that case. For the Prowler reports you also need [`ansi2html`](https://pypi.org/project/ansi2html/) and `sed` installed on your System.
+
+The reports are stored in the reports folder, with separate folders for each audit tool.
+
+The Audit will take quite a long time (even if run in parallel mode).

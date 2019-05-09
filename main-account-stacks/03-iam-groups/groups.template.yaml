@@ -38,6 +38,24 @@ Resources:
           PolicyName: UserCreation
     Type: AWS::IAM::Group
 
+  SecurityAudit:
+    Properties:
+      GroupName: SecurityAudit
+      Path: /security/
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/SecurityAudit
+      Policies:
+        - PolicyName: SecurityAudit
+          PolicyDocument:
+            Version: '2008-10-17'
+            Statement:
+              - Action:
+                  - support:DescribeTrustedAdvisorChecks
+                  - sns:ListSubscriptions
+                Effect: Allow
+                Resource: "*"
+    Type: AWS::IAM::Group
+
   UserCredentialsManagement:
     Properties:
       GroupName: UserCredentialsManagement

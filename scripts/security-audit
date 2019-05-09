@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set -euo pipefail
+
+AUDIT_ROLE=AssumableSecurityAuditRole
+PARALLEL=""
+
+while getopts "r:p" opt; do
+    case "$opt" in
+        r) AUDIT_ROLE='$OPTARG' ;;
+        p) PARALLEL='TRUE' ;;
+    esac
+done
+shift $(($OPTIND-1))
+
+if [ "$#" -gt "0" ]
+then
+  ACCOUNTS=$@
+  echo Using Accounts $@
+else
+  echo Running against all Accounts
+  ACCOUNTS=$(aws organizations list-accounts --query "Accounts[?Status=='ACTIVE'].[Id]" --output text | tr -d '\r')
+fi
+
+MAIN_ACCOUNT=$(aws sts get-caller-identity --query Account --output text | tr -d '\r')
+
+mkdir -p reports/scout reports/prowler
+
+function audit_aws_account(){
+  account=$1
+  echo "Auditing Account $account"
+  if [[ "$MAIN_ACCOUNT" == "$account" ]]
+  then
+    echo MASTER Account
+    CREDENTIALS=""
+  else
+    echo CHILD Account
+    CREDENTIALS="$(awsinfo assume $account -- $AUDIT_ROLE | tr -d '\r' | tail -n1) ;"
+  fi
+#  bash -c "$CREDENTIALS prowler > reports/$account.txt; cat reports/$account.txt | ansi2html -l | sed 's/body class=\"body_foreground body_background\"/body/g' > reports/$account.html"
+#  echo "Finished Audit for $account"
+
+  bash -c "$CREDENTIALS scout aws --report-dir reports/scout --no-browser --force"
+}
+
+export -f audit_aws_account
+
+if [[ -z "$PARALLEL" ]]
+then
+  for account in $ACCOUNTS
+  do
+    audit_aws_account $account
+  done
+else
+  parallel -P 4 audit_aws_account {} <<< $ACCOUNTS
+fi
+
+
+echo "-------------------------------------------------------------------------------------"
+for account in $ACCOUNTS
+do
+  echo "Audit Log for Account $account in ./reports/$account.html"
+done
+echo "-------------------------------------------------------------------------------------"

@@ -47,3 +47,6 @@ ifndef Target
 	$(error Target is undefined)
 endif
 	$(RSYNC)
+
+security-audit:
+	./scripts/security-audit
