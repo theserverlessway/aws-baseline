@@ -9,6 +9,9 @@ Parameters:
   MaxSessionDuration:
     Type: Number
     Default: 28800
+  ExportPrefix:
+    Type: String
+    Default: assumable-roles
 
 Conditions:
   HasMFAEnabled: !Equals [true, !Ref MFA]
@@ -145,7 +148,6 @@ Resources:
       AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/SecurityAudit
-      PermissionsBoundary: !Ref DeveloperPermissionsBoundary
       Policies:
         - PolicyName: SecurityAudit
           PolicyDocument:
@@ -153,6 +155,7 @@ Resources:
             Statement:
               - Action:
                   - support:DescribeTrustedAdvisorChecks
+                  - sns:ListSubscriptions
                 Effect: Allow
                 Resource: "*"
       RoleName: AssumableSecurityAuditRole
@@ -184,3 +187,34 @@ Resources:
       RoleName: AssumableOperationsRole
     Type: AWS::IAM::Role
 
+
+Outputs:
+  AssumableAdminRoleArn:
+    Value: !GetAtt AssumableAdminRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAdminRoleArn
+
+  AssumableDeveloperRoleArn:
+    Value: !GetAtt AssumableDeveloperRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableDeveloperRoleArn
+
+  AssumableCloudFormationDeveloperRoleArn:
+    Value: !GetAtt AssumableCloudFormationDeveloperRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableCloudFormationDeveloperRoleArn
+
+  AssumableOperationsRoleArn:
+    Value: !GetAtt AssumableOperationsRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableOperationsRoleArn
+
+  AssumableReadOnlyRoleArn:
+    Value: !GetAtt AssumableReadOnlyRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableReadOnlyRoleArn
+
+  AssumableSecurityAuditRoleArn:
+    Value: !GetAtt AssumableSecurityAuditRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableSecurityAuditRoleArn

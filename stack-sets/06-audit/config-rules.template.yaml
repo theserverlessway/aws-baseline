@@ -14,7 +14,20 @@ Resources:
   {% endfor %}
 
   GuardDutyEnabledAndCentralized:
+    Condition: IsLocalConfigRegion
     DependsOn: ConfigurationRecorderLocal
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "GUARDDUTY_ENABLED_CENTRALIZED"
+      InputParameters:
+        CentralMonitoringAccount: !Ref MainAccount
+      Source:
+        Owner: AWS
+        SourceIdentifier: "GUARDDUTY_ENABLED_CENTRALIZED"
+
+  GuardDutyEnabledAndCentralizedGlobal:
+    Condition: IsGlobalRegion
+    DependsOn: ConfigurationRecorderGlobal
     Type: AWS::Config::ConfigRule
     Properties:
       ConfigRuleName: "GUARDDUTY_ENABLED_CENTRALIZED"
@@ -26,7 +39,7 @@ Resources:
 
   MultiRegionCloudTrailEnabled:
     Condition: IsGlobalRegion
-    DependsOn: ConfigurationRecorderLocal
+    DependsOn: ConfigurationRecorderGlobal
     Type: AWS::Config::ConfigRule
     Properties:
       ConfigRuleName: "MULTI_REGION_CLOUD_TRAIL_ENABLED"

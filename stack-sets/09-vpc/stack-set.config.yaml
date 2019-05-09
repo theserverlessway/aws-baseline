@@ -2,7 +2,12 @@ stack: vpc
 stack-set: vpc
 vars:
   AvailabilityZones: 3
+  GatewayEndpoints: []
+  InterfaceEndpoints: []
 parameters:
   PrivateNatGateway: none
 all-subaccounts: true
 max-concurrent-percentage: 100
+tags:
+  ValidateAllSubAccounts: true
+  ValidateRegions: us-east-1

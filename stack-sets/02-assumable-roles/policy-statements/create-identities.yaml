@@ -55,8 +55,8 @@
 # They need to be able to remove roles in case the stack creates them.
 - Sid: NoDeleteOnAssumableRoles
   Effect: Deny
-  Action:
-  - iam:*
+  NotAction:
+  - iam:GetRole
   Resource:
   - !Sub arn:aws:iam::${AWS::AccountId}:role/AWSCloudFormationStackSet*
   - !Sub arn:aws:iam::${AWS::AccountId}:role/Assumable*

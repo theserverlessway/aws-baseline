@@ -1,0 +1,66 @@
+{% from 'defaults.template.yaml' import SubnetIdentifiers, AvailabilityZones %}
+
+Resources:
+  {% for Endpoint in GatewayEndpoints %}
+  {{Endpoint | resource}}Endpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      RouteTableIds:
+        {% for Identifier in SubnetIdentifiers%}
+        - !Ref RouteTable{{ Identifier }}Private
+        {% endfor %}
+      VpcEndpointType: Gateway
+      ServiceName: !Join
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .{{Endpoint}}
+      VpcId: !Ref VPC
+  {% endfor %}
+
+  {% for Endpoint in InterfaceEndpoints %}
+  {{Endpoint | resource}}Endpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      SecurityGroupIds:
+        - !Ref EndpointSecurityGroup
+      PrivateDnsEnabled: true
+      SubnetIds:
+        {% for Identifier in SubnetIdentifiers %}
+        - !Ref Subnet{{ Identifier }}Private
+        {% endfor %}
+      VpcEndpointType: Interface
+      ServiceName: !Join
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .{{Endpoint}}
+      VpcId: !Ref VPC
+  {% endfor %}
+
+
+  EndpointClientSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ClientToAccessAWSEndpointServices
+      VpcId: !Ref VPC
+
+  EndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: AccessToAWSServiceEndpoints
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - #SourceSecurityGroupId:
+          #  Fn::GetAtt: EndpointClientSecurityGroup.GroupId
+          # TODO REMOVE the general CIDR and add Security Group only once its rolle out everywhere
+          CidrIp: 0.0.0.0/0
+          IpProtocol: -1
+
+
+
+Outputs:
+    EndpointClientSecurityGroup:
+      Value: !Ref EndpointClientSecurityGroup
+      Export:
+        Name: !Sub '${ExportsPrefix}:EndpointClientSecurityGroup'

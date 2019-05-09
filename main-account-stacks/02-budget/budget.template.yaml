@@ -15,8 +15,8 @@ Resources:
           Unit: USD
         TimeUnit: MONTHLY
         BudgetType: COST
-      CostTypes:
-        IncludeCredit: false
+        CostTypes:
+          IncludeCredit: false
       NotificationsWithSubscribers:
         - Notification:
             NotificationType: ACTUAL

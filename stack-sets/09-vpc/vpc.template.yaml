@@ -1,5 +1,4 @@
-{% set AvailabilityZones = AvailabilityZones or 3 %}
-{% set SubnetIdentifiers = 'ABCDEFGHIJKL'[0:AvailabilityZones] %}
+{% from 'defaults.template.yaml' import SubnetIdentifiers, AvailabilityZones %}
 
 # Based on the Cloudonaut VPC Template
 
