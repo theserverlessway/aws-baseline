@@ -17,3 +17,5 @@ former
 argcomplete
 aws-shell
 former
+ansi2html
+scoutsuite

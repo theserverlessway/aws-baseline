@@ -2,45 +2,76 @@
 
 set -euo pipefail
 
-AUDIT_ROLE=AssumableSecurityAuditRole
-PARALLEL=""
+export AUDIT_ROLE=AssumableSecurityAuditRole
+export ASSUME_DURATION=""
+export ASSUME_MFA=""
+export PARALLEL=""
+export REPORTS=reports
+export PROWLER_REPORTS=$REPORTS/prowler
+export SCOUT_REPORTS=$REPORTS/scout
+export FULL_DURATION=0
+SECONDS=0
 
-while getopts "r:p" opt; do
+while getopts "r:pmd:" opt; do
     case "$opt" in
         r) AUDIT_ROLE='$OPTARG' ;;
         p) PARALLEL='TRUE' ;;
+        d) ASSUME_DURATION="-d $OPTARG" ;;
+        m) ASSUME_MFA="-m" ;;
     esac
 done
 shift $(($OPTIND-1))
 
-if [ "$#" -gt "0" ]
+if [[ "$#" -gt "0" ]]
 then
   ACCOUNTS=$@
-  echo Using Accounts $@
+  echo Auditing Accounts: $@
+  echo ""
 else
-  echo Running against all Accounts
+  echo Auditing all Accounts in the Organization
+  echo ""
   ACCOUNTS=$(aws organizations list-accounts --query "Accounts[?Status=='ACTIVE'].[Id]" --output text | tr -d '\r')
 fi
 
-MAIN_ACCOUNT=$(aws sts get-caller-identity --query Account --output text | tr -d '\r')
+export MAIN_ACCOUNT=$(aws sts get-caller-identity --query Account --output text | tr -d '\r')
 
 mkdir -p reports/scout reports/prowler
 
 function audit_aws_account(){
+  SECONDS=0
   account=$1
-  echo "Auditing Account $account"
+  echo "----Auditing Account $account--------------------------------------------------"
   if [[ "$MAIN_ACCOUNT" == "$account" ]]
   then
-    echo MASTER Account
+    echo Account is the Main Account
     CREDENTIALS=""
   else
-    echo CHILD Account
-    CREDENTIALS="$(awsinfo assume $account -- $AUDIT_ROLE | tr -d '\r' | tail -n1) ;"
+    echo Account is a SubAccount
+    if [[ ! -z "$ASSUME_MFA" ]]
+    then
+      echo "MFA TOKEN:"
+    fi
+    CREDENTIALS=$(awsinfo assume role -r $AUDIT_ROLE $ASSUME_DURATION $ASSUME_MFA -a $account | tr -d '\r' | tail -n1)
+    eval $CREDENTIALS
   fi
-#  bash -c "$CREDENTIALS prowler > reports/$account.txt; cat reports/$account.txt | ansi2html -l | sed 's/body class=\"body_foreground body_background\"/body/g' > reports/$account.html"
-#  echo "Finished Audit for $account"
 
-  bash -c "$CREDENTIALS scout aws --report-dir reports/scout --no-browser --force"
+  PROWLER_LOG_OUTPUT=$PROWLER_REPORTS/$account.log
+  SCOUT_LOG_OUTPUT=$SCOUT_REPORTS/$account.log
+
+  echo "Current Account:"
+  awsinfo me
+
+  echo "Starting Prowler Audit and logging to $PROWLER_LOG_OUTPUT"
+  prowler > $PROWLER_LOG_OUTPUT || true
+  cat $PROWLER_LOG_OUTPUT | ansi2html -l | sed 's/body class=\"body_foreground body_background\"/body/g' > $PROWLER_REPORTS/$account.html
+
+  echo "Starting Scout Audit and logging to $SCOUT_LOG_OUTPUT"
+  scout aws --report-dir $SCOUT_REPORTS --no-browser --force > $SCOUT_LOG_OUTPUT || true
+
+  SINGLE_AUDIT_DURATION=$SECONDS
+  FULL_DURATION=$((FULL_DURATION + SINGLE_AUDIT_DURATION))
+  printf "Finished Audit for Account $account in %02d:%02d:%02d" $((SINGLE_AUDIT_DURATION / 3600)) $(( (SINGLE_AUDIT_DURATION % 3600) / 60 )) $((SINGLE_AUDIT_DURATION % 60))
+  echo -e "\n"
 }
 
 export -f audit_aws_account
@@ -50,15 +81,18 @@ then
   for account in $ACCOUNTS
   do
     audit_aws_account $account
+    echo "-----------------------------------------------------------------------------------"
+    echo "Audit Logs and Reports can be found in ./reports"
+    printf "Audit took %02d:%02d:%02d" $((FULL_DURATION / 3600)) $(( (FULL_DURATION % 3600) / 60 )) $((FULL_DURATION % 60))
+    echo -e "\n-----------------------------------------------------------------------------------"
   done
 else
-  parallel -P 4 audit_aws_account {} <<< $ACCOUNTS
+  echo -e "Auditing progress for each account logged in $REPORTS/ACCOUNT_ID.log\n"
+  echo "$ACCOUNTS" | xargs -P 4 -n 1 -I {} bash -c "echo Starting Audit for {} && audit_aws_account {} &> $REPORTS/{}.log"
+  echo "-----------------------------------------------------------------------------------"
+  echo "Audit Logs and Reports can be found in ./reports"
+  FULL_DURATION=$SECONDS
+  printf "Audit took %02d:%02d:%02d" $((FULL_DURATION / 3600)) $(( (FULL_DURATION % 3600) / 60 )) $((FULL_DURATION % 60))
+  echo -e "\n-----------------------------------------------------------------------------------"
 fi
 
-
-echo "-------------------------------------------------------------------------------------"
-for account in $ACCOUNTS
-do
-  echo "Audit Log for Account $account in ./reports/$account.html"
-done
-echo "-------------------------------------------------------------------------------------"

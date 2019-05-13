@@ -49,4 +49,7 @@ endif
 	$(RSYNC)
 
 security-audit:
-	./scripts/security-audit
+	./scripts/security-audit -p
+
+security-audit-docker:
+	docker-compose run --detach aws-baseline ./scripts/security-audit -p

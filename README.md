@@ -55,11 +55,11 @@ Check out the [main-account-stacks README](./main-account-stacks/README.md) for 
 
 The Makefile in the root of the repository has a `security-audit` task that will run a full audit on all of your accounts. It uses [Prowler](https://github.com/toniblyx/prowler) and [ScoutSuite](https://github.com/nccgroup/ScoutSuite) to audit the accounts. Make sure those tools are installed on your system.
 
-When you run the audit make sure that your current credentials are MFA signed, so use `awsinfo assume token -md 8` and export the given variables before calling the command.
+When you run the audit make sure that your current credentials are MFA signed, so use `awsinfo assume token -md 8` and export the given variables before calling the command. This limits the time credentials are valid to 1 limit because of chain assuming (assume token then assume role), so in case an audit of your account takes longer and you need MFA you can use the `-m` and `-d` options. `-m` will ask for an MFA token when assuming a role which allows the limit to be increased with the `-d` option. Make sure you don't use credentials obtained through `awsinfo assume token` when using the `-d` option though, as it would be a chain assume and limit the max duration to 1 hour. 
 
 If you only want to run the audit against a specific account, you can run the script directly with `./scripts/security-audit ACCOUNT_ID`.
 
-By default the `AssumableSecurityAuditRole` is assumed and used. If you want to use a different role, set it with the `-r` parameter. If you want to run the audits in parallel use the `-p` option. [Gnu Parallel](https://www.gnu.org/software/parallel/) needs to be installed on your system in that case. For the Prowler reports you also need [`ansi2html`](https://pypi.org/project/ansi2html/) and `sed` installed on your System.
+By default the `AssumableSecurityAuditRole` is assumed and used. If you want to use a different role, set it with the `-r` parameter. If you want to run the audits in parallel use the `-p` option. [Xargs] needs to be installed on your system in that case. For the Prowler reports you also need [`ansi2html`](https://pypi.org/project/ansi2html/) and `sed` installed on your System. For assuming the roles [`awsinfo`](https://theserverlessway.com/tools/awsinfo/) is used, make sure to install it.
 
 The reports are stored in the reports folder, with separate folders for each audit tool.
 
