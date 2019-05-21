@@ -48,14 +48,20 @@ ifndef Target
 endif
 	$(RSYNC)
 
-security-audit:
-	./scripts/security-audit -p
+security-audit-accounts:
+ifndef Accounts
+	$(error Accounts is undefined)
+endif
+	echo $(Accounts)
+	docker-compose build aws-baseline
+	docker-compose run aws-baseline ./scripts/security-audit -p $(Accounts)
 
-security-audit-docker:
+
+security-audit-all:
 	rm -fr reports
 	mkdir reports
 	docker-compose build aws-baseline
-	docker-compose run aws-baseline ./scripts/security-audit
+	docker-compose run aws-baseline ./scripts/security-audit -p
 
 security-audit-docker-with-rebuild: rebuild-baseline security-audit-docker
 

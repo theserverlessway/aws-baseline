@@ -41,7 +41,6 @@ function audit_aws_account(){
   #  set -euxo pipefail
 
   SECONDS=0
-  sleep 3
   account=$1
   echo "----Auditing Account $account--------------------------------------------------"
   if [[ "$MAIN_ACCOUNT" == "$account" ]]
