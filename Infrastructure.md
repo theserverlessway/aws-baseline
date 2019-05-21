@@ -13,8 +13,6 @@ User Management is handled in a centralized way through the Master account. User
 To log into sub-accounts users assume into roles
 
 
-
-
 # Master Account Setup
 
 * `Baseline:` Account setup with password policies

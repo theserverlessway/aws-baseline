@@ -3,12 +3,15 @@ Parameters:
     Type: String
     Default: true
     AllowedValues: [true, false]
+    Description: Require MFA when assuming into a Role.
   AllowedRegions:
     Type: String
     Default: 'us-east-1'
+    Description: Comma separated list of Regions that can be used in your AWS Accounts.
   MaxSessionDuration:
     Type: Number
     Default: 28800
+    Description: Maximum Duration you can set when assuming a role.
   ExportPrefix:
     Type: String
     Default: assumable-roles
