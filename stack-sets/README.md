@@ -24,6 +24,9 @@ formica stack-set remove-instances -c stack-set.config.yaml
 
 For a complete documentation of all available stack-set commands in formica check out the [`Commands Reference`](https://theserverlessway.com/tools/formica/commands/)
 
+
+The Makefile in this folder also contains commands to diff and update all stack-sets and add-instances currently missing. With `make diff-stack-sets`, `make update-stack-sets` and `make add-stack-set-instances` accordingly you can go through all StackSets and deploy them. Please be careful when using these commands.
+
 For individual documentation on each stack please consult the `README.md` in each of the stack directories.
 
 ## Execution Role
