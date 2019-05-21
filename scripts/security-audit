@@ -9,7 +9,7 @@ export PARALLEL=""
 export REPORTS=reports
 export PROWLER_REPORTS=$REPORTS/prowler
 export SCOUT_REPORTS=$REPORTS/scout
-export FULL_DURATION=0
+FULL_DURATION=0
 SECONDS=0
 
 while getopts "r:pmd:" opt; do
@@ -38,7 +38,10 @@ export MAIN_ACCOUNT=$(aws sts get-caller-identity --query Account --output text 
 mkdir -p reports/scout reports/prowler
 
 function audit_aws_account(){
+  #  set -euxo pipefail
+
   SECONDS=0
+  sleep 3
   account=$1
   echo "----Auditing Account $account--------------------------------------------------"
   if [[ "$MAIN_ACCOUNT" == "$account" ]]
@@ -52,21 +55,20 @@ function audit_aws_account(){
       echo "MFA TOKEN:"
     fi
     CREDENTIALS=$(awsinfo assume role -r $AUDIT_ROLE $ASSUME_DURATION $ASSUME_MFA -a $account | tr -d '\r' | tail -n1)
-    eval $CREDENTIALS
   fi
 
   PROWLER_LOG_OUTPUT=$PROWLER_REPORTS/$account.log
   SCOUT_LOG_OUTPUT=$SCOUT_REPORTS/$account.log
 
   echo "Current Account:"
-  awsinfo me
+  $CREDENTIALS && awsinfo me
 
   echo "Starting Prowler Audit and logging to $PROWLER_LOG_OUTPUT"
-  prowler > $PROWLER_LOG_OUTPUT || true
+  $CREDENTIALS && prowler &> $PROWLER_LOG_OUTPUT || true
   cat $PROWLER_LOG_OUTPUT | ansi2html -l | sed 's/body class=\"body_foreground body_background\"/body/g' > $PROWLER_REPORTS/$account.html
 
   echo "Starting Scout Audit and logging to $SCOUT_LOG_OUTPUT"
-  scout aws --report-dir $SCOUT_REPORTS --no-browser --force > $SCOUT_LOG_OUTPUT || true
+  $CREDENTIALS && scout aws --report-dir $SCOUT_REPORTS --no-browser --force &> $SCOUT_LOG_OUTPUT || true
 
   SINGLE_AUDIT_DURATION=$SECONDS
   FULL_DURATION=$((FULL_DURATION + SINGLE_AUDIT_DURATION))
@@ -80,12 +82,14 @@ if [[ -z "$PARALLEL" ]]
 then
   for account in $ACCOUNTS
   do
-    audit_aws_account $account
+    bash -c "audit_aws_account $account"
+  done
+    SINGLE_AUDIT_DURATION=$SECONDS
+    FULL_DURATION=$((FULL_DURATION + SINGLE_AUDIT_DURATION))
     echo "-----------------------------------------------------------------------------------"
     echo "Audit Logs and Reports can be found in ./reports"
     printf "Audit took %02d:%02d:%02d" $((FULL_DURATION / 3600)) $(( (FULL_DURATION % 3600) / 60 )) $((FULL_DURATION % 60))
     echo -e "\n-----------------------------------------------------------------------------------"
-  done
 else
   echo -e "Auditing progress for each account logged in $REPORTS/ACCOUNT_ID.log\n"
   echo "$ACCOUNTS" | xargs -P 4 -n 1 -I {} bash -c "echo Starting Audit for {} && audit_aws_account {} &> $REPORTS/{}.log"

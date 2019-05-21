@@ -52,4 +52,12 @@ security-audit:
 	./scripts/security-audit -p
 
 security-audit-docker:
-	docker-compose run --detach aws-baseline ./scripts/security-audit -p
+	rm -fr reports
+	mkdir reports
+	docker-compose build aws-baseline
+	docker-compose run aws-baseline ./scripts/security-audit
+
+security-audit-docker-with-rebuild: rebuild-baseline security-audit-docker
+
+rebuild-baseline:
+	docker-compose build --no-cache aws-baseline

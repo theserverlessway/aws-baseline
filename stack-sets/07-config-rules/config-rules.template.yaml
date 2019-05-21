@@ -10,12 +10,19 @@ Conditions:
   IsDisabledRegion: !Equals [!FindInMap ['RegionMap', !Ref 'AWS::Region', 'Enabled'], 'false']
 
 Resources:
-  {% for Rule in ['EIP_ATTACHED', 'INCOMING_SSH_DISABLED', 'RDS_INSTANCE_PUBLIC_ACCESS_CHECK', 'CLOUD_TRAIL_CLOUD_WATCH_LOGS_ENABLED', 'VPC_FLOW_LOGS_ENABLED', 'S3_BUCKET_PUBLIC_READ_PROHIBITED', 'S3_BUCKET_PUBLIC_WRITE_PROHIBITED']%}
+  {% for Rule, Resource in EnabledConfigRules.items() %}
   {{Rule | resource}}:
     Condition: IsEnabledRegion
     Type: AWS::Config::ConfigRule
     Properties:
       ConfigRuleName: "{{Rule}}"
+      Scope:
+        ComplianceResourceTypes:
+          {% if Resource is string %}
+          - {{Resource}}
+          {% else %}
+          {{ Resource }}
+          {% endif %}
       Source:
         Owner: AWS
         SourceIdentifier: "{{Rule}}"

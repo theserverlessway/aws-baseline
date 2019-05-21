@@ -1,12 +1,11 @@
 FROM flomotlik/awsinfo:latest
 
-RUN apk add --no-cache --update build-base gcc libffi-dev openssl-dev openssl musl-dev python-dev git
+RUN apk add --no-cache --update build-base gcc libffi-dev openssl-dev openssl musl-dev python-dev git curl
 
 RUN git clone https://github.com/toniblyx/prowler.git /prowler
+ENV PATH="/prowler:${PATH}"
 
 WORKDIR /app
-
-RUN ln -s /prowler/prowler /usr/local/bin/prowler
 
 COPY requirements.txt requirements.txt
 RUN pip install -U -r requirements.txt

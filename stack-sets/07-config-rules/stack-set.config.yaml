@@ -7,6 +7,14 @@ organization-variables: true
 vars:
   EnabledRegions:
     - us-east-1
+  EnabledConfigRules:
+    EIP_ATTACHED: AWS::EC2::EIP
+    INCOMING_SSH_DISABLED: AWS::EC2::SecurityGroup
+    RDS_INSTANCE_PUBLIC_ACCESS_CHECK: AWS::RDS::DBInstance
+    CLOUD_TRAIL_CLOUD_WATCH_LOGS_ENABLED: AWS::CloudTrail::Trail
+    VPC_FLOW_LOGS_ENABLED: AWS::EC2::VPC
+    S3_BUCKET_PUBLIC_READ_PROHIBITED: [AWS::S3::Bucket, AWS::S3::AccountPublicAccessBlock]
+    S3_BUCKET_PUBLIC_WRITE_PROHIBITED: [AWS::S3::Bucket, AWS::S3::AccountPublicAccessBlock]
 capabilities:
   - CAPABILITY_IAM
 tags:

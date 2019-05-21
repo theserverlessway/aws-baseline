@@ -17,6 +17,7 @@ Resources:
         BudgetType: COST
         CostTypes:
           IncludeCredit: false
+          IncludeRefund: false
       NotificationsWithSubscribers:
         - Notification:
             NotificationType: ACTUAL
