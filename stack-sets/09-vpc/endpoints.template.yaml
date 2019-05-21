@@ -51,10 +51,8 @@ Resources:
       GroupDescription: AccessToAWSServiceEndpoints
       VpcId: !Ref VPC
       SecurityGroupIngress:
-        - #SourceSecurityGroupId:
-          #  Fn::GetAtt: EndpointClientSecurityGroup.GroupId
-          # TODO REMOVE the general CIDR and add Security Group only once its rolle out everywhere
-          CidrIp: 0.0.0.0/0
+        - SourceSecurityGroupId:
+            Fn::GetAtt: EndpointClientSecurityGroup.GroupId
           IpProtocol: -1
 
 
