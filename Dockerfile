@@ -15,4 +15,6 @@ RUN mkdir -p /etc/bash_completion.d
 RUN activate-global-python-argcomplete
 RUN  echo 'eval "$(register-python-argcomplete formica)"' >> /root/.bashrc
 
+ENV PS1='\[\e[0;32m\]\w \[\e[0;32m\]→\[\e[39m\] '
+
 ENTRYPOINT []

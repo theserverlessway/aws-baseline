@@ -64,3 +64,7 @@ By default the `AssumableSecurityAuditRole` is assumed and used. If you want to 
 The reports are stored in the reports folder, with separate folders for each audit tool.
 
 The Audit will take quite a long time (even if run in parallel mode).
+
+## Deleting default VPCs
+
+Deleting all default VPCs from your account should be one of the first steps you take. The make task `delete-default-vpcs` will remove them across all regions with the currently exported credentials. So either set the credentials or the profile through [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) and start the command. It will run inside of the baseline docker container so you don't need any tools installed on your system.

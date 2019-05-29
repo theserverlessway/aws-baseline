@@ -30,8 +30,10 @@ list-accounts:
 test-python:
 	py.test --cov-branch --cov-report html --cov-report term-missing ./
 
-shell:
-	docker-compose build aws-baseline
+build:
+	docker-compose build --pull aws-baseline
+
+shell: build
 	docker-compose run aws-baseline bash
 
 RSYNC=rsync -vlar --delete --exclude .git .idea ./ $(Target)
@@ -57,13 +59,15 @@ endif
 	docker-compose run aws-baseline ./scripts/security-audit -p $(Accounts)
 
 
-security-audit-all:
+security-audit-all: build
 	rm -fr reports
 	mkdir reports
-	docker-compose build aws-baseline
 	docker-compose run aws-baseline ./scripts/security-audit -p
 
 security-audit-docker-with-rebuild: rebuild-baseline security-audit-docker
 
 rebuild-baseline:
-	docker-compose build --no-cache aws-baseline
+	docker-compose build --pull --no-cache aws-baseline
+
+delete-default-vpcs: build
+	docker-compose run aws-baseline ./scripts/delete-default-vpc
