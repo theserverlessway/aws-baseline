@@ -5,9 +5,23 @@ Mappings:
       Enabled: {% if Region in EnabledRegions %}true{%else%}false{%endif%}
     {% endfor %}
 
+Parameters:
+  GlobalConfigRegion:
+    Description: Region To use for Global AWS Config recording
+    Type: String
+    Default: us-east-1
+
 Conditions:
   IsEnabledRegion: !Equals [!FindInMap ['RegionMap', !Ref 'AWS::Region', 'Enabled'], 'true']
   IsDisabledRegion: !Equals [!FindInMap ['RegionMap', !Ref 'AWS::Region', 'Enabled'], 'false']
+  IsGlobalRegion: !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion]
+  IsGlobalMainAccountRegion:
+    Fn::And:
+      - !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion]
+      - !Equals [!Ref 'AWS::AccountId', !Ref MainAccount]
+  IsLocalConfigRegion: !Not [ !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion] ]
+  IsMainAccount: !Equals [!Ref 'AWS::AccountId', !Ref MainAccount]
+  IsSubAccount: !Not [!Equals [!Ref 'AWS::AccountId', !Ref MainAccount]]
 
 Resources:
   {% for Rule, Resource in EnabledConfigRules.items() %}
@@ -28,3 +42,63 @@ Resources:
         SourceIdentifier: "{{Rule}}"
   {% endfor %}
 
+
+{% set GlobalRules = ['IAM_POLICY_NO_STATEMENTS_WITH_ADMIN_ACCESS', 'IAM_PASSWORD_POLICY', 'ROOT_ACCOUNT_MFA_ENABLED', 'IAM_ROOT_ACCESS_KEY_CHECK', 'MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS'] %}
+
+  {% for Rule in GlobalRules %}
+  {{Rule | resource}}:
+    Condition: IsGlobalRegion
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "{{Rule}}"
+      Source:
+        Owner: AWS
+        SourceIdentifier: "{{Rule}}"
+  {% endfor %}
+
+  GuardDutyEnabledAndCentralized:
+    Condition: IsSubAccount
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "GUARDDUTY_ENABLED_CENTRALIZED"
+      InputParameters:
+        CentralMonitoringAccount: !Ref MainAccount
+      Source:
+        Owner: AWS
+        SourceIdentifier: "GUARDDUTY_ENABLED_CENTRALIZED"
+
+  GuardDutyMainAccountEnabled:
+    Condition: IsMainAccount
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "GUARDDUTY_ENABLED_CENTRALIZED"
+      Source:
+        Owner: AWS
+        SourceIdentifier: "GUARDDUTY_ENABLED_CENTRALIZED"
+
+  MultiRegionCloudTrailEnabled:
+    Condition: IsGlobalRegion
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "MULTI_REGION_CLOUD_TRAIL_ENABLED"
+      InputParameters:
+        s3BucketName: !Sub ${TrailBucketPrefix}-${MainAccount}
+        readWriteType: ALL
+        includeManagementEvents:
+      Source:
+        Owner: AWS
+        SourceIdentifier: "MULTI_REGION_CLOUD_TRAIL_ENABLED"
+
+  IAMUserGroupMembership:
+    Condition: IsGlobalMainAccountRegion
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: IAM_USER_GROUP_MEMBERSHIP_CHECK
+      InputParameters:
+        groupNames: UserCredentialsManagement
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::IAM::User"
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_USER_GROUP_MEMBERSHIP_CHECK

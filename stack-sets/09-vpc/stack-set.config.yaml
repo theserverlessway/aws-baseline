@@ -11,3 +11,6 @@ max-concurrent-percentage: 100
 tags:
   ValidateAllSubAccounts: true
   ValidateRegions: us-east-1
+capabilities:
+  - CAPABILITY_IAM
+main-account-parameter: true

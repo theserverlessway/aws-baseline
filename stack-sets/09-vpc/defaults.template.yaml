@@ -1,2 +1,4 @@
 {% set AvailabilityZones = AvailabilityZones or 3 %}
 {% set SubnetIdentifiers = 'ABCDEFGHIJKL'[0:AvailabilityZones] %}
+
+Resources: {}
