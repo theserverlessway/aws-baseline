@@ -1,7 +1,7 @@
 {% from 'defaults.template.yaml' import SubnetIdentifiers, AvailabilityZones %}
 
 Resources:
-  {% for Endpoint in GatewayEndpoints %}
+  {% for Endpoint in GatewayEndpoints or [] %}
   {{Endpoint | resource}}Endpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -18,7 +18,7 @@ Resources:
       VpcId: !Ref VPC
   {% endfor %}
 
-  {% for Endpoint in InterfaceEndpoints %}
+  {% for Endpoint in InterfaceEndpoints or [] %}
   {{Endpoint | resource}}Endpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
