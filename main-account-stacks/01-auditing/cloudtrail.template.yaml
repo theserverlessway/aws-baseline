@@ -8,6 +8,13 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: !Sub ${AWS::StackName}-${CloudTrailBucketPrefix}-${AWS::AccountId}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LoggingConfiguration:
+        DestinationBucketName: !Ref 'LoggingBucket'
+        LogFilePrefix: cloudtrail-logs
   CloudTrailBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:

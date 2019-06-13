@@ -8,6 +8,13 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: !Sub ${AWS::StackName}-${ConfigBucketPrefix}-${AWS::AccountId}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LoggingConfiguration:
+        DestinationBucketName: !Ref 'LoggingBucket'
+        LogFilePrefix: config-logs
   ConfigBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
