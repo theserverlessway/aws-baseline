@@ -1,7 +1,7 @@
 version: '2'
 services:
   aws-baseline:
-    build: .
+    build: ./toolbox
     volumes:
       - .:/app
       - ~/.aws/:/root/.aws

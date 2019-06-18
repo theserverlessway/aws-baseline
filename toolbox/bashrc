@@ -1,0 +1,26 @@
+eval "$(register-python-argcomplete formica)"
+
+alias f="formica"
+
+alias fnew="f new -c stack.config.yaml"
+alias fchange="f change -c stack.config.yaml"
+alias fdeploy="f deploy -c stack.config.yaml"
+alias fdiff="f diff -c stack.config.yaml"
+alias fremove="f remove -c stack.config.yaml"
+
+alias fsupdate="f stack-set update -c stack-set.config.yaml"
+alias fsdiff="f stack-set diff -c stack-set.config.yaml"
+alias fscreate="f stack-set create -c stack-set.config.yaml"
+alias fsadd-instances="f stack-set add-instances -c stack-set.config.yaml"
+alias fsremove-instances="f stack-set remove-instances -c stack-set.config.yaml"
+
+
+alias awsprofiles="cat ~/.aws/config | grep '\[profile'"
+alias aws-token="awsinfo assume token -md 8"
+alias aws-token-profile="aws-token --profile"
+alias aws-all-regions="aws ec2 describe-regions --query "Regions[].RegionName" --output text"
+alias aws-all-stacks="aws-all-regions | xargs -n 1 aws cloudformation list-stacks --query "StackSummaries[].[StackName]" --output text --region"
+alias aws-unset="unset AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID AWS_DEFAULT_REGION AWS_PROFILE"
+
+
+source ~/.awsinfo_completion
