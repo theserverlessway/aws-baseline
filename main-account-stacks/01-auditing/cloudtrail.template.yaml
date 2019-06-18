@@ -15,6 +15,17 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref 'LoggingBucket'
         LogFilePrefix: cloudtrail-logs
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt CloudTrailPartitioningLambdaFunction.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: json.gz
+
+
   CloudTrailBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:

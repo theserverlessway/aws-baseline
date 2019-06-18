@@ -1,0 +1,1 @@
+SHOW PARTITIONS ${AuditingGlueDatabase}.${CloudTrailTable};

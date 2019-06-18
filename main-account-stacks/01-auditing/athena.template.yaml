@@ -1,0 +1,16 @@
+Parameters:
+  AuditingGlueDatabaseName:
+    Type: String
+    Default: auditing
+
+
+Resources:
+  AthenaQueryResults:
+    Type: 'AWS::S3::Bucket'
+
+  AuditingGlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      DatabaseInput:
+        Name: !Ref AuditingGlueDatabaseName
+      CatalogId: !Ref AWS::AccountId

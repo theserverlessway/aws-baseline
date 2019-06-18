@@ -1,5 +1,5 @@
 SELECT *
-FROM "${CloudTrailDatabase}"."${CloudTrailTable}"
+FROM "${AuditingGlueDatabase}"."${CloudTrailTable}"
 WHERE eventtype != 'AwsServiceEvent'
         AND useridentity.type = 'Root'
         AND eventtime > cast((now() - interval '30' day) AS varchar)
