@@ -4,6 +4,7 @@ Parameters:
     Default: 'cloudtrail'
 Resources:
   CloudTrailBucket:
+    DependsOn: CloudTrailPartitioningLambdaInvokePermission
     DeletionPolicy: Delete
     Type: 'AWS::S3::Bucket'
     Properties:
@@ -24,7 +25,6 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: json.gz
-
 
   CloudTrailBucketPolicy:
     Type: AWS::S3::BucketPolicy

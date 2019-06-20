@@ -4,6 +4,7 @@ Parameters:
     Default: 'flowlogs'
 Resources:
   FlowLogsBucket:
+    DependsOn: FlowLogsPartitioningLambdaInvokePermission
     DeletionPolicy: Delete
     Type: 'AWS::S3::Bucket'
     Properties:
@@ -15,6 +16,16 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref 'LoggingBucket'
         LogFilePrefix: flowlogs-logs
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt FlowLogsPartitioningLambdaFunction.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: log.gz
+
   FlowLogsBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:

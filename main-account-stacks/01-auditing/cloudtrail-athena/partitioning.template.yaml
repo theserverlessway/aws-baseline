@@ -1,0 +1,72 @@
+Resources:
+  PartitioningTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: "partition"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "partition"
+          KeyType: "HASH"
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: 'true'
+
+  {% for Table in ['CloudTrail', 'FlowLogs']%}
+  {{Table}}Partitioning:
+    From: Lambda
+    Properties:
+      Timeout: 180
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      Code: |
+        {{code('partition.py')}}
+      Environment:
+        PartitionCheckTable: !Ref PartitioningTable
+        CloudTrailTable: !Ref {{Table}}TableName
+        AthenaQueryResults: !Ref AthenaQueryResults
+        AuditingGlueDatabaseName: !Ref AuditingGlueDatabaseName
+      Statements:
+        - Sid: GlobalS3Permissions
+          Effect: Allow
+          Action:
+            - s3:ListAllMyBuckets
+            - s3:ListBucket
+            - s3:HeadBucket
+            - s3:ListObjects
+          Resource: "*"
+        - Sid: ResourceLevelS3Permissions
+          Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:GetBucketLocation
+          Resource:
+            - Fn::Join:
+                - '/'
+                - - !GetAtt {{Table}}Bucket.Arn
+                  - '*'
+            - !GetAtt {{Table}}Bucket.Arn
+            - !Sub ${AthenaQueryResults.Arn}/*
+            - !GetAtt AthenaQueryResults.Arn
+        - Sid: Athena
+          Effect: Allow
+          Action:
+            - athena:StartQueryExecution
+            - athena:GetQueryExecution
+          Resource: "*"
+        - Sid: DynamoDB
+          Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+          Resource: !GetAtt PartitioningTable.Arn
+        - Sid: Glue
+          Effect: Allow
+          Action:
+            - glue:GetDatabase
+            - glue:GetTable
+            - glue:BatchCreatePartition
+          Resource: '*'
+  {% endfor %}

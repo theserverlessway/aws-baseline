@@ -25,7 +25,7 @@ def handler(event, context):
     year = keys[4]
     month = keys[5]
     day = keys[6]
-    dynamo_key = '-'.join([account, region, year, month, day])
+    dynamo_key = '-'.join([bucket, account, region, year, month, day])
     date = '{}-{}-{}'.format(year, month, day)
     ddb_item = {
         'partition': {
@@ -39,17 +39,16 @@ def handler(event, context):
     if dynamo_result.get('Item'):
         print('Already added Partition for {}'.format(dynamo_key))
     else:
+        partition_location = '/'.join(keys[0:-1])
         print('Adding Partition for {}'.format(dynamo_key))
-        query = "ALTER TABLE {database_name}.{table_name} ADD PARTITION (account='{account}',region='{region}',date='{date}') LOCATION 's3://{bucket}/AWSLogs/{account}/CloudTrail/{region}/{year}/{month}/{day}/'".format(
-            table_name=GlueTable,
+        query = "ALTER TABLE {database_name}.{table_name} ADD PARTITION (account='{account}',region='{region}',date='{date}') LOCATION 's3://{bucket}/{partition_location}'".format(
             database_name=AuditingGlueDatabaseName,
+            table_name=GlueTable,
             account=account,
             region=region,
-            year=year,
-            month=month,
-            day=day,
             date=date,
-            bucket=bucket
+            bucket=bucket,
+            partition_location=partition_location
         );
         print(query)
         athena_query = athena.start_query_execution(
@@ -61,15 +60,13 @@ def handler(event, context):
                 'OutputLocation': "s3://{}".format(AthenaQueryResults)
             }
         )
-        athena_result = ''
-        athena_query_result = ''
         while True:
             athena_query_result = athena.get_query_execution(QueryExecutionId=athena_query['QueryExecutionId'])
             athena_query_status = athena_query_result['QueryExecution']['Status']['State']
             if athena_query_status not in ['QUEUED', 'RUNNING']:
                 break
             sleep(2)
-        if athena_query_status == 'SUCCEEDED':
+        if athena_query_status == 'SUCCEEDED' or 'Partition already exists' in athena_query_result['QueryExecution']['Status']['StateChangeReason']:
             dynamo.put_item(
                 TableName=TableName,
                 Item={
