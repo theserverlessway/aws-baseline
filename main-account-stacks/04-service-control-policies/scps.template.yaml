@@ -1,0 +1,69 @@
+Resources:
+  {%for SCP in files('global-policies/*.scp.json')%}
+  {% set scp_name=SCP.split('/')[1].split('.')[0] %}
+  {{scp_name | resource}}:
+    DependsOn:
+      - SCPCustomResourceLambdaRolePolicy
+      - SCPCustomResourceLambdaLogGroup
+      - SCPEnable
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt SCPCustomResourceLambdaFunction.Arn
+      Policy: "{{code(SCP)}}"
+      Attach: true
+  {% endfor %}
+
+
+  {%for SCP in files('custom-policies/*.scp.json')%}
+  {% set scp_name=SCP.split('/')[1].split('.')[0] %}
+  {{scp_name | resource}}:
+    DependsOn:
+      - SCPCustomResourceLambdaRolePolicy
+      - SCPCustomResourceLambdaLogGroup
+      - SCPEnable
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt SCPCustomResourceLambdaFunction.Arn
+      Policy: "{{code(SCP)}}"
+      Attach: false
+    {% endfor %}
+
+  SCPCustomResource:
+    From: Lambda
+    Properties:
+      Timeout: 200
+      Code: |
+        {{code("deploy-policies.py")}}
+      Statements:
+        - Sid: ServiceControlPolicies
+          Effect: Allow
+          Action:
+            - organizations:CreatePolicy
+            - organizations:UpdatePolicy
+            - organizations:DeletePolicy
+            - organizations:AttachPolicy
+            - organizations:DetachPolicy
+            - organizations:ListRoots
+          Resource: "*"
+
+  SCPEnable:
+    DependsOn: SCPEnableCustomResourceLambdaRolePolicy
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt SCPEnableCustomResourceLambdaFunction.Arn
+
+  SCPEnableCustomResource:
+    From: Lambda
+    Properties:
+      Timeout: 200
+      Handler: index.enable_service_control_policies
+      Code: |
+        {{code("deploy-policies.py")}}
+      Statements:
+        - Sid: ServiceControlPolicies
+          Effect: Allow
+          Action:
+            - organizations:EnablePolicyType
+            - organizations:DisablePolicyType
+            - organizations:ListRoots
+          Resource: "*"

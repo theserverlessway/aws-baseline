@@ -4,8 +4,7 @@
     {
       "Effect": "Deny",
       "Action": [
-        "s3:DeleteBucket",
-        "s3:DeleteObject"
+        "s3:Delete*"
       ],
       "Resource": "arn:aws:s3:::audit-storage-*"
     }

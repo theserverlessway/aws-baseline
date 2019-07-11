@@ -1,0 +1,20 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "cloudformation:*"
+      ],
+      "Effect": "Deny",
+      "Resource": [
+        "arn:aws:cloudformation:*:*:stack/StackSet-*"
+      ],
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalARN": "arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole"
+        }
+      },
+      "Sid": "DenyAccessToStackSetCloudformationStacks"
+    }
+  ]
+}
