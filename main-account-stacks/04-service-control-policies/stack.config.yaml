@@ -1,0 +1,4 @@
+stack: service-control-policies
+capabilities:
+  - CAPABILITY_IAM
+region: us-east-1
