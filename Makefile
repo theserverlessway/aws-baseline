@@ -27,8 +27,8 @@ rollout:
 	cd stack-sets && make rollout
 
 diff:
-	cd main-account-stacks && make diff
-	cd stack-sets && make diff
+	@cd main-account-stacks && make diff
+	@cd stack-sets && make diff
 
 list-accounts:
 	awsinfo orgs

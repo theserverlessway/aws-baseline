@@ -1,7 +1,7 @@
 Parameters:
   MaxBudget:
     Type: Number
-    Default: 3000
+    Default: 15
   BudgetAlertEmail:
     Type: String
     Default: {{AWSMainAccount['Email']}}
