@@ -10,8 +10,11 @@
         "arn:aws:cloudformation:*:*:stack/StackSet-*"
       ],
       "Condition": {
-        "ArnNotLike": {
-          "aws:PrincipalARN": "arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole"
+        "ForAllValues:ArnNotLike": {
+          "aws:PrincipalARN": [
+            "arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole",
+            "arn:aws:iam::*:role/OrganizationAccountAccessRole"
+          ]
         }
       },
       "Sid": "DenyAccessToStackSetCloudformationStacks"
