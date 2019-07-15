@@ -14,3 +14,4 @@ tags:
 capabilities:
   - CAPABILITY_IAM
 main-account-parameter: true
+region: us-east-1

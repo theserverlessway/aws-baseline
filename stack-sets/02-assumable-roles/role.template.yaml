@@ -6,7 +6,6 @@ Parameters:
     Description: Require MFA when assuming into a Role.
   AllowedRegions:
     Type: String
-    Default: 'us-east-1'
     Description: Comma separated list of Regions that can be used in your AWS Accounts.
   MaxSessionDuration:
     Type: Number

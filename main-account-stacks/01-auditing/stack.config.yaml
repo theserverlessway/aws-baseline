@@ -1,4 +1,5 @@
 stack: audit-storage
 region: us-east-1
+create-missing: true
 capabilities:
   - CAPABILITY_IAM

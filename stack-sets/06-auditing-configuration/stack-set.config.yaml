@@ -2,9 +2,12 @@ stack-set: auditing-configuration
 capabilities:
   - CAPABILITY_IAM
 all-accounts: true
-all-regions: true
+#all-regions: true
+excluded-regions:
+  - eu-north-1
 main-account-parameter: true
 max-concurrent-percentage: 100
+region: us-east-1
 tags:
   ValidateAllAccounts: true
   ValidateAllRegions: true

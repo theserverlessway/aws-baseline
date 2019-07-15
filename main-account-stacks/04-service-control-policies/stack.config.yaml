@@ -1,4 +1,5 @@
 stack: service-control-policies
+create-missing: true
 capabilities:
   - CAPABILITY_IAM
 region: us-east-1
