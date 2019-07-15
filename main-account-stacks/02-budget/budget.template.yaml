@@ -4,6 +4,7 @@ Parameters:
     Default: 3000
   BudgetAlertEmail:
     Type: String
+    Default: {{AWSMainAccount['Email']}}
 
 Resources:
   AccountBudget:

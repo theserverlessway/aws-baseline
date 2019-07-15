@@ -1,2 +1,8 @@
-diff-stacks:
-	@ls -d */ | xargs -n 1 -I {} bash -c "echo '{} ----------------------------------' && cd {} && formica diff -c stack.config.yaml && echo -e '\n\n'"
+include ../scripts/Helpers.mk
+
+diff:
+	$(call FOR_ALL_DIRS,formica diff -c stack.config.yaml)
+
+rollout:
+	$(call FOR_ALL_DIRS,formica change -c stack.config.yaml --create-missing && formica deploy -c stack.config.yaml)
+

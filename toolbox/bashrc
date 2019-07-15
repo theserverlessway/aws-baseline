@@ -24,3 +24,11 @@ alias aws-unset="unset AWS_SESSION_TOKEN AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID
 
 
 source ~/.awsinfo_completion
+
+function show_make_targets {
+  make -nqpRr Makefile | grep -o "^[a-zA-Z0-9_\-]*:" | tr -d ":" | grep -v Makefile | sort
+}
+
+complete -W '$(show_make_targets)' make
+
+alias m="show_make_targets"

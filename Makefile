@@ -1,6 +1,3 @@
-.PHONY: stack-sets
-
-
 new:
 	formica new -c stack.config.yaml
 	formica deploy -c stack.config.yaml
@@ -24,6 +21,15 @@ ifndef Alias
 endif
 	aws iam create-account-alias --account-alias $(Alias)
 
+
+rollout:
+	cd main-account-stacks && make rollout
+	cd stack-sets && make rollout
+
+diff:
+	cd main-account-stacks && make diff
+	cd stack-sets && make diff
+
 list-accounts:
 	awsinfo orgs
 
@@ -32,6 +38,9 @@ test-python:
 
 build:
 	docker-compose build --pull aws-baseline
+
+rebuild-baseline:
+	docker-compose build --pull --no-cache aws-baseline
 
 shell: build
 	docker-compose run aws-baseline bash
@@ -64,10 +73,7 @@ security-audit-all: build
 	mkdir reports
 	docker-compose run aws-baseline ./scripts/security-audit -p
 
-security-audit-docker-with-rebuild: rebuild-baseline security-audit-docker
-
-rebuild-baseline:
-	docker-compose build --pull --no-cache aws-baseline
+security-audit-docker-with-rebuild: rebuild-baseline security-audit-all
 
 delete-default-vpcs: build
 	docker-compose run aws-baseline ./scripts/delete-default-vpc

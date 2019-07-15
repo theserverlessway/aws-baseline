@@ -2,6 +2,7 @@ Parameters:
   AlertEmail:
     Type: String
     Description: Email address to notify in case the Validate Lambda function breaks
+    Default: {{AWSMainAccount['Email']}}
 
 Resources:
   ValidateLambdaErrorTopic:
