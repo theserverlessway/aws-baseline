@@ -5,4 +5,3 @@ diff:
 
 rollout:
 	$(call FOR_ALL_DIRS,formica change -c stack.config.yaml --create-missing && formica deploy -c stack.config.yaml)
-

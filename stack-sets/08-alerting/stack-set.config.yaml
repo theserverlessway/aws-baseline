@@ -1,9 +1,0 @@
-stack-set: alerting
-capabilities:
-  - CAPABILITY_IAM
-regions:
-  - eu-central-1
-  - us-east-1
-region: us-east-1
-all-subaccounts: true
-max-concurrent-percentage: 100
