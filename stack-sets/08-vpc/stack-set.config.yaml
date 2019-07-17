@@ -4,12 +4,15 @@ vars:
   AvailabilityZones: 3
   GatewayEndpoints: []
   InterfaceEndpoints: []
+#  AccountCIDR:
+#    123456789:
+#      "us-east-1": 11.0.0.0/16
 parameters:
   PrivateNatGateway: none
 all-subaccounts: true
 max-concurrent-percentage: 100
 tags:
-  ValidateAllSubAccounts: true
+  ValidateAllSubAccounts: 'true'
   ValidateRegions: us-east-1
 capabilities:
   - CAPABILITY_IAM

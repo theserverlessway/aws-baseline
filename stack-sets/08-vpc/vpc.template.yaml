@@ -4,7 +4,36 @@
 
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'VPC with public and private subnets in {{ AvailabilityZones }} Availability Zone'
+
+{% if AccountCIDR %}
+Mappings:
+  {% for Account, RegionMap in AccountCIDR.items() %}
+  {{Account}}:
+    {% for Region, CIDR in RegionMap.items() %}
+    {{Region}}:
+      CIDR: {{CIDR}}
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+
 Parameters:
+  MainAccount:
+    Type: String
+  AccountCIDR:
+    Type: String
+    {% if AccountCIDR %}
+    Default: 'true'
+    {% else %}
+    Default: 'false'
+    {% endif %}
+    AllowedValues: ['true', 'false']
+  ClassA:
+    Description: 'Class A of VPC (XXX.0.0.0/16)'
+    Type: Number
+    Default: 10
+    ConstraintDescription: 'Must be in the range [0-255]'
+    MinValue: 0
+    MaxValue: 255
   ClassB:
     Description: 'Class B of VPC (10.XXX.0.0/16)'
     Type: Number
@@ -12,6 +41,31 @@ Parameters:
     ConstraintDescription: 'Must be in the range [0-255]'
     MinValue: 0
     MaxValue: 255
+  ClassC:
+    Description: 'Class C of VPC (10.0.XXX.0/16)'
+    Type: Number
+    Default: 0
+    ConstraintDescription: 'Must be in the range [0-255]'
+    MinValue: 0
+    MaxValue: 255
+  ClassD:
+    Description: 'Class D of VPC (10.0.0.XXX/16)'
+    Type: Number
+    Default: 0
+    ConstraintDescription: 'Must be in the range [0-255]'
+    MinValue: 0
+    MaxValue: 255
+  CIDRSuffix:
+    Description: 'Class D of VPC (10.0.0.0/XXX)'
+    Type: Number
+    Default: 16
+    ConstraintDescription: 'Must be in the range [0-255]'
+    MinValue: 0
+    MaxValue: 255
+  CIDRSubnetBits:
+    Description: 'The number of subnet bits for the CIDR. Specifying a value "8" for this parameter will create a CIDR with a mask of "/24". Calculated by subtracting the number from 32. See Fn::Cidr function for more details'
+    Type: Number
+    Default: 12
   PrivateNatGateway:
     Description: 'Setting for creating Private Nat Gateways'
     Type: String
@@ -20,28 +74,6 @@ Parameters:
   ExportsPrefix:
     Type: String
     Default: 'vpc'
-  AttachVPN:
-    Type: String
-    Default: 'false'
-    AllowedValues: ["true", "false"]
-  VPNCidr:
-    Type: String
-    Default: '10.245.0.0/24'
-  VPNGateway:
-    Type: String
-    Default: DefaultGateway
-  PeerVPCId:
-    Type: String
-    Default: 'none'
-  PeerVPCOwner:
-    Type: String
-    Default: 'none'
-  PeerVPCRegion:
-    Type: String
-    Default: 'none'
-  PeerVPCCidr:
-    Type: String
-    Default: '192.168.0.0/24'
   FlowLogsLogGroupRetentionInDays:
     Description: 'The number of days log events are kept in CloudWatch Logs'
     Type: Number
@@ -54,25 +86,22 @@ Parameters:
 Conditions:
   SingleNatGateway: !Equals ['single', !Ref PrivateNatGateway]
   AllNatGateways: !Equals ['all', !Ref PrivateNatGateway]
-  AttachVPN: !Equals ['true', !Ref AttachVPN]
-  EnableVPCPeering:
-    Fn::Not: [!Equals [!Ref PeerVPCId, 'none']]
-  HasVPCPeeringOwner:
-    Fn::Not: [!Equals [!Ref PeerVPCOwner, 'none']]
-  HasVPCPeeringRegion:
-    Fn::Not: [!Equals [!Ref PeerVPCRegion, 'none']]
 
 Resources:
   VPC:
     Type: 'AWS::EC2::VPC'
     Properties:
-      CidrBlock: !Sub '10.${ClassB}.0.0/16'
+      {% if AccountCIDR %}
+      CidrBlock: !FindInMap [!Ref 'AWS::AccountId', !Ref 'AWS::Region', 'CIDR']
+      {% else %}
+      CidrBlock: !Sub '${ClassA}.${ClassB}.${ClassC}.${ClassD}/${CIDRSuffix}'
+      {% endif %}
       EnableDnsSupport: true
       EnableDnsHostnames: true
       InstanceTenancy: default
       Tags:
       - Key: Name
-        Value: !Sub '10.${ClassB}.0.0/16'
+        Value: !Sub '${ClassA}.${ClassB}.${ClassC}.${ClassD}/${CIDRSuffix}'
 
   FlowLogsLogGroup:
     Type: AWS::Logs::LogGroup
@@ -83,6 +112,7 @@ Resources:
   FlowLogsLogGroupRole:
     Type: 'AWS::IAM::Role'
     Properties:
+      PermissionsBoundary: !Sub arn:aws:iam::${AWS::AccountId}:policy/CreatedIdentitiesPermissionsBoundary
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -129,7 +159,7 @@ Resources:
     Properties:
       Tags:
       - Key: Name
-        Value: !Sub '10.${ClassB}.0.0/16'
+        Value: !Sub '${ClassA}.${ClassB}.${ClassC}.${ClassD}/${CIDRSuffix}'
 
   VPCGatewayAttachment:
     Type: 'AWS::EC2::VPCGatewayAttachment'
@@ -137,36 +167,29 @@ Resources:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
 
-  VPNGatewayAttachment:
-    Condition: AttachVPN
-    Type: 'AWS::EC2::VPCGatewayAttachment'
-    Properties:
-      VpcId: !Ref VPC
-      VpnGatewayId:
-        Fn::ImportValue: !Ref VPNGateway
-
   {% for Identifier in SubnetIdentifiers %}
   Subnet{{ Identifier }}Private:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [{{loop.index - 1}}, !GetAZs '']
-      CidrBlock: !Sub '10.${ClassB}.{{(loop.index - 1)*32}}.0/20'
+      CidrBlock: !Select [ {{(loop.index-1)*2}}, !Cidr [ !GetAtt VPC.CidrBlock, {{AvailabilityZones * 2}}, !Ref CIDRSubnetBits ]]
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: !Sub ${VPC}-'{{ Identifier }}-Private'
+        Value: !Sub ${VPC}-{{ Identifier }}-Private
       - Key: Reach
         Value: Private
+
   Subnet{{ Identifier }}Public:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [{{loop.index - 1}}, !GetAZs '']
-      CidrBlock: !Sub '10.${ClassB}.{{(loop.index - 1)*32+16}}.0/20'
+      CidrBlock: !Select [ {{1+((loop.index-1)*2)}}, !Cidr [ !GetAtt VPC.CidrBlock, {{AvailabilityZones * 2}}, !Ref CIDRSubnetBits ]]
       MapPublicIpOnLaunch: true
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: !Sub ${VPC}-'{{ Identifier }}-Public'
+        Value: !Sub ${VPC}-{{ Identifier }}-Public
       - Key: Reach
         Value: Public
 
@@ -205,42 +228,6 @@ Resources:
       DestinationCidrBlock: '0.0.0.0/0'
       GatewayId: !Ref InternetGateway
 
-  RouteTableVPNRoute{{ Identifier }}Private:
-    Condition: AttachVPN
-    Type: 'AWS::EC2::Route'
-    DependsOn: VPNGatewayAttachment
-    Properties:
-      RouteTableId: !Ref RouteTable{{ Identifier }}Private
-      DestinationCidrBlock: !Ref VPNCidr
-      GatewayId:
-        Fn::ImportValue: !Ref VPNGateway
-
-  RouteTableVPNRoute{{ Identifier }}Public:
-    Condition: AttachVPN
-    Type: 'AWS::EC2::Route'
-    DependsOn: VPNGatewayAttachment
-    Properties:
-      RouteTableId: !Ref RouteTable{{ Identifier }}Public
-      DestinationCidrBlock: !Ref VPNCidr
-      GatewayId:
-        Fn::ImportValue: !Ref VPNGateway
-
-  RouteTableVPCPeerRoute{{ Identifier }}Private:
-    Condition: EnableVPCPeering
-    Type: 'AWS::EC2::Route'
-    Properties:
-      RouteTableId: !Ref RouteTable{{ Identifier }}Private
-      DestinationCidrBlock: !Ref PeerVPCCidr
-      VpcPeeringConnectionId: !Ref VPCPeeringConnection
-
-  RouteTableVPCPeerRoute{{ Identifier }}Public:
-    Condition: EnableVPCPeering
-    Type: 'AWS::EC2::Route'
-    Properties:
-      RouteTableId: !Ref RouteTable{{ Identifier }}Public
-      DestinationCidrBlock: !Ref PeerVPCCidr
-      VpcPeeringConnectionId: !Ref VPCPeeringConnection
-
   SubnetNetworkAclAssociation{{ Identifier }}Public:
     Type: 'AWS::EC2::SubnetNetworkAclAssociation'
     Properties:
@@ -258,12 +245,14 @@ Resources:
     Type: 'AWS::EC2::EIP'
     Properties:
       Domain: vpc
+
   NatGateway{{ Identifier }}:
     Condition: AllNatGateways
     Type: 'AWS::EC2::NatGateway'
     Properties:
       AllocationId: !GetAtt 'NatGateway{{ Identifier }}ElasticIp.AllocationId'
       SubnetId: !Ref Subnet{{ Identifier }}Public
+
   NatGateway{{ Identifier }}Route:
     Condition: AllNatGateways
     Type: 'AWS::EC2::Route'
@@ -271,6 +260,7 @@ Resources:
       RouteTableId: !Ref RouteTable{{ Identifier }}Private
       DestinationCidrBlock: '0.0.0.0/0'
       NatGatewayId: !Ref NatGateway{{ Identifier }}
+
   SingleNatGateway{{ Identifier }}Route:
     Condition: SingleNatGateway
     Type: 'AWS::EC2::Route'
@@ -349,51 +339,33 @@ Resources:
       Egress: true
       CidrBlock: '0.0.0.0/0'
 
-  VPCPeeringConnection:
-    Condition: EnableVPCPeering
-    Type: AWS::EC2::VPCPeeringConnection
-    Properties:
-      VpcId: !Ref VPC
-      PeerVpcId:
-        Ref: PeerVPCId
-      PeerOwnerId:
-        Fn::If:
-          - HasVPCPeeringOwner
-          - !Ref PeerVPCOwner
-          - !Ref AWS::NoValue
-      PeerRegion:
-        Fn::If:
-          - HasVPCPeeringRegion
-          - !Ref PeerVPCRegion
-          - !Ref AWS::NoValue
-      PeerRoleArn:
-        Fn::If:
-          - HasVPCPeeringOwner
-          - !Sub arn:aws:iam::${PeerVPCOwner}:role/VPCPeeringRole${AWS::AccountId}
-          - !Ref AWS::NoValue
-
 Outputs:
   StackName:
     Description: 'Stack name'
     Value: !Sub '${AWS::StackName}'
+
   AZs:
     Description: 'AZs'
     Value: {{ AvailabilityZones }}
     Export:
       Name: !Sub '${ExportsPrefix}:AZs'
+
   AvailabilityZones:
     Description: 'AZs'
     Value: !Join [',', !GetAZs '']
+
   ClassB:
     Description: 'Class B.'
     Value: !Ref ClassB
     Export:
       Name: !Sub '${ExportsPrefix}:ClassB'
+
   VPC:
     Description: 'VPC.'
     Value: !Ref VPC
     Export:
       Name: !Sub '${ExportsPrefix}:VPC'
+
   SubnetsPublic:
     Description: 'Subnets public.'
     Value:
@@ -404,6 +376,7 @@ Outputs:
         {% endfor %}
     Export:
       Name: !Sub '${ExportsPrefix}:SubnetsPublic'
+
   SubnetsPrivate:
     Description: 'Subnets private.'
     Value:
@@ -414,6 +387,7 @@ Outputs:
         {% endfor %}
     Export:
       Name: !Sub '${ExportsPrefix}:SubnetsPrivate'
+
   RouteTablesPrivate:
     Description: 'Route tables private.'
     Value:
@@ -424,6 +398,7 @@ Outputs:
         {% endfor %}
     Export:
       Name: !Sub '${ExportsPrefix}:RouteTablesPrivate'
+
   RouteTablesPublic:
     Description: 'Route tables public.'
     Value:
@@ -434,6 +409,7 @@ Outputs:
           {% endfor %}
     Export:
       Name: !Sub '${ExportsPrefix}:RouteTablesPublic'
+
   {% for Identifier in SubnetIdentifiers%}
   AZ{{ Identifier }}:
     Description: 'AZ of {{ Identifier }}'
