@@ -1,12 +1,10 @@
 # AWS Account Baseline
 
-This repository contains configuration to roll out your AWS Baseline (also known as a Landing Zone). The result will be a flexible setup to give you a basis to build your specific infrastructure on. The Baseline is implemented through a mix of CloudFormation Stacks and StackSets with individual parts being optional so you can decide the
-setup of your infrastructure.
+This repository contains configuration to roll out your AWS Baseline (also known as a Landing Zone). The result will be a flexible setup to give you a basis to build your specific infrastructure on. The Baseline is implemented through a mix of CloudFormation Stacks and StackSets with individual parts being optional so you can decide the setup of your infrastructure.
 
-The `main-account-stacks` folder contains CloudFormation Stacks that should be deployed first into your main account. It
-will set up roles and groups automatically for your existing accounts.
+The `main-account-stacks` folder contains CloudFormation Stacks that should be deployed first into your main account. It will set up roles and groups for your existing accounts and configure S3 Buckets to store various auditing data.
 
-The `stack-sets` folder contains various StackSets that should be created in your main account and then deployed
+The `stack-sets` folder contains StackSets that should be created in your main account and then deployed
 into your member accounts. For more information on the StackSets check out the README in the `stack-sets` folder.
 
 Various stacks are based on or derived from the wonderful [Widdix Templates](http://templates.cloudonaut.io/en/stable/). Check them out they do an amazing job!
@@ -26,30 +24,23 @@ This is another important step in securing your account even in cases of rights 
 
 ### Auditing
 
-The Stacks and StackSets deployed to both the main and sub accounts set up a best practice auditing solution. That
-includes CloudTrail, Config and GuardDuty across all accounts and regions.
+The Stacks and StackSets deployed to both the main and sub accounts set up a best practice auditing solution. That includes CloudTrail, Config and GuardDuty across all accounts and regions.
 
-Make sure to familiarize yourself with the specific services so you have a good understanding of the auditing setup and understand how to detect issues in your Organization. 
+Make sure to familiarize yourself with the specific services so you have a good understanding of the auditing setup and understand how to detect issues in your Organization.
 
 ## User and Access Management
 
-In the main account we're creating several `assume-role` groups which allow users to assume roles in subaccounts.
-They are created automatically for any account found in the current organization. When you add new accounts you
-have to redeploy the stack so it picks up the new accounts and creates groups accordingly. For more information on assuming roles in another account check out the [Assume Role Documentation](./docs/ASSUME.md)
+In the main account we're creating several `assume-role` groups which allow users to assume roles in subaccounts. They are created automatically for any account found in the current organization. When you add new accounts you have to redeploy the stack so it picks up the new accounts and creates groups accordingly. For more information on assuming roles in another account check out the [Assume Role Documentation](docs/Assume.md)
 
-The stacks in the main account also create various groups for User Management. This allows you to add new users to
-groups to for example create new users or manage group membership. For more information on User Management check out the [User Managemend Documentation](./docs/USER_MANAGEMENT.md)
+The stacks in the main account also create various groups for User Management. This allows you to add new users to groups to for example create new users or manage group membership. For more information on User Management check out the [User Managemend Documentation](docs/UserManagement.md)
 
 Check out the [main-account-stacks README](./main-account-stacks/README.md) for more detail on each stack that gets deployed to the main AWS account.
 
-## Necessary Tools
+## Tooling
 
-* Formica: [https://theserverlessway.com/tools/formica/](https://theserverlessway.com/tools/formica/)
-* Awsie: [https://theserverlessway.com/tools/awsie/](https://theserverlessway.com/tools/awsie/)
+The Baseline comes with its own Docker based toolbox that you can start with `make shell`. It includes different tools to manage the baseline as well as interacting with the AWS APIs. Check out the files in the toolbox Folder to see all the tools that are installed.
 
-## Recommended Tools:
-* AWSInfo: [https://theserverlessway.com/tools/awsinfo/](https://theserverlessway.com/tools/awsinfo/)
-
+The only required tool to roll out your infrastructure is  [`Formica`](https://theserverlessway.com/tools/formica/). If you do not want to or can't use the Docker based toolbox you need to install this tool.
 
 ## Security Audit
 

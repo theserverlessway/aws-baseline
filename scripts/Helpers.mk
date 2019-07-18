@@ -1,7 +1,7 @@
 .PHONY: excluded
 excluded:
-	@echo "Excluded Stack Sets:"
-	@ls -d */ | grep -Ff Excluded
+	@echo "Excluded:"
+	@ls -d */ | grep -Ff Excluded || true
 
 LIST_DIRS=@ls -d */ | grep -vFf Excluded
 

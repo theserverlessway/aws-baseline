@@ -42,7 +42,9 @@ diff:
 	@cd main-account-stacks && make diff
 	@cd stack-sets && make diff
 
-
+excluded:
+	@cd main-account-stacks && make excluded -i
+	@cd stack-sets && make excluded -i
 
 ## Development Tooling
 
