@@ -114,7 +114,7 @@ For other tools to help you with assume-role check out the following:
 
 
 ### Profiles
-To set up your profiles for cross account access with the AWS CLI add the following to `~/.aws/config`. You have to edit the MFA device to match your users MFA device and the Role ARN to match the role.
+To set up your profiles for cross account access with the AWS CLI add the following to `~/.aws/config`. You have to edit the MFA device to match your users MFA device and the Role ARN to match the role, especially the AccountID.
 
 ```##### COMPANY
 [profile company]

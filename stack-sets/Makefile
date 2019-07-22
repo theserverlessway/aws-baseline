@@ -19,4 +19,7 @@ add-instances:
 update:
 	$(call FOR_ALL_DIRS,formica stack-set update -c stack-set.config.yaml --yes --create-missing)
 
-rollout: update add-instances
+create:
+	$(call FOR_ALL_DIRS,formica stack-set create -c stack-set.config.yaml)
+
+rollout: create add-instances update
