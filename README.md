@@ -6,7 +6,7 @@ The Baseline is implemented through a mix of CloudFormation Stacks and StackSets
 
 ## Customisations and Consulting
 
-For any Custom features or help with rolling out the Baseline in your Account please send an email to `[consulting@theserverlessway.com](mailto:consulting@theserverlessway.com)` and check out the [Consulting Page](https://theserverlessway.com/consulting/).
+For any custom features or help with rolling out the Baseline in your Account please send an email to [consulting@theserverlessway.com](mailto:consulting@theserverlessway.com) and check out the [Consulting Page](https://theserverlessway.com/consulting/).
 
 For more information on tools and guides for AWS and Serverless Infrastructure take a look at [The Serverless Way](https://theserverlessway.com/).
 
