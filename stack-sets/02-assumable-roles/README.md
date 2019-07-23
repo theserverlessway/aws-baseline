@@ -2,7 +2,7 @@
 
 This StackSet deploys a set of Roles that can be assumed from the main account if the user is part of the group that has the rights to assume this role.
 
-* `AssumableAdminRole` that has full admin access in the member account. It is limited by a PermissionsBoundary to the `AllowedRegions`.
+* `AssumableAdminRole` that has full admin access in the member account.
 * `AssumableDeveloperRole` that has read-only on all services except cloudformation where it has write access. It can also pass the `cloudformation` role when creating or updating a stack. It is limited by a PermissionsBoundary to the `AllowedRegions`.
 * `AssumableCloudformationDeveloperRole` A Role that is only allowed to deploy Cloudformation stacks and pass the CloudformationRole. It is limited by a PermissionsBoundary to the `AllowedRegions`.
 * `AssumableReadOnlyRole` has the AWS ReadOnly Managed Policy attached and provides ReadOnly Access to all regions.

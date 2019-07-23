@@ -10,5 +10,8 @@ region: us-east-1
 tags:
   ValidateAllSubAccounts: true
   ValidateRegions: us-east-1
+#vars:
+#  DisabledIdentitiesServices:
+#    - iam
 parameters:
   AllowedRegions: us-east-1
