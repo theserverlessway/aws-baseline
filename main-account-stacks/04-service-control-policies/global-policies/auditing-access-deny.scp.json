@@ -1,0 +1,60 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyAuditingStorageDelete",
+      "Effect": "Deny",
+      "Action": [
+        "s3:Delete*"
+      ],
+      "Resource": "arn:aws:s3:::audit-storage-*"
+    },
+    {
+      "Sid": "CloudTrailLogGroupChanges",
+      "Effect": "Deny",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:Delete*",
+        "logs:Put*"
+      ],
+      "Resource": [
+        "arn:aws:logs:*:*:log-group:CloudTrail:*"
+      ],
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalARN": "arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole"
+        }
+      }
+    },
+    {
+      "Sid": "AuditingConfigDenyChanges",
+      "Effect": "Deny",
+      "Action": [
+        "guardduty:Update*",
+        "guardduty:Delete*",
+        "guardduty:DisassociateFromMasterAccount",
+        "guardduty:CreateDetector",
+        "guardduty:AcceptInvitation",
+        "guardduty:ArchiveFindings",
+        "config:Delete*",
+        "config:PutConfigurationRecorder",
+        "config:PutDeliveryChannel",
+        "config:PutRetentionConfiguration",
+        "config:PutConfigRule",
+        "config:StopConfigurationRecorder",
+        "cloudtrail:DeleteTrail",
+        "cloudtrail:PutEventSelectors",
+        "cloudtrail:StopLogging",
+        "cloudtrail:UpdateTrail"
+      ],
+      "Resource": [
+        "*"
+      ],
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalARN": "arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole"
+        }
+      }
+    }
+  ]
+}

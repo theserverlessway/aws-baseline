@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "RegionCheck",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:*",
+        "route53:*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "ForAllValues:StringNotEquals": {
+          "aws:RequestedRegion": [
+            "us-east-1"
+          ]
+        }
+      }
+    }
+  ]
+}

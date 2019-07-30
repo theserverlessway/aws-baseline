@@ -4,15 +4,16 @@ import time
 import random
 import re
 
-organizations = boto3.client("organizations")
+o = boto3.client("organizations")
 
 CREATE = 'Create'
 UPDATE = 'Update'
 DELETE = 'Delete'
+SCP = "SERVICE_CONTROL_POLICY"
 
 
 def root():
-    return organizations.list_roots()['Roots'][0]
+    return o.list_roots()['Roots'][0]
 
 
 def root_id():
@@ -21,8 +22,7 @@ def root_id():
 
 def scp_enabled():
     enabled_policies = root()['PolicyTypes']
-    print('Enabled Policy Types: {}'.format(enabled_policies))
-    return {"Type": "SERVICE_CONTROL_POLICY", "Status": "ENABLED"} in enabled_policies
+    return {"Type": SCP, "Status": "ENABLED"} in enabled_policies
 
 
 def exception_handling(function):
@@ -32,10 +32,7 @@ def exception_handling(function):
         except Exception as e:
             print(e)
             print(event)
-            if event["RequestType"] == DELETE:
-                cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
-            else:
-                cfnresponse.send(event, context, cfnresponse.FAILED, {})
+            cfnresponse.send(event, context, cfnresponse.FAILED, {})
 
     return catch
 
@@ -46,14 +43,14 @@ def enable_service_control_policies(event, context):
     if RequestType == CREATE and not scp_enabled():
         r_id = root_id()
         print('Enable SCP for root: {}'.format(r_id))
-        organizations.enable_policy_type(RootId=r_id, PolicyType='SERVICE_CONTROL_POLICY')
+        o.enable_policy_type(RootId=r_id, PolicyType=SCP)
     cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, 'SCP')
 
 
 def with_retry(function, **kwargs):
     for i in [0, 3, 9, 15, 30]:
         # Random sleep to not run into concurrency problems when adding or attaching multiple SCPs
-        # They have to be added, updated or deleted one after the other
+        # They have to be added/updated/deleted one after the other
         sleeptime = i + random.randint(0, 5)
         print('Running {} with Sleep of {}'.format(function.__name__, sleeptime))
         time.sleep(sleeptime)
@@ -61,7 +58,7 @@ def with_retry(function, **kwargs):
             response = function(**kwargs)
             print("Response for {}: {}".format(function.__name__, response))
             return response
-        except organizations.exceptions.ConcurrentModificationException as e:
+        except o.exceptions.ConcurrentModificationException as e:
             print('Exception: {}'.format(e))
     raise Exception
 
@@ -87,26 +84,38 @@ def handler(event, context):
     )
 
     policy_id = PhysicalResourceId
+    paginator = o.get_paginator('list_policies')
+    policies = [policy['Id'] for page in paginator.paginate(Filter=SCP) for policy in
+                page['Policies']
+                if policy['Name'] == LogicalResourceId]
+    if policies:
+        policy_id = policies[0]
     if RequestType == CREATE:
         print('Creating Policy: {}'.format(LogicalResourceId))
-        response = with_retry(organizations.create_policy,
-                              **parameters, Type="SERVICE_CONTROL_POLICY"
+        response = with_retry(o.create_policy,
+                              **parameters, Type=SCP
                               )
         policy_id = response["Policy"]["PolicySummary"]["Id"]
         if Attach:
-            with_retry(organizations.attach_policy, PolicyId=policy_id, TargetId=root_id())
+            with_retry(o.attach_policy, PolicyId=policy_id, TargetId=root_id())
     elif RequestType == UPDATE:
         print('Updating Policy: {}'.format(LogicalResourceId))
-        with_retry(organizations.update_policy, PolicyId=policy_id, **parameters)
+        with_retry(o.update_policy, PolicyId=policy_id, **parameters)
     elif RequestType == DELETE:
         print('Deleting Policy: {}'.format(LogicalResourceId))
         # Same as above
         if re.match('p-[0-9a-z]+', policy_id):
-            if Attach:
-                with_retry(organizations.detach_policy, PolicyId=policy_id, TargetId=root_id())
-            with_retry(organizations.delete_policy, PolicyId=policy_id)
+            if policy_attached(policy_id):
+                with_retry(o.detach_policy, PolicyId=policy_id, TargetId=root_id())
+            with_retry(o.delete_policy, PolicyId=policy_id)
         else:
-            print('PhysicalResourceId {} is not a valid PolicyId'.format(policy_id))
+            print('{} is no valid PolicyId'.format(policy_id))
     else:
         cfnresponse.send(event, context, cfnresponse.FAILED, {}, policy_id)
     cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, policy_id)
+
+
+def policy_attached(policy_id):
+    return [p['Id'] for p in
+            o.list_policies_for_target(TargetId=root_id(), Filter='SERVICE_CONTROL_POLICY')['Policies'] if
+            p['Id'] == policy_id]
