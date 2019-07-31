@@ -18,7 +18,7 @@
         "logs:Put*"
       ],
       "Resource": [
-        "arn:aws:logs:*:*:log-group:CloudTrail:*"
+        "arn:aws:logs:*:*:log-group:/baseline/cloudtrail:*"
       ],
       "Condition": {
         "ArnNotLike": {

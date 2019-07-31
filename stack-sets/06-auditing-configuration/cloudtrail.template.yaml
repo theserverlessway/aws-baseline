@@ -15,7 +15,7 @@ Resources:
     Type: 'AWS::Logs::LogGroup'
     Properties:
       RetentionInDays: !Ref CloudTrailLogsRetentionInDays
-      LogGroupName: CloudTrail
+      LogGroupName: /baseline/cloudtrail
 
   TrailLogGroupRole:
     Condition: IsGlobalRegion
