@@ -15,19 +15,26 @@ Resources:
       Endpoint: !Ref AlertEmail
       Protocol: email
       TopicArn: !Ref ValidateLambdaErrorTopic
-  {% for Rule in ['ValidateStackSetUpToDate', 'ValidateStackSetDeployments' ]%}
-  {{Rule}}:
+  ValidateStackSetDeployments:
     From: Lambda
     Properties:
       Principal: config.amazonaws.com
+      Code: |
+        {{code('validate_stack_set_deployments.py')}}
       Environment:
         StackName: !Ref AWS::StackName
         AccountId: !Ref AWS::AccountId
+        NC1: 'StackSet {} needs to be deployed to account {} in region {}'
+        NC2: 'StackSet {} is deployed but not in status CURRENT in account {} and region {}'
+        NC3: 'StackSet {} is deployed but not defined in tags in account {} and region {}'
+        NC4: 'StackSet {} is deployed but in Status {status} in account {} and region {}'
+        C1: 'StackSet {} is successfully deployed to account {} in region {}'
+        C2: 'StackSet {} not configured in tags but successfully deployed to account {} in region {}'
       Timeout: 300
-      Handler: index.{{Rule | lower }}
+      Handler: index.vs
       Runtime: python3.7
 
-  {{Rule}}ErrorAlarm:
+  ValidateStackSetDeploymentsErrorAlarm:
     Type: 'AWS::CloudWatch::Alarm'
     Properties:
       AlarmDescription: 'Validate Lambda Function failing'
@@ -42,9 +49,8 @@ Resources:
       - !Ref ValidateLambdaErrorTopic
       Dimensions:
       - Name: FunctionName
-        Value: !Ref {{Rule}}LambdaFunction
+        Value: !Ref ValidateStackSetDeploymentsLambdaFunction
       TreatMissingData: notBreaching
-  {% endfor %}
 
 
   LambdaExecutionRole:
@@ -83,20 +89,6 @@ Resources:
       Roles:
       - !Ref LambdaExecutionRole
     Type: AWS::IAM::Policy
-
-  ValidateStackSetUpToDateConfigRule:
-    DependsOn: ValidateStackSetUpToDateLambdaInvokePermission
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: ValidateStackSetUpToDate
-      Source:
-        Owner: CUSTOM_LAMBDA
-        SourceDetails:
-        - EventSource: "aws.config"
-          MessageType: "ScheduledNotification"
-          MaximumExecutionFrequency: Three_Hours
-        SourceIdentifier: !GetAtt ValidateStackSetUpToDateLambdaFunction.Arn
-
 
   ValidateStackSetDeploymentsConfigRule:
     DependsOn: ValidateStackSetDeploymentsLambdaInvokePermission
