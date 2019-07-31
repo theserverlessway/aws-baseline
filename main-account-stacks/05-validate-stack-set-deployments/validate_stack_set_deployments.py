@@ -1,3 +1,5 @@
+# To fit into the Lambda this code is minified
+
 import boto3
 import json
 import os
