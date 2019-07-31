@@ -14,7 +14,7 @@ Before going into details on using the cli with roles in sub-accounts let's take
 
 To assume a role in the AWS Console, and therefore be able to view or edit resources in another account, all you need is the AccountId of the account you want to switch to and the name of the Role you want to assume.
 
-After logging into your AWS Account you can select the Organizations service on the top left, which will give you the option to list all accounts in the current organization (if your user is permitted to do so). With this information and the name of the role you want to assume (please ask your `AWS Account Administrator` for details on the name) you can now open the menu with your Username on the rop right and click `Switch Role`:
+After logging into your AWS Account you can select the Organizations service on the top left, which will give you the option to list all accounts in the current organization (if your user is permitted to do so). With this information and the name of the role you want to assume (please ask your `AWS Account Administrator` for details on the name or check out the [AssumableRole StackSet Documentation](../stack-sets/02-assumable-roles) for all deployed Roles) you can now open the menu with your Username on the rop right and click `Switch Role`:
 
 ![Switch Role Menu](./images/switch-role-menu.png)
 
