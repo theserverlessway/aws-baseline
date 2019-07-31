@@ -52,12 +52,14 @@ test-python:
 	py.test --cov-branch --cov-report html --cov-report term-missing ./
 
 build:
+	touch .bash_history
 	docker-compose build --pull aws-baseline
 
 rebuild-baseline:
 	docker-compose build --pull --no-cache aws-baseline
 
 shell: build
+
 	docker-compose run aws-baseline bash
 
 
