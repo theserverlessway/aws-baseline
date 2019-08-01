@@ -56,7 +56,7 @@ Check out the [main-account-stacks README](./main-account-stacks/README.md) for 
 
 The Baseline comes with its own Docker based toolbox that you can start with `make shell`. It includes different tools to manage the baseline as well as interacting with the AWS APIs. Check out the files in the toolbox Folder to see all the tools that are installed.
 
-The only required tool to roll out your infrastructure are  [`Formica`](https://theserverlessway.com/tools/formica/) and [Deployto]() If you do not want to or can't use the Docker based toolbox you need to install this tool.
+The only required tool to roll out your infrastructure is [`Formica`](https://theserverlessway.com/tools/formica/). If you do not want to or can't use the Docker based toolbox you need to install this tool.
 
 
 ## Deleting default VPCs

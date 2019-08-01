@@ -16,8 +16,6 @@ formica new -c stack.config.yaml
 formica deploy -c stack.config.yaml
 ```
 
-The code of the config rule is too large to embed directly into CloudFormation, so we're using `deployto` as a tool for deploying code updates. Once you create the stack as mentioned above you need to run `deployto` (make sure to install it with `pip install deployto` first) to update the code. You can check out the configuration for deployto in the `deployto.yml` file.
-
 ## Validating StackSet Instances are deployed successfully
 
 You can use the following tags on a StackSet to configure the Accounts
