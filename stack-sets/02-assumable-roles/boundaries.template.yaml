@@ -31,8 +31,6 @@ Resources:
             Resource: "*"
           # Restrict all actions if they are not in the AllowedRegions
           - {{ file('policy-statements/region-check.json') | indent(12) }}
-          - {{ file('policy-statements/deny-stackset-actions.json') | indent(12) }}
-          - {{ file('policy-statements/deny-stackset-cloudformation-actions.json') | indent(width=12) }}
 
   AdminPermissionsBoundary:
     Type: AWS::IAM::ManagedPolicy
@@ -45,8 +43,6 @@ Resources:
             Effect: Allow
             Action: "*"
             Resource: "*"
-          - {{ file('policy-statements/deny-stackset-actions.json') | indent(12) }}
-          - {{ file('policy-statements/deny-stackset-cloudformation-actions.json') | indent(width=12) }}
           {{ file('policy-statements/create-identities.yaml') | indent(width=10) }}
 
   DeveloperPermissionsBoundary:
@@ -60,7 +56,5 @@ Resources:
             Effect: Allow
             Action: "*"
             Resource: "*"
-          - {{ file('policy-statements/deny-stackset-actions.json') | indent(12) }}
-          - {{ file('policy-statements/deny-stackset-cloudformation-actions.json') | indent(12) }}
           - {{ file('policy-statements/region-check.json') | indent(12) }}
           {{ file('policy-statements/create-identities.yaml') | indent(10) }}
