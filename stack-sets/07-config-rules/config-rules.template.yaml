@@ -10,6 +10,9 @@ Parameters:
     Description: Region To use for Global AWS Config recording
     Type: String
     Default: us-east-1
+  TrailBucketPrefix:
+    Type: String
+    Default: 'audit-storage-cloudtrail'
 
 Conditions:
   IsEnabledRegion: !Equals [!FindInMap ['RegionMap', !Ref 'AWS::Region', 'Enabled'], 'true']
@@ -83,8 +86,8 @@ Resources:
       ConfigRuleName: "MULTI_REGION_CLOUD_TRAIL_ENABLED"
       InputParameters:
         s3BucketName: !Sub ${TrailBucketPrefix}-${MainAccount}
+        cloudWatchLogsLogGroupArn: !ImportValue auditing:CloudTrailLogGroup
         readWriteType: ALL
-        includeManagementEvents:
       Source:
         Owner: AWS
         SourceIdentifier: "MULTI_REGION_CLOUD_TRAIL_ENABLED"

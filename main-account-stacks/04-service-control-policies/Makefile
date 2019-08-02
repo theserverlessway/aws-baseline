@@ -5,7 +5,7 @@ policies:
 	aws organizations list-policies --filter SERVICE_CONTROL_POLICY
 
 policy-attachments:
-	aws organizations list-policies --filter SERVICE_CONTROL_POLICY --output text --query 'Policies[].[Name, Id]' |	xargs -n 2 bash -c 'echo -e "\nPolicy Attachments for: $$0" && aws organizations list-targets-for-policy --policy-id $$1 --output table --query "sort_by(Targets,&Name)[].{Name:Name,TargetId:TargetId,Type:Type}"'
+	@aws organizations list-policies --filter SERVICE_CONTROL_POLICY --output text --query 'Policies[].[Name, Id]' |	xargs -n 2 bash -c 'echo -e "\nPolicy Attachments for: $$0" && aws organizations list-targets-for-policy --policy-id $$1 --output table --query "sort_by(Targets,&Name)[].{Name:Name,TargetId:TargetId,Type:Type}"'
 
 STACK_NAMES=aws cloudformation describe-stacks --query "Stacks[].[StackName,StackId]" --output text
 

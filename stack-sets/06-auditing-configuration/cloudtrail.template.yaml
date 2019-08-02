@@ -9,7 +9,6 @@ Parameters:
     Type: String
     Default: 'audit-storage-cloudtrail'
 Resources:
-
   TrailLogGroup:
     Condition: IsGlobalRegion
     Type: 'AWS::Logs::LogGroup'
@@ -54,3 +53,10 @@ Resources:
       CloudWatchLogsLogGroupArn: !GetAtt 'TrailLogGroup.Arn'
       CloudWatchLogsRoleArn: !GetAtt 'TrailLogGroupRole.Arn'
       EnableLogFileValidation: true
+
+Outputs:
+  CloudTrailLogGroup:
+    Condition: IsGlobalRegion
+    Value: !GetAtt TrailLogGroup.Arn
+    Export:
+      Name: auditing:CloudTrailLogGroup

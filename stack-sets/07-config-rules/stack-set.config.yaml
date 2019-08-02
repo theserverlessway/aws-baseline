@@ -1,6 +1,8 @@
 stack-set: config-rules
 all-accounts: true
-all-regions: true
+#all-regions: true
+excluded-regions:
+  - eu-north-1
 main-account-parameter: true
 max-concurrent-percentage: 100
 organization-variables: true
