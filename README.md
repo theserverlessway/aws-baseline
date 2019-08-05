@@ -62,3 +62,10 @@ The only required tool to roll out your infrastructure is [`Formica`](https://th
 ## Deleting default VPCs
 
 Deleting all default VPCs from your account should be one of the first steps you take. The make task `delete-default-vpcs` will remove them across all regions with the currently exported credentials. So either set the credentials or the profile through [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) and start the command. It will run inside of the baseline docker container so you don't need any tools installed on your system.
+
+## License
+
+The AWS Baseline is published under the Apache License Version 2.0.
+
+## Contributing
+If you want to Contribute features, propose changes or report bugs please open an issue and fill out the issue template. The more context the better. Make sure that before you implement a specific enhancement to create an issue to discuss it first so we can get on the same page before any time is spent on implementing it. Thanks for helping out!
