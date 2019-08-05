@@ -18,7 +18,7 @@ After logging into your AWS Account you can select the Organizations service on 
 
 ![Switch Role Menu](./images/switch-role-menu.png)
 
-Select Switch role on the next page and you should be presented with a form with fields for `Account`, `Role`, and `DisplayName`. Fill this out accordingly and click the `Switch Role` button. 
+Select Switch role on the next page and you should be presented with a form with fields for `Account`, `Role`, and `DisplayName`. Fill this out accordingly and click the `Switch Role` button. If you leave out `DisplayName` it will just use the AccountId or Alias and the Role Name making it longer but easier to understand.
 
 ![Switch Role Form](./images/switch-role-form.png)
 
