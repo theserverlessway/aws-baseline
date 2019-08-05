@@ -23,3 +23,5 @@ capabilities:
 tags:
   ValidateAllSubAccounts: true
   ValidateAllRegions: true
+parameters:
+  GlobalConfigRegion: us-east-1
