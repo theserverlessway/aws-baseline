@@ -1,6 +1,10 @@
 # Rolling Out the AWS Baseline
 
-Rolling out the Baseline into AWS can be done fully automated through the `make rollout` command. Before running the Rollout there are a few things to consider so.
+Rolling out the Baseline into AWS can be done fully automated through the `make rollout` command. Before running the Rollout there are a few things to consider.
+
+## Storing your customisations
+
+It is highly recommended that you fork this repository and commit all chagnes you're doing to the infrastructure to your own repository. This will make sure that you can redeploy your infrastructure easily anytime and selectively update the Baseline from upstream.
 
 ## Single Main Account or Split Management Accounts
 
@@ -33,8 +37,18 @@ If you want to exclude a Stack or StackSet from the automated rollout add the di
 
 To check which directories are excluded run `make excluded` either in the main directory or the `main-account-stacks` or `stack-sets` directories.
 
+## Required Tools
+
+When using the toolbox all required tools are already installed. In case you do not want to or can't use the Docker container you need to install Formica with `pip install formica-cli` and make sure you have `make` installed on your System.
+
 ## Rolling out the Baseline
 
-Now finally after we've made all the adjustments we need we can roll out the Baseline. Make sure you have local credentials that have Admin Access into your Main Account. If you're in the Toolbox Docker Container or have `awsinfo` installed you can run `awsinfo me` and `awsinfo credentials` to see which User you're logged into and what the currently used credentials and region are.
+Now finally after we've made all the adjustments we need we can roll out the Baseline. Make sure you have local credentials that have Admin Access into your Main Account. If you're in the Toolbox Docker Container (start it with `make shell`) or have [`awsinfo`](https://theserverlessway.com/tools/awsinfo/) installed you can run `awsinfo me` and `awsinfo credentials` to see which User you're logged into and what the currently used credentials and region are.
 
 After that run `make rollout` in the root folder of the repository. That task will switch into the `main-account-stacks` folder first and run `make rollout` there and deploy all stacks. After that it will switch into the `stack-sets` folder and deploy the StackSets. In case any issues come up during the deployment you can rerun `make rollout` again as it will update existing stacks in case they already exist.
+
+## Updating the Baseline and Debugging issues
+
+Whenever you want to update the baseline either by customising it or adding features from the upstream repository run `make rollout` again after updating repository.
+
+In case there are ever errors when rolling out the Baseline open an issue (in case it's a bug) and look into [`Formica`](https://theserverlessway.com/tools/formica/) the underlying tool deploying all Stacks and StackSets of the Baseline.

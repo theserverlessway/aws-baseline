@@ -4,6 +4,17 @@ This repository contains configuration to roll out your AWS Baseline (also known
 
 The Baseline is implemented through a mix of CloudFormation Stacks and StackSets with individual parts being optional so you can decide the setup of your infrastructure.
 
+Following is a selection of features implemented in this Baseline
+
+* Various Roles and Access Management through Groups for all Subaccounts
+* Auditing with CloudTrail, GuardDuty and Config
+* Security Review with [Prowler](https://github.com/toniblyx/prowler) and [ScoutSuite](https://github.com/nccgroup/ScoutSuite) 
+* Service Control Policies to prevent access to auditing resources
+* Flexible VPC Configuration
+* AWS Athena Setup to quickly search through FlowLogs and CloudTrail across accounts
+* Budgets so you don't get any expensive surprises at the end of the month
+* and more ...
+
 ## Customisations and Consulting
 
 For any custom features or help with rolling out the Baseline in your Account please send an email to [consulting@theserverlessway.com](mailto:consulting@theserverlessway.com) and check out the [Consulting Page](https://theserverlessway.com/consulting/).
