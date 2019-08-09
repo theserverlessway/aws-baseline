@@ -3,6 +3,16 @@ Parameters:
     Type: String
     Description: Email address to notify in case the Validate Lambda function breaks
     Default: {{AWSMainAccount['Email']}}
+  ValidationFrequency:
+    Description: 'The frequency with which AWS Config delivers configuration snapshots'
+    Type: String
+    Default: TwentyFour_Hours
+    AllowedValues:
+      - One_Hour
+      - Three_Hours
+      - Six_Hours
+      - Twelve_Hours
+      - TwentyFour_Hours
 
 Resources:
   ValidateLambdaErrorTopic:
@@ -100,5 +110,5 @@ Resources:
         SourceDetails:
         - EventSource: "aws.config"
           MessageType: "ScheduledNotification"
-          MaximumExecutionFrequency: Three_Hours
+          MaximumExecutionFrequency: !Ref ValidationFrequency
         SourceIdentifier: !GetAtt ValidateStackSetDeploymentsLambdaFunction.Arn
