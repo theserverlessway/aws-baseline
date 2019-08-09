@@ -21,7 +21,7 @@ vars:
 capabilities:
   - CAPABILITY_IAM
 tags:
-  ValidateAllSubAccounts: true
+  ValidateAllAccounts: true
   ValidateAllRegions: true
 parameters:
   GlobalConfigRegion: us-east-1
