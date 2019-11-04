@@ -2,8 +2,19 @@ stack: vpc
 stack-set: vpc
 vars:
   AvailabilityZones: 3
-  GatewayEndpoints: []
-  InterfaceEndpoints: []
+# Example Endpoints for deploying an ECS Cluster
+#  GatewayEndpoints:
+#    - s3
+#  InterfaceEndpoints:
+#    - monitoring
+#    - logs
+#    - ecs
+#    - ecs-agent
+#    - ecs-telemetry
+#    - ecr.dkr
+#    - ecr.api
+#    - cloudformation
+#    - ssm
 #  AccountCIDR:
 #    123456789:
 #      "us-east-1": 11.0.0.0/16
