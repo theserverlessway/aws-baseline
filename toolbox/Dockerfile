@@ -1,6 +1,6 @@
-FROM flomotlik/awsinfo:latest
+FROM theserverlessway/awsinfo:latest
 
-RUN apk add --no-cache --update build-base gcc libffi-dev openssl-dev openssl musl-dev python-dev git curl
+RUN yum install -y build-base gcc libffi-dev openssl-dev openssl musl-dev python-dev git curl
 
 RUN git clone https://github.com/toniblyx/prowler.git /prowler
 ENV PATH="/prowler:${PATH}"
@@ -8,7 +8,7 @@ ENV PATH="/prowler:${PATH}"
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-RUN pip install -U -r requirements.txt
+RUN pip3 install -U -r requirements.txt
 
 RUN mkdir -p /etc/bash_completion.d
 
