@@ -74,10 +74,10 @@ endif
 	docker-compose build aws-baseline
 	docker-compose run aws-baseline ./scripts/security-audit -p $(Accounts)
 
-
-security-audit-all: build
+clean-reports:
 	rm -fr reports
-	mkdir reports
+
+security-audit-all: build clean-reports
 	docker-compose run aws-baseline ./scripts/security-audit -p
 
 security-audit-docker-with-rebuild: rebuild-baseline security-audit-all

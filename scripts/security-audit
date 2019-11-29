@@ -22,18 +22,25 @@ while getopts "r:pmd:" opt; do
 done
 shift $(($OPTIND-1))
 
+export MAIN_ACCOUNT=$(aws sts get-caller-identity --query Account --output text | tr -d '\r')
+
 if [[ "$#" -gt "0" ]]
 then
   ACCOUNTS=$@
   echo Auditing Accounts: $@
   echo ""
 else
-  echo Auditing all Accounts in the Organization
-  echo ""
-  ACCOUNTS=$(aws organizations list-accounts --query "Accounts[?Status=='ACTIVE'].[Id]" --output text | tr -d '\r')
-fi
 
-export MAIN_ACCOUNT=$(aws sts get-caller-identity --query Account --output text | tr -d '\r')
+  if aws organizations list-accounts
+  then
+    echo Auditing all Accounts in the Organization
+    ACCOUNTS=$(aws organizations list-accounts --query "Accounts[?Status=='ACTIVE'].[Id]" --output text | tr -d '\r')
+  else
+    echo Account is not part of an Organization, auditing $MAIN_ACCOUNT
+    ACCOUNTS=$MAIN_ACCOUNT
+  fi
+  echo ""
+fi
 
 mkdir -p reports/scout reports/prowler
 
