@@ -31,7 +31,7 @@ then
   echo ""
 else
 
-  if aws organizations list-accounts
+  if aws organizations list-accounts > /dev/null
   then
     echo Auditing all Accounts in the Organization
     ACCOUNTS=$(aws organizations list-accounts --query "Accounts[?Status=='ACTIVE'].[Id]" --output text | tr -d '\r')
@@ -60,7 +60,15 @@ function audit_aws_account(){
     then
       echo "MFA TOKEN:"
     fi
-    CREDENTIALS=$(awsinfo assume role -r $AUDIT_ROLE $ASSUME_DURATION $ASSUME_MFA -a $account | tr -d '\r' | tail -n1)
+    OUTPUT_STORE=$(awsinfo assume role -r $AUDIT_ROLE $ASSUME_DURATION $ASSUME_MFA -a $account)
+    return_value=$?
+    if [ $return_value -ne 0 ]
+    then
+      echo "Could not assume role in Subaccount $account"
+      exit 1
+    else
+      CREDENTIALS=$(echo "$OUTPUT_STORE" | tail -n1)
+    fi
   fi
 
   PROWLER_LOG_OUTPUT=$PROWLER_REPORTS/$account.log
