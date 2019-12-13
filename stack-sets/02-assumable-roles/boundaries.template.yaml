@@ -18,17 +18,17 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Sid: AllowedServicesForIdentities
+          - Sid: AllowAllServicesExcept
             Effect: Allow
-            Action: '*'
-            Resource: "*"
-          - Sid: DisableIAMForCreatedIdentities
-            Effect: Deny
-            Action:
+            NotAction:
             {% for Service in DisabledIdentitiesServices %}
             - '{{Service}}:*'
             {% endfor %}
             Resource: "*"
+          - Sid: AllowIAMPassRole
+            Effect: Allow
+            Action: iam:PassRole
+            Resource: !GetAtt CloudFormationRole.Arn
           # Restrict all actions if they are not in the AllowedRegions
           - {{ file('policy-statements/region-check.json') | indent(12) }}
 

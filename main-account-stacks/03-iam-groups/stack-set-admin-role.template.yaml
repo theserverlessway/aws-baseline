@@ -1,3 +1,9 @@
+Parameters:
+  OrganizationAccountDefaultRoleName:
+    Description: The Role name used when creating new accounts
+    Type: String
+    Default: OrganizationAccountAccessRole
+
 Resources:
   AWSCloudFormationStackSetAdministrationRole:
     Properties:
@@ -17,7 +23,7 @@ Resources:
                 Action: sts:AssumeRole
                 Resource:
                   - arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole
-                  - arn:aws:iam::*:role/OrganizationAccountAccessRole
+                  - !Sub arn:aws:iam::*:role/${OrganizationAccountDefaultRoleName}
       RoleName: AWSCloudFormationStackSetAdministrationRole
     Type: AWS::IAM::Role
 
