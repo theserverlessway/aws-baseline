@@ -15,7 +15,13 @@
       "Action": [
         "logs:CreateLogGroup",
         "logs:Delete*",
-        "logs:Put*"
+        "logs:PutDestination*",
+        "logs:PutMetricFilter",
+        "logs:PutResourcePolicy",
+        "logs:PutRetentionPolicy",
+        "logs:PutSubscriptionFilter",
+        "logs:AssociateKmsKey",
+        "logs:DisassociateKmsKey"
       ],
       "Resource": [
         "arn:aws:logs:*:*:log-group:/baseline/cloudtrail:*"
