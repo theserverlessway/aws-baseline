@@ -1,3 +1,9 @@
+Parameters:
+  OrganizationAccountRoleName:
+    Default: OrganizationAccountAccessRole
+    Type: String
+    Description: The Role name used when creating the subaccount
+
 Resources:
   {%for SCP in files('global-policies/*.scp.json')%}
   {% set scp_name=SCP.split('/')[1].split('.')[0] %}
@@ -9,7 +15,7 @@ Resources:
     Type: AWS::CloudFormation::CustomResource
     Properties:
       ServiceToken: !GetAtt SCPCustomResourceLambdaFunction.Arn
-      Policy: "{{code(SCP)}}"
+      Policy: !Sub "{{code(SCP)}}"
       Attach: true
   {% endfor %}
 
