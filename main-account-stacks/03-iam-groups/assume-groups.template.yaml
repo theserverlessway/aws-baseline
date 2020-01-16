@@ -10,19 +10,22 @@ Resources:
         - PolicyDocument:
             Statement:
               - Action:
+                - iam:AddUserToGroup
+                Effect: Allow
+                Resource:
+                  - !GetAtt UserCredentialsManagement.Arn
+              - Action:
                   - iam:AddUserToGroup
+                  - iam:RemoveUserFromGroup
                 Effect: Allow
                 Resource:
                   - !Sub arn:aws:iam::${AWS::AccountId}:group/admin/GroupManagement
-                  - !GetAtt UserCredentialsManagement.Arn
                   - !GetAtt UserManagement.Arn
                   - !GetAtt AccountListing.Arn
                   - !GetAtt BillingReadAccess.Arn
                   - !GetAtt SecurityAudit.Arn
-                  {% for Account in AWSSubAccounts%}
                   {% for Role in Roles %}
-                  - !GetAtt {{Role}}Group{{Account['Id']}}.Arn
-                  {% endfor %}
+                  - !Sub arn:aws:iam::${AWS::AccountId}:group/assume/Assume{{Role}}_*
                   {% endfor %}
               - Action:
                   - iam:ListGroups
@@ -44,7 +47,7 @@ Resources:
   {{Role}}Group{{Account['Id']}}:
     Type: AWS::IAM::Group
     Properties:
-      GroupName: Assume{{Role}}_{{Account['Name']}}_{{Account['Id']}}
+      GroupName: Assume{{Role}}_{{Account['Name'] | resource}}_{{Account['Id']}}
       Path: /assume/
       Policies:
       - PolicyDocument:
