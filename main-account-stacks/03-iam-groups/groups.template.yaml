@@ -161,9 +161,13 @@ Resources:
         - PolicyDocument:
             Statement:
               - Action:
-                  - billing:ViewAccount
-                  - billing:ViewBilling
-                  - billing:ViewUsage
+                  - aws-portal:View*
+                  - awsbillingconsole:View*
+                  - budgets:ViewBudget
+                  - ce:*
+                  - cur:*
+                  - pricing:Describe*
+                  - pricing:Get*
                 Effect: Allow
                 Resource: '*'
           PolicyName: BillingReadAccess
