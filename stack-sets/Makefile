@@ -15,7 +15,7 @@ diff:
 
 update:
 	@echo ----------- Adding Missing StackSet Instances -----------
-	$(call FOR_ALL_DIRS,echo formica stack-set add-instances -c stack-set.config.yaml --yes && echo formica stack-set update -c stack-set.config.yaml --yes --create-missing)
+	$(call FOR_ALL_DIRS,formica stack-set add-instances -c stack-set.config.yaml --yes && formica stack-set update -c stack-set.config.yaml --yes --create-missing)
 
 create:
 	@echo ----------- Creating Stack Sets -----------
