@@ -13,16 +13,12 @@ stack-set-instances:
 diff:
 	$(call FOR_ALL_DIRS,formica stack-set diff -c stack-set.config.yaml)
 
-add-instances:
-	@echo ----------- Adding Missing StackSet Instances -----------
-	$(call FOR_ALL_DIRS,formica stack-set add-instances -c stack-set.config.yaml --yes)
-
 update:
-	@echo ----------- Updating Stack Sets -----------
-	$(call FOR_ALL_DIRS,formica stack-set update -c stack-set.config.yaml --yes --create-missing)
+	@echo ----------- Adding Missing StackSet Instances -----------
+	$(call FOR_ALL_DIRS,echo formica stack-set add-instances -c stack-set.config.yaml --yes && echo formica stack-set update -c stack-set.config.yaml --yes --create-missing)
 
 create:
 	@echo ----------- Creating Stack Sets -----------
 	$(call FOR_ALL_DIRS,formica stack-set create -c stack-set.config.yaml)
 
-rollout: create add-instances update
+rollout: create update
