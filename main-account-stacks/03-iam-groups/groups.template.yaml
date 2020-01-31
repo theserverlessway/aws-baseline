@@ -134,6 +134,18 @@ Resources:
                       BoolIfExists:
                         aws:MultiFactorAuthPresent: 'false'
                   - !Ref AWS::NoValue
+              - Fn::If:
+                  - RequireMFAOnMainAccountActions
+                  - Sid: BlockSTSAssumeRoleOnMainAccountWithoutMFA
+                    Effect: Deny
+                    Action:
+                      - sts:AssumeRole
+                    Resource:
+                      - !Sub arn:aws:iam::${AWS::AccountId}:role/*
+                    Condition:
+                      BoolIfExists:
+                        aws:MultiFactorAuthPresent: 'false'
+                  - !Ref AWS::NoValue
           PolicyName: UserCredentialManagement
     Type: AWS::IAM::Group
 
