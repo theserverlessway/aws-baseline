@@ -5,6 +5,7 @@ Resources:
       Enable: true
 
   GuardDutyMaster:
+    DependsOn: GuardDutyDetector
     Type: "AWS::GuardDuty::Master"
     Properties:
       DetectorId: !Ref GuardDutyDetector

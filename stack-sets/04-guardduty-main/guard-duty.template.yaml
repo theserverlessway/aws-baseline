@@ -6,6 +6,11 @@ Resources:
 
   {% for Account in AWSSubAccounts %}
   GuardDutyMember{{Account['Id']}}:
+    DependsOn:
+      - GuardDutyDetector
+      {% if loop.index > 1 %}
+      - GuardDutyMember{{AWSSubAccounts[loop.index-2]['Id']}}
+      {% endif%}
     Type: "AWS::GuardDuty::Member"
     Properties:
       Status: "Invited"
