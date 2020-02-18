@@ -47,6 +47,12 @@ Now finally after we've made all the adjustments we need we can roll out the Bas
 
 After that run `make rollout` in the root folder of the repository. That task will switch into the `main-account-stacks` folder first and run `make rollout` there and deploy all stacks. After that it will switch into the `stack-sets` folder and deploy the StackSets. In case any issues come up during the deployment you can rerun `make rollout` again as it will update existing stacks in case they already exist.
 
+## Adding new Accounts
+
+After rolling out the Baseline for the first time you might want to add Accounts in the future. Before creating these Accounts make sure you use the same Role name you used for all other Accounts (or leave it at the default `OrganizationAccountAccessRole`).
+
+After the account is created run `make diff` first in the root of the repository to see all changes that will be done. Then run `make rollout` so the Baseline will go through the `main-account-stacks` and `stack-sets` folders and roll out all the Stacks and StackSets. You can run `make diff` or `make rollout` in the `main-account-stacks` and `stack-sets` subfolders as well to deploy them independently.
+
 ## Updating the Baseline and Debugging issues
 
 Whenever you want to update the baseline either by customising it or adding features from the upstream repository run `make rollout` again after updating repository.
