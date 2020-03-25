@@ -1,4 +1,5 @@
 {% set DisabledIdentitiesServices = DisabledIdentitiesServices or ['iam', 'cloudtrail', 'budgets', 'config', 'guardduty']%}
+{% set AdditionalAllowedActions = AdditionalAllowedActions or ['iam:GetRole', 'iam:PassRole'] %}
 
 Parameters:
   IAMPermissionBoundaryLimitation:
@@ -29,6 +30,13 @@ Resources:
             Effect: Allow
             Action: iam:PassRole
             Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/CloudFormationRole
+          - Sid: AllowIAMGetRole
+            Effect: Allow
+            Action:
+              {% for Action in AdditionalAllowedActions %}
+              - '{{Action}}'
+              {% endfor %}
+            Resource: '*'
           # Restrict all actions if they are not in the AllowedRegions
           - {{ file('policy-statements/region-check.json') | indent(12) }}
 
