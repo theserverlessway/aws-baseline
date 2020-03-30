@@ -46,6 +46,16 @@ Through this Toolbox you should have a much easier time to get started with roll
 
 Rolling out and updating the Baseline can in essence be done by running `make rollout`. Before you do this make sure to read the whole [`Rolling Out the AWS Baseline`](docs/Rollout.md) Documentation to set all necessary config values correctly.
 
+After the rollout of the baseline you need your local credentials to be MFA secured for interacting with the AWS API. Use the `assume-token` script in the `scripts` subfolder to get those mfa secured credentials. Typically you would run something like `./scripts/assume-token -m -d 8 -p my-profile` to get MFA signed credentials lasting for 8 hours for the profile `my-profile`. The tool needs JQ to be installed on your System. 
+
+Following are all options of the script:
+
+* -p: For setting the AWS Profile to use
+* -m: For using an MFA device and asking for the token
+* -d: For setting the expiration of the token
+* -t: For directly setting the MFA token code (will be asked for if not set)
+* -s: For setting the MFA device serial number directly 
+
 
 ### Auditing and Security
 
