@@ -1,3 +1,5 @@
+{% set AWSSubAccounts = [ { 'Id': '091148180960', 'Email': 'atcl.skcc07@gmail.com'} ] %}
+
 Resources:
   GuardDutyDetector:
     Type: "AWS::GuardDuty::Detector"
@@ -18,5 +20,5 @@ Resources:
       Email: "{{Account['Email']}}"
       Message: "You are invited to enable Amazon Guardduty."
       DetectorId: !Ref GuardDutyDetector
-      DisableEmailNotification: true
+      DisableEmailNotification: false
   {% endfor %}

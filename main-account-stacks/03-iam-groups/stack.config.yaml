@@ -1,6 +1,6 @@
 stack: iam-groups
 capabilities:
   - CAPABILITY_NAMED_IAM
-organization-variables: true
+organization-variables: false
 create-missing: true
-region: us-east-1
+region: ap-northeast-2

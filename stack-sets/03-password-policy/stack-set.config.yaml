@@ -3,10 +3,10 @@ stack-set: password-policy
 all-accounts: true
 max-concurrent-percentage: 100
 regions:
-  - us-east-1
-region: us-east-1
+  - ap-northeast-2
+region: ap-northeast-2
 capabilities:
   - CAPABILITY_IAM
 tags:
   ValidateAllAccounts: true
-  ValidateRegions: us-east-1
+  ValidateRegions: ap-northeast-2

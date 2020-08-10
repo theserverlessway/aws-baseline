@@ -5,11 +5,11 @@ excluded-regions:
   - eu-north-1
 main-account-parameter: true
 max-concurrent-percentage: 100
-organization-variables: true
-region: us-east-1
+organization-variables: false
+region: ap-northeast-2
 vars:
   EnabledRegions:
-    - us-east-1
+    - ap-northeast-2
   EnabledConfigRules:
     EIP_ATTACHED: AWS::EC2::EIP
     INCOMING_SSH_DISABLED: AWS::EC2::SecurityGroup
@@ -24,4 +24,4 @@ tags:
   ValidateAllAccounts: true
   ValidateAllRegions: true
 parameters:
-  GlobalConfigRegion: us-east-1
+  GlobalConfigRegion: ap-northeast-2

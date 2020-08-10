@@ -7,9 +7,9 @@ excluded-regions:
   - eu-north-1
 main-account-parameter: true
 max-concurrent-percentage: 100
-region: us-east-1
+region: ap-northeast-2
 tags:
   ValidateAllAccounts: true
   ValidateAllRegions: true
 parameters:
-  GlobalConfigRegion: us-east-1
+  GlobalConfigRegion: ap-northeast-2

@@ -44,19 +44,13 @@ Resources:
   ConfigConfigurationAggregator:
     Type: "AWS::Config::ConfigurationAggregator"
     Properties:
-      OrganizationAggregationSource:
-        RoleArn: !GetAtt ConfigAggregationRole.Arn
-        AllAwsRegions: true
-      ConfigurationAggregatorName: BaselineConfigOrganizationAggregator
+      AccountAggregationSources:
+        - AccountIds:
+            - '091148180960'
+            - '887726187175'
+          AwsRegions:
+            - ap-northeast-2
+          AllAwsRegions: false
+      ConfigurationAggregatorName: AtclConfigurationAggregator
 
-  ConfigAggregationRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          Effect: Allow
-          Principal:
-            Service: config.amazonaws.com
-          Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSConfigRoleForOrganizations
+  

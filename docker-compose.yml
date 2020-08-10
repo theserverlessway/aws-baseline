@@ -10,6 +10,6 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_PROFILE
-      - AWS_DEFAULT_REGION
+      - AWS_DEFAULT_REGION=ap-northeast-2
       - AWS_SESSION_TOKEN
-      - AWS_CONFIG_FILE
+      - AWS_CONFIG_FILE=/root/.aws/config

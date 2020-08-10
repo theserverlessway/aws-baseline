@@ -3,9 +3,9 @@ main-account: true
 #all-regions: true
 excluded-regions:
   - eu-north-1
-organization-variables: true
+organization-variables: false
 max-concurrent-percentage: 100
-region: us-east-1
+region: ap-northeast-2
 tags:
   ValidateMainAccount: true
   ValidateAllRegions: true

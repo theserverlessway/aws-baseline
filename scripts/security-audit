@@ -31,14 +31,15 @@ then
   echo ""
 else
 
-  if aws organizations list-accounts > /dev/null
-  then
-    echo Auditing all Accounts in the Organization
-    ACCOUNTS=$(aws organizations list-accounts --query "Accounts[?Status=='ACTIVE'].[Id]" --output text | tr -d '\r')
-  else
-    echo Account is not part of an Organization, auditing $MAIN_ACCOUNT
-    ACCOUNTS=$MAIN_ACCOUNT
-  fi
+  #if aws organizations list-accounts > /dev/null
+  #then
+  #  echo Auditing all Accounts in the Organization
+  #  #ACCOUNTS=$(aws organizations list-accounts --query "Accounts[?Status=='ACTIVE'].[Id]" --output text | tr -d '\r')
+ #   ACCOUNTS=['091148180960','887726187175']
+ # else
+ #   echo Account is not part of an Organization, auditing $MAIN_ACCOUNT
+ #   ACCOUNTS=$MAIN_ACCOUNT
+ # fi
   echo ""
 fi
 

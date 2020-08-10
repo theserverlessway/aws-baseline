@@ -2,16 +2,16 @@ stack-set: assumable-roles
 capabilities:
   - CAPABILITY_NAMED_IAM
 main-account-parameter: true
-all-subaccounts: true
+all-subaccounts: false
 max-concurrent-percentage: 100
 regions:
-  - us-east-1
-region: us-east-1
+  - ap-northeast-2
+region: ap-northeast-2
 tags:
   ValidateAllSubAccounts: true
-  ValidateRegions: us-east-1
+  ValidateRegions: ap-northeast-2
 #vars:
 #  DisabledIdentitiesServices:
 #    - iam
 parameters:
-  AllowedRegions: us-east-1
+  AllowedRegions: ap-northeast-2
