@@ -1,3 +1,4 @@
 # Add Directories that should be excluded. One per line, no empty lines
 00-test-example
+05-guardduty-member
 07-config-rules
