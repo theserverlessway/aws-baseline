@@ -1,3 +1,5 @@
+{% set AWSMainAccount = {'Name': 'Management', 'Id': '234730403556', 'Email': 'atcl.skcc06@gmail.com'} %}
+
 Parameters:
   MaxBudget:
     Type: Number

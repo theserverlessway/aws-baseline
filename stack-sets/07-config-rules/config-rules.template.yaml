@@ -1,3 +1,5 @@
+{% set AWSRegions = [ 'ap-northeast-2' ] %}
+
 Mappings:
   RegionMap:
     {% for Region in AWSRegions %}
@@ -9,7 +11,7 @@ Parameters:
   GlobalConfigRegion:
     Description: Region To use for Global AWS Config recording
     Type: String
-    Default: us-east-1
+    Default: ap-northeast-2
   TrailBucketPrefix:
     Type: String
     Default: 'audit-storage-cloudtrail'

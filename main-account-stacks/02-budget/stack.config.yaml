@@ -1,7 +1,7 @@
 stack: budgets
 create-missing: true
-region: us-east-1
-organization-variables: true
-#parameters:
-#  MaxBudget: 15
-#  BudgetAlertEmail: email@example.com
+region: ap-northeast-2
+organization-variables: false
+parameters:
+  MaxBudget: 15
+  BudgetAlertEmail: atcl.skcc06@gmail.com

@@ -3,7 +3,7 @@ Parameters:
   DeliveryFrequency:
     Description: 'The frequency with which AWS Config delivers configuration snapshots'
     Type: String
-    Default: Six_Hours
+    Default: One_Hours
     AllowedValues:
     - One_Hour
     - Three_Hours
@@ -16,7 +16,7 @@ Parameters:
   GlobalConfigRegion:
     Description: Region To use for Global AWS Config recording
     Type: String
-    Default: us-east-1
+    Default: ap-northeast-2
 Conditions:
   IsGlobalRegion: !Equals [!Ref 'AWS::Region', !Ref GlobalConfigRegion]
   IsGlobalMainAccountRegion:
