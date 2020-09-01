@@ -16,5 +16,8 @@ awsie
 former
 argcomplete
 aws-shell
-former
 ansi2html
+scoutsuite
+python-dateutil<2.8.1
+detect-secrets
+cryptography==2.8
