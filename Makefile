@@ -66,19 +66,21 @@ shell: build
 
 # Security Audit
 
+SecurityAuditRole=AssumableSecurityAuditRole
+
 security-audit-accounts:
 ifndef Accounts
 	$(error Accounts is undefined)
 endif
 	echo $(Accounts)
 	docker-compose build aws-baseline
-	docker-compose run aws-baseline ./scripts/security-audit -p $(Accounts)
+	docker-compose run aws-baseline ./scripts/security-audit -p -r $(SecurityAuditRole) $(Accounts)
 
 clean-reports:
 	rm -fr reports
 
 security-audit-all: build clean-reports
-	docker-compose run aws-baseline ./scripts/security-audit -p
+	docker-compose run aws-baseline ./scripts/security-audit -p -r $(SecurityAuditRole)
 
 security-audit-docker-with-rebuild: rebuild-baseline security-audit-all
 
