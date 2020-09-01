@@ -4,6 +4,16 @@
 # accounts automatically. For detailed instructions on rolling out the Baseline check out docs/Rollout.md.
 # To start the container including all tools run `make shell`.
 
+# If this variable is set, run awsinfo through Docker Compose instead of directly
+ifdef ComposeAwsinfo
+AWSINFO=docker-compose run --rm awsinfo
+else
+AWSINFO=awsinfo
+endif
+
+# Prefix to run commands in the aws-baseline Docker Compose environment
+BASELINE=docker-compose run --rm aws-baseline
+
 ## Account Creation
 
 # Run with make create-account Name=ACCOUNT_NAME Email=ACCCOUNT_EMAIL
@@ -28,8 +38,13 @@ endif
 	aws iam create-account-alias --account-alias $(Alias)
 
 list-accounts:
-	awsinfo orgs
+	$(AWSINFO) orgs
 
+awsinfo:
+ifndef Args
+	$(error Args is undefined)
+endif
+	$(AWSINFO) $(Args)
 
 
 ## Baseline Rollout
@@ -59,10 +74,20 @@ rebuild-baseline:
 	docker-compose build --pull --no-cache aws-baseline
 
 shell: build
+	$(BASELINE) bash
 
-	docker-compose run aws-baseline bash
+# For Windows users: run make targets and comnands through Docker Compose
+# (Note that we cannot use the MAKE variable here as it points to make in the local environment not in the container)
 
+compose-make: build
+ifndef Args
+	$(error Args is undefined)
+endif
+	$(BASELINE) make $(Args)
 
+# Invoke this target before using ComposeAwsinfo=1
+pull-awsinfo:
+	docker-compose pull awsinfo
 
 # Security Audit
 
@@ -72,17 +97,17 @@ ifndef Accounts
 endif
 	echo $(Accounts)
 	docker-compose build aws-baseline
-	docker-compose run aws-baseline ./scripts/security-audit -p $(Accounts)
+	$(BASELINE) ./scripts/security-audit -p $(Accounts)
 
 clean-reports:
 	rm -fr reports
 
 security-audit-all: build clean-reports
-	docker-compose run aws-baseline ./scripts/security-audit -p
+	$(BASELINE) ./scripts/security-audit -p
 
 security-audit-docker-with-rebuild: rebuild-baseline security-audit-all
 
 # Delete Default VPC
 
 delete-default-vpcs: build
-	docker-compose run aws-baseline ./scripts/delete-default-vpc
+	$(BASELINE) ./scripts/delete-default-vpc
