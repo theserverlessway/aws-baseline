@@ -1,5 +1,8 @@
 {% set Roles = ['Admin', 'Developer', 'CloudFormationDeveloper', 'ReadOnly', 'SecurityAudit', 'Operations'] %}
-{% set AWSSubAccounts = [ {'Name': 'Management', 'Id': '234730403556'}, { 'Name': 'Dev', 'Id':'091148180960' }] %}
+{% set AWSSubAccounts = [ {'Name': 'Management', 'Id': '234730403556'}, 
+                          { 'Name': 'Dev', 'Id':'091148180960' },
+                          { 'Name': 'Prod', 'Id':'887726187175' },
+                          ] %}
 
 Resources:
   GroupManagement:

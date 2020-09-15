@@ -48,7 +48,7 @@
       ],
       "Condition": {
         "ArnNotLike": {
-          "aws:PrincipalARN": "arn:aws:iam::*:role/${OrganizationAccountRoleName}"
+          "aws:PrincipalARN": "arn:aws:iam::${AWS::AccountId}:role/AWSCloudFormationStackSetExecutionRole"
         }
       }
     },
@@ -65,8 +65,7 @@
       "Condition": {
         "ForAllValues:ArnNotLike": {
           "aws:PrincipalARN": [
-            "arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole",
-            "arn:aws:iam::*:role/${OrganizationAccountRoleName}"
+            "arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole"
           ]
         }
       },

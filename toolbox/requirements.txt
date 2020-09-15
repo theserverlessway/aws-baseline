@@ -13,7 +13,6 @@ pip
 boto3
 formica-cli
 awsie
-former
 argcomplete
 aws-shell
 former

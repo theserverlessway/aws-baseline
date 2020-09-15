@@ -47,6 +47,7 @@ Resources:
       AccountAggregationSources:
         - AccountIds:
             - '091148180960'
+            - '887726187175'
           AwsRegions:
             - ap-northeast-2
           AllAwsRegions: false

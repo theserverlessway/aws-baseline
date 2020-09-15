@@ -157,7 +157,7 @@ Resources:
         - PolicyDocument:
             Statement:
               - Action:
-                  - organizations:ListAccounts
+                  #- organizations:ListAccounts
                   - iam:ListAccountAliases
                 Effect: Allow
                 Resource: '*'
