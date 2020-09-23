@@ -1,6 +1,6 @@
 FROM theserverlessway/awsinfo:latest
 
-RUN yum install -y build-base gcc libffi-dev openssl-dev openssl musl-dev git curl which python-dev python-devel python3-dev python3-devel
+RUN apt-get install -y build-essential gcc libffi-dev libssl-dev openssl musl-dev git curl
 
 RUN git clone https://github.com/toniblyx/prowler.git /prowler
 ENV PATH="/prowler:${PATH}"
