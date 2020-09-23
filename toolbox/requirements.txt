@@ -18,3 +18,6 @@ argcomplete
 aws-shell
 former
 ansi2html
+# Scoutsuite
+detect-secrets
+cryptography==2.8
