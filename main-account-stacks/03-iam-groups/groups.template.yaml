@@ -64,6 +64,15 @@ Resources:
         - PolicyDocument:
             Version: '2012-10-17'
             Statement:
+              - Sid: AllowIAMReadOnly
+                Effect: Allow
+                Action:
+                  - iam:GenerateCredentialReport
+                  - iam:Get*
+                  - iam:List*
+                  - iam:SimulateCustomPolicy
+                  - iam:SimulatePrincipalPolicy
+                Resource: "*"
               - Effect: Allow
                 Action: iam:GetAccountPasswordPolicy
                 Resource: "*"
@@ -159,6 +168,7 @@ Resources:
               - Action:
                   #- organizations:ListAccounts
                   - iam:ListAccountAliases
+                  - iam:GetAccountSummary
                 Effect: Allow
                 Resource: '*'
           PolicyName: AccountListing
