@@ -1,3 +1,5 @@
+
+{% set stacksetValidationAccessFrom = ['268875736166', '206924800932', '815637454826'] %}
 Resources:
   CrossAccountStackSetVerificationRole:
     Properties:
@@ -8,7 +10,7 @@ Resources:
           Effect: Allow
           Principal:
             AWS:
-            {%for Account in stacksetValidationAccessFrom%}
+            {%for Account in stacksetValidationAccessFrom %}
             - arn:aws:iam::{{Account}}:role/CrossAccountStackSetVerificationSourceRole
             {% endfor %}
         Version: '2012-10-17'

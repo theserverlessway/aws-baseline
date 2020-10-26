@@ -1,6 +1,6 @@
 stack: validate-stack-set-deployments
 capabilities:
   - CAPABILITY_NAMED_IAM
-region: us-east-1
+region: ap-northeast-2
 create-missing: true
-organization-variables: true
+organization-variables: false

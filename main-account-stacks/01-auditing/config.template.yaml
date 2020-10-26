@@ -1,3 +1,4 @@
+{% set SubAccountIds = ['268875736166', '206924800932', '815637454826'] %}
 Parameters:
   ConfigBucketPrefix:
     Type: String
@@ -46,8 +47,9 @@ Resources:
     Properties:
       AccountAggregationSources:
         - AccountIds:
-            - '091148180960'
-            - '887726187175'
+          {% for SubAccountId in SubAccountIds %}
+            - {{SubAccountId}}
+          {% endfor %}
           AwsRegions:
             - ap-northeast-2
           AllAwsRegions: false

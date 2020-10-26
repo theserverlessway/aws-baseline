@@ -2,7 +2,7 @@ Parameters:
   AlertEmail:
     Type: String
     Description: Email address to notify in case the Validate Lambda function breaks
-    Default: {{AWSMainAccount['Email']}}
+    Default: 'atcl.skcc01@gmail.com' 
   ValidationFrequency:
     Description: 'The frequency with which AWS Config delivers configuration snapshots'
     Type: String
@@ -84,7 +84,7 @@ Resources:
         Statement:
           - Action:
               - config:PutEvaluations
-              - organizations:ListAccounts
+              #- organizations:ListAccounts
               - ec2:DescribeRegions
               - cloudformation:ListStackSets
               - cloudformation:DescribeStackSet
