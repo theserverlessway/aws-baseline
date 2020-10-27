@@ -20,4 +20,4 @@ former
 ansi2html
 # Scoutsuite
 detect-secrets
-cryptography==2.8
+cryptography==3.2
