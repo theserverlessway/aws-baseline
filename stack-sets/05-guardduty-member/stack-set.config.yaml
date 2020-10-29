@@ -1,9 +1,15 @@
 stack-set: guardduty-member
 max-concurrent-percentage: 100
-all-subaccounts: true
-#all-regions: true
-excluded-regions:
-  - eu-north-1
+accounts:
+  - 206924800932
+  - 815637454826
+#regions:
+#  - ap-northeast-2
+all-regions: false
+regions:
+  - ap-northeast-2
+#excluded-regions:
+#  - us-east-2
 main-account-parameter: true
 region: ap-northeast-2
 tags:

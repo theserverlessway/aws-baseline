@@ -47,6 +47,78 @@ Resources:
       RoleName: AssumableReadOnlyRole
     Type: AWS::IAM::Role
 
+  AssumableAwsViewOnlyRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+      RoleName: AssumableAwsViewOnlyRole
+    Type: AWS::IAM::Role
+
+  AssumableAwsDataScientistRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/job-function/DataScientist
+      RoleName: AssumableAwsDataScientistRole
+    Type: AWS::IAM::Role
+
+  AssumableAwsPowerUserRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/PowerUserAccess
+      RoleName: AssumableAwsPowerUserRole
+    Type: AWS::IAM::Role
+
+  AssumableAwsNetworkAdministratorRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/job-function/NetworkAdministrator
+      RoleName: AssumableAwsNetworkAdministratorRole
+    Type: AWS::IAM::Role
+
+  AssumableAwsDatabaseAdministratorRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/job-function/DatabaseAdministrator
+      RoleName: AssumableAwsDatabaseAdministratorRole
+    Type: AWS::IAM::Role
+
+  AssumableAwsSecurityAuditRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/SecurityAudit
+      RoleName: AssumableAwsSecurityAuditRole
+    Type: AWS::IAM::Role
+
+  AssumableAwsSupportUserRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/job-function/SupportUser
+      RoleName: AssumableAwsSupportUserRole
+    Type: AWS::IAM::Role
+
+  AssumableAwsSystemAdministratorRole:
+    Properties:
+      MaxSessionDuration: !Ref MaxSessionDuration
+      AssumeRolePolicyDocument: {% include 'policy-statements/assumable-role-policy-document.json'%}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/job-function/SystemAdministrator
+      RoleName: AssumableAwsSystemAdministratorRole
+    Type: AWS::IAM::Role
+
   AssumableDeveloperRole:
     Properties:
       MaxSessionDuration: !Ref MaxSessionDuration
@@ -143,7 +215,6 @@ Resources:
       RoleName: CloudFormationRole
     Type: AWS::IAM::Role
 
-
   AssumableSecurityAuditRole:
     Properties:
       MaxSessionDuration: !Ref MaxSessionDuration
@@ -189,7 +260,6 @@ Resources:
       RoleName: AssumableOperationsRole
     Type: AWS::IAM::Role
 
-
 Outputs:
   AssumableAdminRoleArn:
     Value: !GetAtt AssumableAdminRole.Arn
@@ -220,3 +290,43 @@ Outputs:
     Value: !GetAtt AssumableSecurityAuditRole.Arn
     Export:
       Name: !Sub ${ExportPrefix}:AssumableSecurityAuditRoleArn
+
+  AssumableAwsViewOnlyRoleArn:
+    Value: !GetAtt AssumableAwsViewOnlyRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAwsViewOnlyRoleArn
+
+  AssumableAwsDataScientistRoleArn:
+    Value: !GetAtt AssumableAwsDataScientistRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAwsDataScientistRoleArn
+
+  AssumableAwsPowerUserRoleArn:
+    Value: !GetAtt AssumableAwsPowerUserRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAwsPowerUserRoleArn
+
+  AssumableAwsNetworkAdministratorRoleArn:
+    Value: !GetAtt AssumableAwsNetworkAdministratorRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAwsNetworkAdministratorRoleArn
+
+  AssumableAwsDatabaseAdministratorRoleArn:
+    Value: !GetAtt AssumableAwsDatabaseAdministratorRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAwsDatabaseAdministratorRoleArn
+
+  AssumableAwsSupportUserRoleArn:
+    Value: !GetAtt AssumableAwsSupportUserRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAwsSupportUserRoleArn
+
+  AssumableAwsSystemAdministratorRoleArn:
+    Value: !GetAtt AssumableAwsSystemAdministratorRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAwsSystemAdministratorRoleArn
+
+  AssumableAwsSecurityAuditRoleArn:
+    Value: !GetAtt AssumableAwsSecurityAuditRole.Arn
+    Export:
+      Name: !Sub ${ExportPrefix}:AssumableAwsSecurityAuditRoleArn

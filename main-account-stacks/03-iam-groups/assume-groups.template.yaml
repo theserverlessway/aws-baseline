@@ -1,4 +1,18 @@
-{% set Roles = ['Admin', 'Developer', 'CloudFormationDeveloper', 'ReadOnly', 'SecurityAudit', 'Operations'] %}
+{% set Roles = ['Admin', 
+                'Developer', 
+                'CloudFormationDeveloper', 
+                'ReadOnly', 
+                'SecurityAudit', 
+                'Operations',
+                'AwsViewOnly',
+                'AwsDataScientist',
+                'AwsPowerUser',
+                'AwsNetworkAdministrator',
+                'AwsDatabaseAdministrator',
+                'AwsSecurityAudit',
+                'AwsSupportUser',
+                'AwsSystemAdministrator'] %}
+
 {% set AWSSubAccounts = [ {'Name': 'Master', 'Id': '268875736166'}, 
                           { 'Name': 'Dev', 'Id':'206924800932' },
                           { 'Name': 'Prod', 'Id':'815637454826' },

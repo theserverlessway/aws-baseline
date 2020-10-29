@@ -3,26 +3,27 @@ stack-set: vpc
 vars:
   AvailabilityZones: 3
 # Example Endpoints for deploying an ECS Cluster
-#  GatewayEndpoints:
-#    - s3
-#  InterfaceEndpoints:
-#    - monitoring
-#    - logs
-#    - ecs
-#    - ecs-agent
-#    - ecs-telemetry
-#    - ecr.dkr
-#    - ecr.api
-#    - cloudformation
-#    - ssm
-#  AccountCIDR:
-#    123456789:
-#      "us-east-1": 11.0.0.0/16
+  GatewayEndpoints:
+    - s3
+  InterfaceEndpoints:
+    - monitoring
+    - logs
+    - ecs
+    - ecs-agent
+    - ecs-telemetry
+    - ecr.dkr
+    - ecr.api
+    - cloudformation
+    - ssm
+  AccountCIDR:
+    268875736166:
+      "ap-northeast-2": 10.1.0.0/16
 parameters:
-  PrivateNatGateway: none
-all-subaccounts: true
+  PrivateNatGateway: all
+all-subaccounts: false
+accounts:
+  - 268875736166
 regions:
-  - us-east-1
   - ap-northeast-2
 max-concurrent-percentage: 100
 tags:
