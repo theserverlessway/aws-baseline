@@ -62,3 +62,13 @@ If you only want to run the audit against a specific account, you can run the si
 By default the `AssumableSecurityAuditRole` is assumed and used. If you want to use a different role, set it with the `-r` parameter. If you want to run the audits in parallel use the `-p` option. [Xargs] needs to be installed on your system in that case. For the Prowler reports you also need [`ansi2html`](https://pypi.org/project/ansi2html/) and `sed` installed on your System. For assuming the roles [`awsinfo`](https://theserverlessway.com/tools/awsinfo/) is used, make sure to install it.
 
 The reports are stored in the reports folder, with separate folders for each audit tool. You can check the progress of the Audit in the reports files as logs are written into the reports folder. As it runs through all your accounts and collects a lot of data the Audit will take quite a long time (even if run in parallel mode).
+
+저장소의 루트에있는 Makefile에는 모든 계정에 대해 전체 감사를 실행하는 모든 보안 감사 작업이 있습니다. Prowler 및 ScoutSuite를 사용하여 계정을 감사합니다. make 명령은 Docker를 사용하여 필요한 모든 도구로 컨테이너를 만들고 해당 컨테이너 내부에서 감사를 실행합니다. 시스템에서 직접 스크립트를 실행하려면 해당 도구가 시스템에 설치되어 있는지 확인하십시오.
+
+감사를 실행할 때 현재 자격 증명이 MFA 서명되었는지 확인하므로 awsinfo에서 토큰 -md 8을 가정하고 명령을 호출하기 전에 주어진 변수를 내 보냅니다. 이는 체인 가정 (토큰 가정 후 역할 수임)으로 인해 자격 증명의 유효 시간을 1 시간으로 제한하므로 단일 계정 감사가 더 오래 걸리고 MFA가 필요한 경우 -m 및 -d 옵션을 사용할 수 있습니다. -m은 -d 옵션으로 제한을 늘릴 수있는 역할을 맡을 때 MFA 토큰을 요청합니다. -d 옵션을 사용할 때는 awsinfo assume token을 통해 얻은 자격 증명을 사용하지 마십시오. 체인이 최대 기간을 1 시간으로 가정하고 제한하기 때문입니다.
+
+특정 계정에 대해서만 감사를 실행하려는 경우 ./scripts/security-audit ACCOUNT_ID를 사용하여 스크립트에서 직접 make security-audit-accounts Accounts = 1234567898765 ir로 단일 계정 make 명령을 실행할 수 있습니다.
+
+기본적으로 AssumableSecurityAuditRole이 가정되고 사용됩니다. 다른 역할을 사용하려면 -r 매개 변수로 설정하십시오. 감사를 병렬로 실행하려면 -p 옵션을 사용하십시오. 이 경우 [Xargs]를 시스템에 설치해야합니다. Prowler 보고서의 경우 시스템에 ansi2html 및 sed가 설치되어 있어야합니다. 역할 awsinfo가 사용된다고 가정하려면이를 설치해야합니다.
+
+보고서는 각 감사 도구에 대한 별도의 폴더와 함께 보고서 폴더에 저장됩니다. 보고서 폴더에 로그가 기록 될 때 보고서 파일에서 감사의 진행 상황을 확인할 수 있습니다. 모든 계정을 통해 실행되고 많은 데이터를 수집하므로 감사는 (병렬 모드로 실행되는 경우에도) 꽤 오랜 시간이 걸립니다.k
