@@ -1,23 +1,28 @@
 # User and Group Management
 
-To be able to create new users an account needs to be in the `UserManagement` group. Then they can create new users and send developers their username and password. There is a `GroupManagement` group that gives an account the rights to add and remove people from specific groups (which the same people will typically be part of as well).
+새 IAM 유저를 만들려면 해당 IAM 유저는 ʻUserManagement` 그룹에 있어야합니다. 그런 다음 IAM 유저를 만들고 개발자에게 유저 이름과 비밀번호를 보낼 수 있습니다. 계정에 특정 그룹 (일반적으로 같은 사람이 속해 있음)에서 사람을 추가 및 제거 할 수있는 권한을 부여하는 'GroupManagement'그룹이 있습니다.
 
-When creating a new user make sure you don't force them to change their password on first login. The baseline setup only allows changing a users password if they have MFA enabled and thus will block access to changing a password on first login.
+>새 IAM 유저를 만들 때, 처음 로그인시 암호를 변경하도록 설정하지 않습니다. 기본 설정에서는 MFA가 활성화 된 경우에만 유저 암호 변경을 허용하므로 처음 로그인 할 때 암호 변경에 대한 액세스를 차단합니다.
 
-As the default password policy forces someone to change their password regularly and requires MFA for almost every action the security is not compromised through this setup. Make sure to validate a user has set up MFA themselves before adding them to any other groups so they can access other accounts.
 
-After creating a new user you should add them to the following groups so they are able to set up their own MFA and change their password:
+기본 암호 정책은 누군가가 자신의 암호를 정기적으로 변경하도록 강제하고 거의 모든 작업에 대해 MFA를 요구하므로 이 설정을 통해 보안이 손상되지 않습니다. IAM 유저가 다른 계정에 액세스 할 수 있도록 다른 그룹에 추가하기 전에 유저가 MFA를 직접 설정했는지 확인하십시오.
 
-* UserCredentialsManagement
+새 사용자를 생성 한 후 사용자가 자신의 MFA를 설정하고 암호를 변경할 수 있도록 모든 IAM 유저는 UserCredentialsManagement 그룹에 반드시 기본적으로 추가해야합니다.
 
-With the `UserCredentialsManagement` group attached users are able to set up MFA, change their password and create keys for api access. Generally as an Admin you shouldn't need to set up any of this yourself, but if necessary following are commands to create keys and login profiles for a user. 
+ʻUserCredentialsManagement` 그룹이 연결된 사용자는 MFA를 설정하고 비밀번호를 변경하며 API 액세스를위한 키를 생성 할 수 있습니다. 
 
-Once a user has set up MFA make sure they log out and back into their account again. Otherwise their current credentials aren't MFA secured and they won't be allowed to perform any actions.
+>사용자가 MFA를 설정 한 후에는 로그 아웃했다가 다시 계정에 다시 로그인하십시오. 그렇지 않으면 현재 자격 증명이 MFA로 보호되지 않으며 어떤 작업도 수행 할 수 없습니다.
+
 
 ## Sub Account Access Management
 
-A separate group is created for every assumable role in every account. So if we have 6 roles and 3 subaccounts 18 different groups will be created.
+모든 계정에서 맡을 수있는 IAM Role에 대해 별도의 IAM 그룹이 생성됩니다. 따라서 14개의 IAM Role( 기본 제공 IAM Role 6개, AWS 제공 직무 기반 IAM Role 8개)과 3 개의 하위 계정이있는 경우 42개의 서로 다른 IAM 그룹이 Master 계정에 생성됩니다.
 
-For a user to be able to assume a specific role in a subaccount add them to the group representing that role. The groups start with an `Assume` prefix and then list the role, the account name and account id. This should make sure that no user is accidentally put into a group and account access they shouldn't have. After adding them to the Group the users will have the right to `sts:AssumeRole` a specific role in the subaccounts.
+IAM 유저가 Sub 계정에서 특정 Role을 맡을 수 있으려면 해당 Sub계정의 Role을 나타내는 IAM 그룹에 추가되어야 합니다. IAM 그룹 네이밍 규칙은 `Assume{{IAM Role이름}}_{{계정이름}}_{{ACCOUNTID}}` 형태를 가집니다. 
+```
+예) DEV 계정 111111111 에 Admin 권한을 위임받을 수 있는 IAM 그룹의 경우
+그룹명 : AssumeAdmin_DEV_1111111111 이 됩니다.
+```
+그룹에 추가 한 후 사용자는 하위 계정의 특정 역할에 대한`sts : AssumeRole` 권한을 갖게됩니다.
 
-As an IAM User can only be part of 10 Groups you might want to remove and add users to specific groups in situations where thats necessary if you ecceed that limit.
+>IAM 사용자는 10 개의 그룹에만 속할 수 있으므로 해당 제한을 초과하는 경우 필요한 상황에서 사용자를 제거하고 특정 그룹에 추가 할 수 있습니다.
