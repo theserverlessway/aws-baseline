@@ -1,0 +1,82 @@
+Resources:
+  {% if Principal %}
+  {{ module_name }}LambdaInvokePermission:
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref {{ module_name }}LambdaFunction
+      Principal: {{ Principal }}
+      SourceArn: {{ SourceArn | novalue }}
+    Type: AWS::Lambda::Permission
+  {% endif %}
+
+  {{ module_name }}LambdaLogGroup:
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/{{ '${' }}{{ module_name }}LambdaFunction}
+      RetentionInDays: {{ LogRetention | novalue }}
+
+  {{ module_name }}LambdaFunction:
+    Type: AWS::Lambda::Function
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
+    Properties:
+      Code:
+        {% if Code is mapping %}
+        ZipFile: {{ Code | tojson }}
+        {% else %}
+        ZipFile: "{{ Code or "def handler(event, context):\\n    print(event)\\n    return event" }}"
+        {% endif %}
+      Handler: {{ Handler or 'index.handler' }}
+      Role: !GetAtt {{ module_name }}LambdaExecutionRole.Arn
+      Runtime: {{ Runtime or 'python3.6' }}
+      Timeout: {{ Timeout | novalue }}
+      VpcConfig: {{ VpcConfig | novalue }}
+      Environment:
+        Variables: {{Environment or '!Ref AWS::NoValue' }}
+
+  {{ module_name }}LambdaExecutionRole:
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
+    Properties:
+      ManagedPolicyArns: {{ ManagedPolicyArns | novalue}}
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+        Version: '2012-10-17'
+      Path: "/"
+    Type: AWS::IAM::Role
+
+  {{ module_name }}LambdaRolePolicy:
+    {% if Condition %}
+    Condition: {{Condition}}
+    {% endif %}
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Effect: Allow
+            Resource: !Sub {{ '${' }} {{ module_name }}LambdaLogGroup.Arn}*
+          {% if Statements %}
+          {% for statement in Statements %}
+          - {{ statement }}
+          {% endfor %}
+          {% endif %}
+      PolicyName: {{ module_name | resource }}LambdaPolicy
+      Roles:
+      - !Ref {{ module_name }}LambdaExecutionRole
+    Type: AWS::IAM::Policy

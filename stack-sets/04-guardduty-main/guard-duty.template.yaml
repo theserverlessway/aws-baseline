@@ -1,5 +1,5 @@
-{% set AWSSubAccounts = [ { 'Id': '091148180960', 'Email': 'atcl.skcc07@gmail.com'},
-                          { 'Id': '887726187175', 'Email': 'atcl.skcc08@gmail.com'},] %}
+{% set AWSSubAccounts = [ { 'Id': '206924800932', 'Email': 'atcl.skcc02@gmail.com'},
+                          { 'Id': '815637454826', 'Email': 'atcl.skcc03@gmail.com'},] %}
 
 Resources:
   GuardDutyDetector:

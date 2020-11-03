@@ -1,7 +1,11 @@
 stack: password-policy
 stack-set: password-policy
-all-accounts: true
+#all-accounts: false
 max-concurrent-percentage: 100
+accounts:
+  - 268875736166
+  - 206924800932
+  - 815637454826
 regions:
   - ap-northeast-2
 region: ap-northeast-2

@@ -16,6 +16,7 @@ CS = ['CURRENT', 'RUNNING']
 
 M = 100
 
+LIST_ACCOUNTS = ['268875736166', '206924800932', '815637454826']
 
 def o(k):
     return os.environ.get(k, '')
@@ -137,7 +138,8 @@ def v(e, sn, ss, ev):
 
 
 def aa():
-    return [a['Id'] for a in org.list_accounts()['Accounts'] if a['Status'] == 'ACTIVE']
+    #return [a['Id'] for a in org.list_accounts()['Accounts'] if a['Status'] == 'ACTIVE']
+    return [a['Id'] for a in LIST_ACCOUNTS if a['Status'] == 'ACTIVE']
 
 
 def ar():

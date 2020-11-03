@@ -1,10 +1,9 @@
 # User and Group Management
+이 CloudFormation 스택은 Master 계정의 관리 기능에 대한 액세스 및 하위 계정의 AssumeRole을 통한 액세스를 관리하기위한 그룹을 생성합니다.
 
-This CloudFormation stack creates Groups for managing access to management functions in the main account and access through AssumeRole in the subaccounts.
+템플릿은 모든 계정과 구성된 모든 유형의 역할 및 모든 계정에 대해 반복되며 해당 특정 계정에서 해당 역할에 대한 액세스를 관리하는 데 사용할 수있는 별도의 IAM 그룹을 생성합니다.
 
-The template will iterate over all Accounts and for every type of Role configured and every Account it will create a separate IAM group that can be used to manage access to that role in that specific account.
-
-This makes changing users access rights quickly easy so in cases of issues user can be given access to production resources quickly, without them need constant access during times without issues. A good practice is to get ReadOnly acces for general use and only escalate to Developer or Admin access once a situation arises that requires these rights.
+이를 통해 사용자 액세스 권한을 신속하게 변경할 수 있으므로 문제가 발생한 경우 사용자가 문제가없는 시간 동안 지속적으로 액세스 할 필요없이 신속하게 프로덕션 리소스에 액세스 할 수 있습니다. 일반적인 사용을 위해 ReadOnly 액세스를 얻고 이러한 권한이 필요한 상황이 발생하면 개발자 또는 관리자 액세스로만 에스컬레이션하는 것이 좋습니다.
 
 ## MFA limitations
 

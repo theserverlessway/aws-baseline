@@ -1,12 +1,12 @@
 # Main Account Stacks
 
-The main account stacks are deployed with [`formica`](https://theserverlessway.com/tools/formica/). You can either update all stacks with `make rollout` or update a stack individually by going into the respective directory and run `formica change -c stack.config.yaml`. This will create a change set that you can then deploy with `formica deploy -c stack.config.yaml`.
+기본 계정 스택은 [`formica`] (https://theserverlessway.com/tools/formica/)로 배포됩니다. 'make rollout'으로 모든 스택을 업데이트하거나 해당 디렉토리로 이동하여 'formica change -c stack.config.yaml'을 실행하여 개별적으로 스택을 업데이트 할 수 있습니다. 그러면`formica deploy -c stack.config.yaml`로 배포 할 수있는 변경 세트가 생성됩니다.
 
-Before deploying the stacks you should run `make diff` to get a diff on all stacks or `formica diff -c stack.config.yaml` in a stack directory to get a complete diff of the changes about to be deployed. ChangeSets and a Diff together provide a secure way of knowing what is about to change before deploying changes.
+스택을 배포하기 전에 'make diff'를 실행하여 모든 스택에 대한 차이를 가져 오거나 스택 디렉토리에서 'formica diff -c stack.config.yaml'을 실행하여 배포 될 변경 사항의 전체 차이를 가져와야합니다. ChangeSet과 Diff를 함께 사용하면 변경 사항을 배포하기 전에 변경 될 내용을 안전하게 파악할 수 있습니다.
 
 ## Stack Summaries:
 
-Following a short summary for each stack. For individual documentation on each stack please consult the `README.md` in each of the stack directories. 
+각 스택에 대한 간략한 요약을 따릅니다. 각 스택에 대한 개별 문서는 각 스택 디렉토리의`README.md`를 참조하십시오.
 
 * `01-auditing`: S3 Buckets and configuration to store CloudTrail, Config and FlowLogs data
 * `02-budget`: Account Budget with MaxBudget set and alerts sent to Account Email by default
@@ -16,6 +16,7 @@ Following a short summary for each stack. For individual documentation on each s
 
 ## Excluding Stacks
 
-If you want to exclude a Stack from the automated rollout add the directory name into the `Excluded` file. It has to be an exact match. Make sure to not add an empty line as it will interfere with grep. 
+자동 롤아웃에서 스택을 제외하려면 ʻExcluded` 파일에 디렉토리 이름을 추가하십시오.
+정확히 일치해야합니다. grep을 방해하므로 빈 줄을 추가하지 마십시오
 
-To check which directories are excluded run `make excluded`.
+제외 된 디렉토리를 확인하려면`make exclude '를 실행하십시오.

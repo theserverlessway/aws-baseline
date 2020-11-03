@@ -1,3 +1,5 @@
+
+{% set stacksetValidationAccessFrom = ['268875736166', '206924800932', '815637454826'] %}
 Resources:
   CrossAccountStackSetVerificationRole:
     Properties:

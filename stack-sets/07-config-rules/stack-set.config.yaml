@@ -1,8 +1,26 @@
 stack-set: config-rules
-all-accounts: true
+all-accounts: false
+accounts:
+  - 268875736166
+  - 206924800932
+  - 815637454826
 #all-regions: true
 excluded-regions:
   - eu-north-1
+  - us-west-2
+  - ap-south-1
+  - sa-east-1
+  - ap-southeast-1
+  - eu-central-1
+  - us-east-1
+  - ap-northeast-1
+  - eu-west-2
+  - ap-southeast-2
+  - eu-west-3
+  - ca-central-1
+  - us-east-2
+  - eu-west-1
+  - us-west-1
 main-account-parameter: true
 max-concurrent-percentage: 100
 organization-variables: false
@@ -22,7 +40,7 @@ capabilities:
   - CAPABILITY_IAM
 tags:
   ValidateAllAccounts: true
-  ValidateAllRegions: true
+  ValidateAllRegions: false
 parameters:
   GlobalConfigRegion: ap-northeast-2
 

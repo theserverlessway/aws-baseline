@@ -1,7 +1,21 @@
-{% set Roles = ['Admin', 'Developer', 'CloudFormationDeveloper', 'ReadOnly', 'SecurityAudit', 'Operations'] %}
-{% set AWSSubAccounts = [ {'Name': 'Management', 'Id': '234730403556'}, 
-                          { 'Name': 'Dev', 'Id':'091148180960' },
-                          { 'Name': 'Prod', 'Id':'887726187175' },
+{% set Roles = ['Admin', 
+                'Developer', 
+                'CloudFormationDeveloper', 
+                'ReadOnly', 
+                'SecurityAudit', 
+                'Operations',
+                'AwsViewOnly',
+                'AwsDataScientist',
+                'AwsPowerUser',
+                'AwsNetworkAdministrator',
+                'AwsDatabaseAdministrator',
+                'AwsSecurityAudit',
+                'AwsSupportUser',
+                'AwsSystemAdministrator'] %}
+
+{% set AWSSubAccounts = [ {'Name': 'Master', 'Id': '268875736166'}, 
+                          { 'Name': 'Dev', 'Id':'206924800932' },
+                          { 'Name': 'Prod', 'Id':'815637454826' },
                           ] %}
 
 Resources:

@@ -1,10 +1,13 @@
 stack-set: stack-set-execution-role
-execution-role-name: OrganizationAccountAccessRole
+execution-role-name: AdministratorAccessRole
 capabilities:
   - CAPABILITY_NAMED_IAM
 main-account-parameter: true
 max-concurrent-percentage: 100
-all-subaccounts: true
+#all-subaccounts: false
+accounts:
+  - 206924800932
+  - 815637454826
 regions:
   - ap-northeast-2
 region: ap-northeast-2
