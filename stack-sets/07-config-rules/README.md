@@ -1,13 +1,7 @@
 # Config Rules
 
-This StackSet deployes various and configurable Config Rules. Check the `stack-set.config.yaml` file for details on the `EnabledConfigRules` variable.
+이 StackSet은 다양하고 구성 가능한 구성 규칙을 배포합니다. ʻEnabledConfigRules' 변수에 대한 자세한 내용은 `stack-set.config.yaml` 파일을 확인하십시오.
 
-This variable is a map of AWS Managed Rule Names mapping to resource types. For every key a new Config Rule is created that is triggered by the specific resource configured. You can either provide a String or a List of Strings as values.
-
+이 변수는 리소스 유형에 매핑되는 AWS 관리 형 규칙 이름의 맵입니다. 모든 키에 대해 구성된 특정 리소스에 의해 트리거되는 새 구성 규칙이 생성됩니다. 문자열 또는 문자열 목록을 값으로 제공 할 수 있습니다.
 ## Disabled Regions
-
-In disabled regions we want to make sure that no resources are deployed. To achieve this
-the `FAIL_ALL_RESOURCES` Config rule is created that is listening to any resource changes
-and fails for all of them. A few exceptions are made for the resources necessary for auditing that region.
-
-This limits Validation to Resources supported by AWS Config, but is already a good indication that resources are created in a Region where they shouldn't be and the region might need further investigation.
+비활성화된 지역에서 리소스가 배포되지 않았는지 확인하는 FAIL_ALL_RESOURCES 규칙이 생성됩니다. 이는 비활성화된 리전에서 자원이 생성된 경우에 추가 조사가 필요한지 여부를 알려줄 수 있습니다. 

@@ -1,7 +1,7 @@
 stack: vpc
 stack-set: vpc
 vars:
-  AvailabilityZones: 3
+  AvailabilityZones: 2
 # Example Endpoints for deploying an ECS Cluster
   GatewayEndpoints:
     - s3
@@ -17,18 +17,24 @@ vars:
     - ssm
   AccountCIDR:
     268875736166:
+      "ap-northeast-2": 10.0.0.0/16
+    206924800932:
       "ap-northeast-2": 10.1.0.0/16
+    815637454826:
+      "ap-northeast-2": 10.2.0.0/16
 parameters:
   PrivateNatGateway: all
 all-subaccounts: false
 accounts:
   - 268875736166
+  - 206924800932
+  - 815637454826
 regions:
   - ap-northeast-2
 max-concurrent-percentage: 100
 tags:
   ValidateAllSubAccounts: 'true'
-  ValidateRegions: ap-northeast-2
+  ValidateRegions: 'true'
 capabilities:
   - CAPABILITY_IAM
 main-account-parameter: true
