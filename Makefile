@@ -58,8 +58,8 @@ build:
 rebuild-baseline:
 	docker-compose build --pull --no-cache aws-baseline
 
+toolbox: shell
 shell: build
-
 	docker-compose run aws-baseline bash
 
 
