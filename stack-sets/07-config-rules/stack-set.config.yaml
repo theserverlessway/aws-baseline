@@ -25,3 +25,5 @@ tags:
   ValidateAllRegions: true
 parameters:
   GlobalConfigRegion: ap-northeast-2
+
+# 참조: https://docs.aws.amazon.com/config/latest/developerguide/vpc-flow-logs-enabled.html
