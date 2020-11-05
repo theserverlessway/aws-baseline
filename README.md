@@ -31,16 +31,11 @@ Baseline에서 제공되는 기능은 다음과 같습니다
 
 `main-account-stacks` 폴더에는 먼저 중앙에서 Sub계정을 관리하는 Master 계정에 배포해야하는 CloudFormation 스택이 포함되어 있습니다. 기존 계정에 대한 역할과 그룹을 설정하고 다양한 감사 데이터를 저장하도록 S3 버킷을 구성합니다.
 
-The `stack-sets` folder contains StackSets that should be created in your main account and then deployed
-into your member accounts. For more information on the StackSets check out the README in the `stack-sets` folder.
-
 `stack-sets` 폴더에는 Sub 계정에서 배포되어야 하는 CloudFormation 스택을 Master 계정에서 StackSet을 이용하여 원격으로 Sub계정에 작업합니다. StackSets에 대한 자세한 내용은`stack-sets` 폴더의 README를 확인하세요.
 
 Various stacks are based on or derived from the wonderful [Widdix Templates](http://templates.cloudonaut.io/en/stable/). Check them out they do an amazing job!
 
 ## AWS Baseline Toolbox
-
-As the AWS Baseline needs a few different tools and dependencies to be set up the easiest way to get started is the toolbox that comes built-in. With `make shell` you can start a Docker Container that includes all necessary tools. It forwards all AWS Environment Variables you've set and make the `~/.aws` folder accessible in the toolbox. This means you can use all your AWS credentials the same way as outside of the container.
 
 AWS Baseline을 설정하기 위해서는 몇 가지 다른 Tool이 설치가 필요한데 작업 환경을 구성하는 가장 쉬운 방법은 기본 제공되는 Docker 환경을 이용하는 방법입니다.  `make shell`을 사용하면 필요한 모든 도구가 포함 된 Docker 컨테이너를 시작할 수 있습니다. 설정 한 모든 AWS 환경 변수를 전달하고 도구 상자에서`~ / .aws` 폴더에 액세스 할 수 있도록합니다. 즉, 컨테이너 외부와 동일한 방식으로 모든 AWS 자격 증명을 사용할 수 있습니다.
 
