@@ -13,4 +13,4 @@ regions:
 region: ap-northeast-2
 tags:
   ValidateAllSubAccounts: true
-  ValidateRegions: ap-northeast-2
+  ValidateRegions: true

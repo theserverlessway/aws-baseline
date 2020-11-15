@@ -13,9 +13,8 @@
                 'AwsSupportUser',
                 'AwsSystemAdministrator'] %}
 
-{% set AWSSubAccounts = [ {'Name': 'Master', 'Id': '268875736166'}, 
-                          { 'Name': 'Dev', 'Id':'206924800932' },
-                          { 'Name': 'Prod', 'Id':'815637454826' },
+{% set AWSSubAccounts = [ {'Name': 'Master', 'Id': '037729278610'}, 
+                          { 'Name': 'Sub1', 'Id':'751659651428' },
                           ] %}
 
 Resources:

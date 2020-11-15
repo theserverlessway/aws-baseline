@@ -1,4 +1,4 @@
-stack-set: assumable-roles
+stack-set: security-hub
 capabilities:
   - CAPABILITY_NAMED_IAM
 main-account-parameter: true
@@ -17,4 +17,4 @@ tags:
 #  DisabledIdentitiesServices:
 #    - iam
 parameters:
-  AllowedRegions: ap-northeast-2
+  MainAccount: 037729278610 

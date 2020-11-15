@@ -1,4 +1,4 @@
-{% set SubAccountIds = ['268875736166', '206924800932', '815637454826'] %}
+{% set SubAccountIds = ['037729278610', '751659651428'] %}
 Parameters:
   ConfigBucketPrefix:
     Type: String
