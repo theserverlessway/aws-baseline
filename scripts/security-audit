@@ -14,7 +14,7 @@ SECONDS=0
 
 while getopts "r:pmd:" opt; do
     case "$opt" in
-        r) AUDIT_ROLE='$OPTARG' ;;
+        r) AUDIT_ROLE="$OPTARG" ;;
         p) PARALLEL='TRUE' ;;
         d) ASSUME_DURATION="-d $OPTARG" ;;
         m) ASSUME_MFA="-m" ;;
