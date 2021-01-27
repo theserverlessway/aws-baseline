@@ -4,7 +4,7 @@
 Parameters:
   IAMPermissionBoundaryLimitation:
     Type: String
-    Default: false
+    Default: true
     AllowedValues: ['true', 'false']
     Description: Require all IAM Users and Roles that are created to have their PermissionsBoundary set to the CreatedIdentitiesPermissionsBoundary.
 

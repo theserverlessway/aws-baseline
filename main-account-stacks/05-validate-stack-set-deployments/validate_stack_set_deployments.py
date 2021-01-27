@@ -6,7 +6,6 @@ import os
 
 c = boto3.client('config')
 cf = boto3.client('cloudformation')
-org = boto3.client('organizations')
 sts = boto3.client('sts')
 ec2 = boto3.client('ec2')
 

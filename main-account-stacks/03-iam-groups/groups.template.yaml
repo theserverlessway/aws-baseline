@@ -135,7 +135,6 @@ Resources:
                       - iam:ListVirtualMFADevices
                       - iam:ResyncMFADevice
                       - sts:AssumeRole
-                      - organizations:ListAccounts
                       - iam:ListAccountAliases
                       - ce:GetCostAndUsage
                     Resource: "*"
