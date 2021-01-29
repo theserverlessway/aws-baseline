@@ -1,8 +1,8 @@
 stack-set: guardduty-main
 main-account: true
-all-regions: false
-excluded-regions:
-  - eu-north-1
+#all-regions: false
+regions:
+  - ap-northeast-2
 organization-variables: false
 max-concurrent-percentage: 100
 region: ap-northeast-2

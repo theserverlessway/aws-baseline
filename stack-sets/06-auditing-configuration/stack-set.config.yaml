@@ -5,9 +5,11 @@ capabilities:
 accounts:
   - 037729278610
   - 751659651428
-all-regions: false
-excluded-regions:
-  - eu-north-1
+#all-regions: false
+#excluded-regions:
+#  - eu-north-1
+regions:
+  - ap-northeast-2
 main-account-parameter: true
 max-concurrent-percentage: 100
 region: ap-northeast-2
